@@ -19,9 +19,9 @@ if (empty($token) || empty($email)) {
     // Look up the token
     $stmt = $pdo->prepare("
         SELECT id, email FROM email_verifications
-        WHERE token_hash = ? AND email = ? AND used = 0 AND expires_at > NOW()
+        WHERE token_hash = ? AND email = ? AND used = 0 AND expires_at > ?
     ");
-    $stmt->execute([hash('sha256', $token), $email]);
+    $stmt->execute([hash('sha256', $token), $email, date('Y-m-d H:i:s')]);
     $record = $stmt->fetch();
 
     if (!$record) {

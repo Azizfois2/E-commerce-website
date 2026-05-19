@@ -17,13 +17,14 @@ function enforceRateLimit(int $maxRequests = 60, int $windowSeconds = 60): void
         $windowExpiry = (clone $now)->modify("+{$windowSeconds} seconds")->format('Y-m-d H:i:s');
 
         // Clean up expired windows (lightweight, probabilistic — runs ~10% of requests)
+        $nowStr = $now->format('Y-m-d H:i:s');
         if (mt_rand(1, 10) === 1) {
-            $pdo->prepare("DELETE FROM api_rate_limits WHERE window_expires_at < NOW()")->execute();
+            $pdo->prepare("DELETE FROM api_rate_limits WHERE window_expires_at < ?")->execute([$nowStr]);
         }
 
         // Check if there's an active window for this IP + endpoint
-        $stmt = $pdo->prepare("SELECT id, request_count, window_expires_at FROM api_rate_limits WHERE ip_address = ? AND endpoint = ? AND window_expires_at > NOW() ORDER BY window_expires_at DESC LIMIT 1");
-        $stmt->execute([$ip, $endpoint]);
+        $stmt = $pdo->prepare("SELECT id, request_count, window_expires_at FROM api_rate_limits WHERE ip_address = ? AND endpoint = ? AND window_expires_at > ? ORDER BY window_expires_at DESC LIMIT 1");
+        $stmt->execute([$ip, $endpoint, $nowStr]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {

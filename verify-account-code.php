@@ -21,10 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo = db();
         $stmt = $pdo->prepare("
             SELECT id, token_hash FROM email_verifications
-            WHERE email = ? AND used = 0 AND expires_at > NOW()
+            WHERE email = ? AND used = 0 AND expires_at > ?
             ORDER BY created_at DESC LIMIT 1
         ");
-        $stmt->execute([$email]);
+        $stmt->execute([$email, date('Y-m-d H:i:s')]);
         $record = $stmt->fetch();
 
         if (!$record || !password_verify($code, $record['token_hash'])) {
