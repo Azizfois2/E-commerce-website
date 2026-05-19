@@ -1,13 +1,1201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css"> 
+    <title>Maroc PC | Engineering-Grade Hardware</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&family=Syne:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="assets/css/auth-nav.css">
+    <link rel="stylesheet" href="assets/css/flash-sales.css">
+    <link rel="stylesheet" href="assets/css/builder.css">
+    <link rel="stylesheet" href="assets/css/light-mode-industrial.css">
+    <style id="maroc-hero-images">
+      /* Resolve from this document URL (e.g. /Test/index.html → /Test/gpu.png). Not from assets/css/. */
+      .hero-bg {
+        background-image:
+          radial-gradient(circle, rgba(0,0,0,0.75) 20%, transparent 70%),
+          url('gpu.png') !important;
+        background-size: cover !important;
+        background-position: center !important;
+      }
+      html[data-theme="light"] .hero-bg {
+        background-image:
+          radial-gradient(circle at 50% 45%, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.25) 55%, transparent 80%),
+          url('gup-light.png') !important;
+      }
+    </style>
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
 </head>
+<script src="assets/js/wishlist.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/products.js"></script>
+
 <body>
-    <script src="app.js"></script>
-    <h1>Hello it is new branch!</h1>
+
+    <header>
+        <span class="myDIV">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+
+            <!-- Logo -->
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Maroc PC Logo" class="nav-logo">
+            </a>
+
+            <!-- Nav links -->
+            <nav class="nav">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="products.html" class="nav-link">Components</a>
+                <div class="nav-dropdown">
+                    <button class="nav-link dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                        Builder Tools <span class="chevron">▾</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="builder.php" class="dropdown-item">PC Build Wizard</a>
+                        <a href="builder.php?tab=gaming-finder" class="dropdown-item">Gaming PC Finder</a>
+                        <a href="laptop-finder.php" class="dropdown-item">Laptop Finder</a>
+                        <a href="builder.php?tab=psu-calculator" class="dropdown-item">Power Supply Calculator</a>
+                        <a href="builder.php?tab=memory-finder" class="dropdown-item">Memory Finder</a>
+                        <a href="tools.php" class="dropdown-item">Tools Cockpit</a>
+                    </div>
+                </div>
+                <a href="#deals" class="nav-link">Deals</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+
+            <!-- Search -->
+            <form class="search-box" role="search">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon-inside"></i>
+                    <input type="text" placeholder="Search components..." class="search-input"
+                        aria-label="Search products">
+                </div>
+            </form>
+
+            <div class="nav-spacer" aria-hidden="true"></div>
+
+            <!-- Theme toggle -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <i class="fas fa-sun icon-sun"></i>
+                <i class="fas fa-moon icon-moon"></i>
+            </button>
+            <div id="google_translate_element" class="nav-translate"></div>
+
+
+            <!-- User icon -->
+            <div class="cart-wrapper" id="userNav">
+                <a href="login.html" class="cart-icon" aria-label="Account">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+
+            <!-- Cart icon -->
+            <div class="cart-wrapper">
+                <a href="cart.html" class="cart-icon" aria-label="Shopping cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+            </div>
+        </span>
+
+
+
+        <!-- Modal de sélection du rôle -->
+        <div id="roleModal" class="role-modal-overlay" style="display:none;">
+            <div class="role-modal">
+                <p class="role-modal-title">Continue as</p>
+                <p class="role-modal-subtitle">Choose your access level to proceed.</p>
+                <button class="role-btn" onclick="selectRole('user')">
+                    <span class="role-icon user-icon">👤</span>
+                    <div>
+                        <strong>Continue as user</strong>
+                        <small>Standard access</small>
+                    </div>
+                </button>
+
+                <button class="role-btn" onclick="selectRole('administrator')">
+                    <span class="role-icon admin-icon">🛡️</span>
+                    <div>
+                        <strong>Continue as administrator</strong>
+                        <small>Full access</small>
+                    </div>
+                </button>
+
+                <button class="role-cancel" onclick="closeRoleModal()">Cancel</button>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+    </header>
+
+
+    <main>
+
+        <!-- HERO -->
+        <section class="hero animate-on-scroll">
+            <div class="hero-bg">
+                <h1><span class="effet-nadi">Real Hardware. Delivered Fast</span></h1>
+                <p id="Lktba">Premium CPUs, GPUs, and peripherals. <br>
+                    Engineering-grade performance for creators, gamers, and overclockers
+                    who demand the best from every component.</p>
+                <br>
+                <nav class="hero-buttons">
+                    <a href="products.html" class="btn btn-primary">Shop Now</a>
+                    <a href="#categories" class="btn btn-secondary">Browse Categories</a>
+                </nav>
+
+                <!-- HERO STATS — fixed semantic structure with icons -->
+                <div class="hero-stats">
+                    <div class="hero-stat-card">
+                        <i class="fas fa-shield-check hero-stat-icon"></i>
+                        <strong class="hero-stat-title">Authenticity Guaranteed</strong>
+                        <p class="hero-stat-desc">100% genuine products from official brands.</p>
+                    </div>
+                    <div class="hero-stat-card">
+                        <i class="fas fa-truck-fast hero-stat-icon"></i>
+                        <strong class="hero-stat-title">Fast National Shipping</strong>
+                        <p class="hero-stat-desc">Secure delivery to every city in Morocco.</p>
+                    </div>
+                    <div class="hero-stat-card">
+                        <i class="fas fa-tags hero-stat-icon"></i>
+                        <strong class="hero-stat-title">Price Match</strong>
+                        <p class="hero-stat-desc">The best value for high-end hardware.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TICKER -->
+        <div class="ticker-wrapper" aria-hidden="true">
+            <div class="ticker-fade ticker-fade-left"></div>
+            <div class="ticker-fade ticker-fade-right"></div>
+            <div class="ticker-track">
+                <div class="ticker-item">PRICE MATCH • FREE SHIPPING • SECURE PAYMENTS • BITCOIN ACCEPTED • 24/7 SUPPORT
+                    • 2-YEAR WARRANTY • NO TAX •</div>
+                <div class="ticker-item" aria-hidden="true">PRICE MATCH • FREE SHIPPING • SECURE PAYMENTS • BITCOIN
+                    ACCEPTED • 24/7 SUPPORT • 2-YEAR WARRANTY • NO TAX •</div>
+            </div>
+        </div>
+
+        <!-- SLEEK LAPTOP FINDER PROMO & OUTCOME PORTFOLIO -->
+        <section class="laptop-promo animate-on-scroll" style="background: linear-gradient(135deg, rgba(0,245,212,0.05) 0%, rgba(255,107,53,0.03) 100%); padding: 60px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+            <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
+                <header style="text-align: center; margin-bottom: 40px;">
+                    <span class="featured-tag" style="background: var(--cyan); color: var(--page-bg); padding: 4px 10px; border-radius: 4px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">NEW LAUNCH</span>
+                    <h2 style="font-family: 'Orbitron', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-top: 12px; margin-bottom: 8px;">Pre-Built Lifestyle Curations</h2>
+                    <p style="color: var(--muted); font-size: 1.05rem;">Skip the manual builder. Surface elite outcome-mapped laptops verified by engineering experts.</p>
+                </header>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                    <!-- 1. The Road Warrior -->
+                    <div style="background: var(--page-bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; transition: all 0.25s;" onmouseover="this.style.borderColor='var(--cyan)';" onmouseout="this.style.borderColor='var(--border)';">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="font-family: 'Space Mono', monospace; font-size: 0.75rem; background: var(--cyan-glow); color: var(--cyan); padding: 2px 8px; border-radius: 4px; font-weight: bold;">PORTABLE ULTRA</span>
+                            <i class="fas fa-plane" style="color: var(--cyan); font-size: 1.2rem;"></i>
+                        </div>
+                        <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: var(--white);">The Road Warrior</h3>
+                        <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.5; flex-grow: 1; margin-bottom: 20px;">Designed for maximum mobility. Weights under 1.5kg, incredible battery capacity (60Wh+), and premium OLED visual clarity.</p>
+                        <a href="laptop-finder.php?use=business&portability=ultralight" class="btn btn-outline" style="text-align: center; display: block; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: bold;">Explore Curation</a>
+                    </div>
+
+                    <!-- 2. The Desktop Replacement -->
+                    <div style="background: var(--page-bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; transition: all 0.25s;" onmouseover="this.style.borderColor='var(--orange)';" onmouseout="this.style.borderColor='var(--border)';">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="font-family: 'Space Mono', monospace; font-size: 0.75rem; background: var(--orange-glow); color: var(--orange); padding: 2px 8px; border-radius: 4px; font-weight: bold;">EXTREME PERFORMANCE</span>
+                            <i class="fas fa-fire" style="color: var(--orange); font-size: 1.2rem;"></i>
+                        </div>
+                        <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: var(--white);">The Desktop Replacement</h3>
+                        <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.5; flex-grow: 1; margin-bottom: 20px;">Maximum horsepower. Loaded with dedicated RTX graphics, extreme refresh rate screens, and robust active thermal cooling blocks.</p>
+                        <a href="laptop-finder.php?use=gaming&portability=desktop_replacement" class="btn btn-outline" style="text-align: center; display: block; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: bold;">Explore Curation</a>
+                    </div>
+
+                    <!-- 3. The Value Student -->
+                    <div style="background: var(--page-bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; transition: all 0.25s;" onmouseover="this.style.borderColor='#9d4edd';" onmouseout="this.style.borderColor='var(--border)';">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="font-family: 'Space Mono', monospace; font-size: 0.75rem; background: rgba(157,78,221,0.1); color: #9d4edd; padding: 2px 8px; border-radius: 4px; font-weight: bold;">HIGH VALUE</span>
+                            <i class="fas fa-graduation-cap" style="color: #9d4edd; font-size: 1.2rem;"></i>
+                        </div>
+                        <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: var(--white);">The Value Student</h3>
+                        <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.5; flex-grow: 1; margin-bottom: 20px;">Exceptional value ratios. Long battery runtimes, high-clarity IPS screens, and fast multi-thread processing cores at budget prices.</p>
+                        <a href="laptop-finder.php?use=student&portability=any" class="btn btn-outline" style="text-align: center; display: block; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: bold;">Explore Curation</a>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="laptop-finder.php" class="btn btn-primary" style="font-family: 'Orbitron', sans-serif; font-weight: bold; letter-spacing: 1px;"><i class="fas fa-laptop"></i> OPEN CURATED FINDER COCKPIT</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURED PRODUCT -->
+        <section class="featured animate-on-scroll" id="featured">
+            <div class="featured-inner">
+                <div>
+                    <div class="featured-tag">⚡ Deal of the Month</div>
+                    <h2>Intel Core i9<br>14900KS</h2>
+                    <p>The world's fastest desktop processor. 24 cores, 32 threads, 6.2 GHz max boost.
+                        Engineered for extreme multitasking and content creation without compromise.</p>
+
+                    <div class="featured-specs">
+                        <div class="spec-item">
+                            <div class="spec-key">Cores / Threads</div>
+                            <div class="spec-val">24C / 32T</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-key">Max Boost</div>
+                            <div class="spec-val">6.2 GHz</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-key">TDP</div>
+                            <div class="spec-val">125W (253W PL2)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-key">Cache</div>
+                            <div class="spec-val">36MB L3</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-key">Socket</div>
+                            <div class="spec-val">LGA1700</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-key">Memory Support</div>
+                            <div class="spec-val">DDR5-5600</div>
+                        </div>
+                    </div>
+
+                    <div class="featured-ctas">
+                        <div id="featuredHeroCta">
+                            <script>
+                                document.addEventListener('DOMContentLoaded', () => {
+                                    const heroProduct = products.find(p => p.id === 4);
+                                    const ctaContainer = document.getElementById('featuredHeroCta');
+                                    if (heroProduct && heroProduct.inStock) {
+                                        ctaContainer.innerHTML = `<button class="btn-primary" onclick="Cart.add(products.find(p => p.id === 4))">ADD TO CART — 5,499.90 MAD</button>`;
+                                    } else {
+                                        ctaContainer.innerHTML = `<button class="btn-secondary notify-restock-btn" style="padding: 12px 24px; border-radius: 8px; font-weight: bold;" data-id="4" data-name="Intel Core i9-14900K"><i class="fas fa-bell"></i> Notify Me When Available</button>`;
+                                        
+                                        // Bind event logic specifically for this dynamic button
+                                        setTimeout(() => {
+                                            const btn = ctaContainer.querySelector('.notify-restock-btn');
+                                            if (btn) {
+                                                btn.addEventListener('click', () => {
+                                                    const email = prompt('Notify me when "Intel Core i9-14900K" is back in stock:\n\nPlease enter your email address:');
+                                                    if (email && email.trim() !== '') {
+                                                        fetch('api/restock-notify.php', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ product_id: 4, email: email.trim() })
+                                                        }).then(res => res.json()).then(data => {
+                                                            if (typeof showToast !== 'undefined') showToast(data.success ? data.message : (data.error || 'Failed to subscribe'), data.success ? 'success' : 'error');
+                                                            else alert(data.success ? data.message : (data.error || 'Failed to subscribe'));
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }, 100);
+                                    }
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="featured-visual">
+                    <div class="featured-glow"></div>
+                    <div class="featured-img-box">
+                        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:80%">
+                            <rect x="40" y="40" width="120" height="120" rx="6" fill="#0c0d10" stroke="#1e2229"
+                                stroke-width="2" />
+                            <rect x="55" y="55" width="90" height="90" rx="3" fill="#13151a" stroke="#ff6b35"
+                                stroke-width="0.8" />
+                            <rect x="70" y="70" width="60" height="60" rx="2" fill="#0c0d10" stroke="#ff6b35"
+                                stroke-width="0.5" opacity="0.6" />
+                            <rect x="82" y="82" width="36" height="36" rx="2" fill="#ff6b35" opacity="0.15" />
+                            <text x="100" y="102" text-anchor="middle" font-family="monospace" font-size="7"
+                                fill="#ff6b35">i9-14900KS</text>
+                            <text x="100" y="112" text-anchor="middle" font-family="monospace" font-size="5"
+                                fill="#5a6170">INTEL CORE</text>
+                            <g fill="#ff6b35" opacity="0.5">
+                                <rect x="48" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="54" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="60" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="66" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="72" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="78" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="84" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="90" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="96" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="102" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="108" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="114" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="120" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="126" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="132" y="35" width="2" height="8" rx="0.5" />
+                                <rect x="48" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="54" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="60" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="66" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="72" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="78" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="84" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="90" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="96" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="102" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="108" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="114" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="120" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="126" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="132" y="157" width="2" height="8" rx="0.5" />
+                                <rect x="35" y="48" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="54" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="60" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="66" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="72" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="78" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="84" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="90" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="96" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="102" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="108" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="114" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="120" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="126" width="8" height="2" rx="0.5" />
+                                <rect x="35" y="132" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="48" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="54" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="60" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="66" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="72" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="78" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="84" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="90" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="96" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="102" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="108" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="114" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="120" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="126" width="8" height="2" rx="0.5" />
+                                <rect x="157" y="132" width="8" height="2" rx="0.5" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAYMENT BANNER -->
+        <section class="payment-banner animate-on-scroll" aria-label="Payment methods">
+            <h2 class="text-center">We Accept</h2>
+            <ul class="payment-methods">
+                <li class="payment-icon" title="Visa"><i class="fab fa-cc-visa"></i></li>
+                <li class="payment-icon" title="Mastercard"><i class="fab fa-cc-mastercard"></i></li>
+                <li class="payment-icon" title="PayPal"><i class="fab fa-cc-paypal"></i></li>
+                <li class="payment-icon" title="Bitcoin"><i class="fab fa-bitcoin"></i></li>
+                <li class="payment-icon" title="Apple Pay"><i class="fab fa-apple-pay"></i></li>
+                <li class="payment-icon" title="Google Pay"><i class="fab fa-google-pay"></i></li>
+            </ul>
+            <p class="text-center">Secure checkout with SSL encryption</p>
+        </section>
+
+        <!-- CATEGORIES -->
+        <section class="categories animate-on-scroll" id="categories">
+            <header>
+                <h2 class="text-center">Shop by Category</h2>
+                <p class="text-center">Find exactly what you need from our extensive collection</p>
+            </header>
+
+            <nav class="category-grid">
+                <a href="products.html?category=processors" class="category-card">
+                    <i class="fas fa-microchip category-icon"></i>
+                    <h3>Processors</h3>
+                    <p>Intel & AMD CPUs</p>
+                    <small>150+ Products</small>
+                </a>
+                <a href="products.html?category=graphics" class="category-card">
+                    <i class="fas fa-gamepad category-icon"></i>
+                    <h3>Graphics Cards</h3>
+                    <p>NVIDIA & AMD GPUs</p>
+                    <small>80+ Products</small>
+                </a>
+                <a href="products.html?category=memory" class="category-card">
+                    <i class="fas fa-memory category-icon"></i>
+                    <h3>Memory (RAM)</h3>
+                    <p>DDR4 & DDR5 Modules</p>
+                    <small>200+ Products</small>
+                </a>
+                <a href="products.html?category=storage" class="category-card">
+                    <i class="fas fa-hdd category-icon"></i>
+                    <h3>Storage</h3>
+                    <p>SSD & HDD Drives</p>
+                    <small>120+ Products</small>
+                </a>
+                <a href="products.html?category=motherboard" class="category-card">
+                    <i class="fas fa-diagram-project category-icon"></i>
+                    <h3>Motherboards</h3>
+                    <p>Gaming & Workstation</p>
+                    <small>6 Products</small>
+                </a>
+                <a href="products.html?category=cooling" class="category-card">
+                    <i class="fas fa-fan category-icon"></i>
+                    <h3>Cooling Solutions</h3>
+                    <p>Air & Liquid Cooling</p>
+                    <small>75+ Products</small>
+                </a>
+                <a href="products.html?category=power" class="category-card">
+                    <i class="fas fa-bolt category-icon"></i>
+                    <h3>Power Supplies</h3>
+                    <p>80+ Certified PSUs</p>
+                    <small>60+ Products</small>
+                </a>
+                <a href="products.html?category=cases" class="category-card">
+                    <i class="fas fa-server category-icon"></i>
+                    <h3>PC Cases</h3>
+                    <p>Gaming & Office Cases</p>
+                    <small>100+ Products</small>
+                </a>
+                <a href="products.html?category=monitor" class="category-card">
+                    <i class="fas fa-display category-icon"></i>
+                    <h3>Monitors</h3>
+                    <p>Gaming & Professional</p>
+                    <small>30+ Products</small>
+                </a>
+                <a href="products.html?category=accessories" class="category-card">
+                    <i class="fas fa-toolbox category-icon"></i>
+                    <h3>Accessories</h3>
+                    <p>Build essentials</p>
+                    <small>10 Products</small>
+                </a>
+            </nav>
+        </section>
+
+        <!-- FEATURED PRODUCTS -->
+        <section class="featured-products animate-on-scroll" id="products">
+            <header>
+                <h2 class="text-center">Featured Products</h2>
+                <p class="text-center">Hand-picked top sellers and new arrivals</p>
+            </header>
+
+            <!-- Skeleton loaders shown while JS loads products -->
+            <ul class="products-grid" id="skeletonGrid" aria-hidden="true">
+                <li class="skeleton-card">
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                </li>
+                <li class="skeleton-card">
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                </li>
+                <li class="skeleton-card">
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                </li>
+                <li class="skeleton-card">
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                </li>
+            </ul>
+
+            <ul class="products-grid hidden" id="featuredProducts">
+                <!-- Products loaded via JavaScript -->
+            </ul>
+            <footer>
+                <a href="products.html" class="btn btn-outline">View All Products</a>
+            </footer>
+        </section>
+        
+        <!-- TESTIMONIALS -->
+        <section class="testimonials-section animate-on-scroll">
+            <header>
+                <h2 class="text-center">Trusted by Gamers</h2>
+                <p class="text-center">See what our community has to say about their Maroc PC experience</p>
+            </header>
+
+            <div class="testimonials-track">
+                <div class="testimonials-group">
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">KA</div>
+                            <div class="user-info">
+                                <h4>Karim A.</h4>
+                                <span>Verified Customer</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"The PC Builder is a game changer! Saved me hours of research and everything was perfectly compatible."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">SM</div>
+                            <div class="user-info">
+                                <h4>Sarah M.</h4>
+                                <span>Content Creator</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Fast shipping and perfect cable management. My editing rig looks professional and runs like a dream."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">YT</div>
+                            <div class="user-info">
+                                <h4>Yassine T.</h4>
+                                <span>Hardcore Gamer</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Maroc PC is the only place I trust for my GPU upgrades. Genuine products and competitive prices."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">LB</div>
+                            <div class="user-info">
+                                <h4>Lina B.</h4>
+                                <span>IT Specialist</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="testimonial-text">"The support team helped me choose the right PSU for my power-hungry setup. Very professional service."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">MK</div>
+                            <div class="user-info">
+                                <h4>Mehdi K.</h4>
+                                <span>Software Engineer</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Ordered a full set of components. Everything arrived well-packaged and the delivery was ahead of schedule."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">SR</div>
+                            <div class="user-info">
+                                <h4>Sofia R.</h4>
+                                <span>E-sports Pro</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Best gaming store in Morocco. Period. The after-sales service is just as good as the sales."</p>
+                    </article>
+                </div>
+                <!-- Duplicate for seamless scroll -->
+                <div class="testimonials-group" aria-hidden="true">
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">KA</div>
+                            <div class="user-info">
+                                <h4>Karim A.</h4>
+                                <span>Verified Customer</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"The PC Builder is a game changer! Saved me hours of research and everything was perfectly compatible."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">SM</div>
+                            <div class="user-info">
+                                <h4>Sarah M.</h4>
+                                <span>Content Creator</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Fast shipping and perfect cable management. My editing rig looks professional and runs like a dream."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">YT</div>
+                            <div class="user-info">
+                                <h4>Yassine T.</h4>
+                                <span>Hardcore Gamer</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Maroc PC is the only place I trust for my GPU upgrades. Genuine products and competitive prices."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">LB</div>
+                            <div class="user-info">
+                                <h4>Lina B.</h4>
+                                <span>IT Specialist</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="testimonial-text">"The support team helped me choose the right PSU for my power-hungry setup. Very professional service."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">MK</div>
+                            <div class="user-info">
+                                <h4>Mehdi K.</h4>
+                                <span>Software Engineer</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Ordered a full set of components. Everything arrived well-packaged and the delivery was ahead of schedule."</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <div class="testimonial-user">
+                            <div class="user-avatar">SR</div>
+                            <div class="user-info">
+                                <h4>Sofia R.</h4>
+                                <span>E-sports Pro</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Best gaming store in Morocco. Period. The after-sales service is just as good as the sales."</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- DEALS -->
+        <section class="deals-section animate-on-scroll" id="deals" aria-label="Special deals">
+            <mark class="deals-badge">Limited Time Offer</mark>
+            <h2 id="titre">Up to 40% Off on Selected Items</h2>
+            <p>Don't miss out on incredible savings on processors, graphics cards, and more. Offer ends soon!</p>
+
+            <!-- Flip-card countdown timer -->
+            <div class="deals-timer" aria-label="Countdown timer">
+                <div class="flip-unit">
+                    <div class="flip-card" id="days-flip">
+                        <span class="flip-top" id="days">02</span>
+                    </div>
+                    <small class="sghir">Days</small>
+                </div>
+                <div class="flip-unit">
+                    <div class="flip-card" id="hours-flip">
+                        <span class="flip-top" id="hours">18</span>
+                    </div>
+                    <small class="sghir">Hours</small>
+                </div>
+                <div class="flip-unit">
+                    <div class="flip-card" id="minutes-flip">
+                        <span class="flip-top" id="minutes">45</span>
+                    </div>
+                    <small class="sghir">Minutes</small>
+                </div>
+                <div class="flip-unit">
+                    <div class="flip-card" id="seconds-flip">
+                        <span class="flip-top" id="seconds">30</span>
+                    </div>
+                    <small class="sghir">Seconds</small>
+                </div>
+            </div>
+
+            <a href="products.html?sale=true" class="btn btn-primary"
+                style="display:inline-block; margin-top: 10px;">Shop Deals</a>
+
+            <aside class="deals-image" aria-hidden="true">
+                <strong class="deal-badge-large">-40%</strong>
+            </aside>
+        </section>
+
+        <!-- WHY CHOOSE -->
+        <section class="why-choose animate-on-scroll">
+            <header>
+                <h2 class="text-center">Why Choose Maroc PC?</h2>
+                <p class="text-center">We're committed to providing the best shopping experience</p>
+            </header>
+
+            <ul class="features-grid">
+                <li class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <h3>Free Shipping</h3>
+                    <p>Free shipping on all orders over 1000 MAD. Fast and reliable delivery worldwide.</p>
+                </li>
+                <li class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Secure Payments</h3>
+                    <p>Multiple payment options including credit cards, PayPal, and cryptocurrency.</p>
+                </li>
+                <li class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-undo"></i></div>
+                    <h3>Easy Returns</h3>
+                    <p>30-day return policy. No questions asked if you're not satisfied.</p>
+                </li>
+                <li class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <h3>24/7 Support</h3>
+                    <p>Our expert team is always here to help with any questions or issues.</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- NEWSLETTER -->
+        <section class="newsletter animate-on-scroll">
+            <h2 class="text-center">Subscribe to Our Newsletter</h2>
+            <p class="text-center">Get the latest deals, new product alerts, and exclusive offers delivered to your
+                inbox.</p>
+            <div class="newsletter-form" id="newsletterForm">
+                <input type="email" placeholder="Enter your email address" required aria-label="Email address">
+                <button type="button">Subscribe</button>
+            </div>
+        </section>
+
+    </main>
+
+    <button class="button-nadi" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- FOOTER -->
+    <footer id="contact" class="animate-on-scroll">
+        <section class="footer-column">
+            <a href="index.html" class="footer-logo">
+                <i class="fas fa-microchip"></i>
+                <span>MarocPC</span>
+            </a>
+            <p>Your trusted source for premium computer hardware. Building dreams, one component at a time.</p>
+            <nav class="social-links" aria-label="Social media">
+                <a href="https://www.facebook.com/profile.php?id=61589634966821" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://x.com/Maroc_PC_PHP" target="_blank" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://www.instagram.com/marocpc57" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.youtube.com/channel/UCUsNULLfizuDROl04RESTtw" target="_blank" aria-label="YouTube"><i
+                        class="fab fa-youtube"></i></a>
+            </nav>
+        </section>
+
+        <section class="footer-column">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="index.html" class="smitek">Home</a></li>
+                <li><a href="products.html" class="smitek">Products</a></li>
+                <li><a href="builder.php" class="smitek">Builder</a></li>
+                <li><a href="#categories" class="smitek">Categories</a></li>
+                <li><a href="#deals" class="smitek">Deals</a></li>
+            </ul>
+        </section>
+
+        <section class="footer-column">
+            <h4>Customer Service</h4>
+            <ul>
+                <li><a href="account.php?tab=orders" class="smitek">Track Order</a></li>
+                <li><a href="returns-refunds.php" class="smitek">Returns & Refunds</a></li>
+                <li><a href="shipping-info.php" class="smitek">Shipping Info</a></li>
+                <li><a href="faq.php" class="smitek">FAQ</a></li>
+            </ul>
+        </section>
+
+        <section class="footer-column">
+            <h4>Contact Us</h4>
+            <address>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> 123 Boulevard Zerktouni, Maarif</li>
+                    <li><i class="fas fa-phone"></i> <a href="tel:+212 618821949" class="smitek">+212 618821949</a></li>
+                    <li><i class="fas fa-envelope"></i> <a href="mailto:support@marocpc.com"
+                            class="smitek">support@marocpc.com</a></li>
+                </ul>
+            </address>
+        </section>
+
+        <small>&copy; 2026 Maroc PC. All rights reserved.</small>
+
+        <nav class="footer-links" aria-label="Legal links">
+            <a href="privacy-policy.php">Privacy Policy</a>
+            <a href="terms-of-service.php">Terms of Service</a>
+            <a href="cookie-policy.php">Cookie Policy</a>
+        </nav>
+    </footer>
+
+    <!-- MODAL -->
+    <dialog class="modal" id="quickViewModal">
+        <button class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+        <article id="quickViewContent"></article>
+    </dialog>
+
+    <!-- TOAST -->
+    <output class="toast" id="toast" role="status" aria-live="polite">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Item added to cart!</span>
+    </output>
+
+    <!-- AI Assistant -->
+    <div id="ai-terminal" class="ai-terminal hidden">
+        <div class="ai-header">
+            <span><i class="fas fa-robot"></i> SYSTEM_ASSISTANT v1.0</span>
+            <button id="close-ai">&times;</button>
+        </div>
+        <div class="ai-messages" id="ai-messages">
+            <div class="bot-msg">System initialized. How can I assist your build today?</div>
+        </div>
+        <div class="ai-input-area">
+            <textarea id="ai-input" placeholder="Query hardware specs..." rows="3"></textarea>
+        </div>
+    </div>
+
+    <button id="open-ai" class="ai-trigger" aria-label="Open AI assistant">
+        <i class="fas fa-terminal"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar Panel -->
+    <nav class="sidebar" id="sidebar" aria-label="Mobile navigation">
+        <div class="sidebar-header">
+            <!-- FIX 1: wrap img in <a> with correct class, or just use the text logo like the CSS expects -->
+            <a href="index.html" class="sidebar-logo-link">
+                <i class="fas fa-microchip"></i> Maroc PC
+            </a>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- FIX 2: match the CSS structure — plain input + button, no extra wrapper -->
+        <div class="sidebar-search">
+            <input type="text" placeholder="Search components..." aria-label="Search products" />
+            <button aria-label="Search">
+                <i class="fas fa-search" style="color:#000;"></i>
+            </button>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="index.html" class="sidebar-link active"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="products.html" class="sidebar-link"><i class="fas fa-box"></i> Products</a></li>
+            <li class="sidebar-dropdown">
+                <button class="sidebar-link sidebar-toggle-btn" aria-expanded="false">
+                    <i class="fas fa-tools"></i>
+                    Builder Tools
+                    <i class="fas fa-chevron-down chevron"></i>
+                </button>
+                <ul class="sidebar-submenu">
+                    <li><a href="builder.php" class="sidebar-sublink">PC Build Wizard</a></li>
+                    <li><a href="builder.php?tab=gaming-finder" class="sidebar-sublink">Gaming PC Finder</a></li>
+                    <li><a href="laptop-finder.php" class="sidebar-sublink">Laptop Finder</a></li>
+                    <li><a href="builder.php?tab=psu-calculator" class="sidebar-sublink">Power Supply Calculator</a></li>
+                    <li><a href="builder.php?tab=memory-finder" class="sidebar-sublink">Memory Finder</a></li>
+                </ul>
+            </li>
+            <!-- FIX 3: dropdown needs CSS (see below) + JS toggle on click -->
+            <li class="sidebar-dropdown">
+                <button class="sidebar-link sidebar-toggle-btn" aria-expanded="false">
+                    <i class="fas fa-th"></i>
+                    Categories
+                    <!-- FIX 4: chevron needs margin-left:auto to push right -->
+                    <i class="fas fa-chevron-down chevron"></i>
+                </button>
+                <ul class="sidebar-submenu">
+                    <li><a href="products.html?category=processors" class="sidebar-sublink">Processors</a></li>
+                    <li><a href="products.html?category=graphics" class="sidebar-sublink">Graphics Cards</a></li>
+                    <li><a href="products.html?category=memory" class="sidebar-sublink">Memory (RAM)</a></li>
+                    <li><a href="products.html?category=storage" class="sidebar-sublink">Storage</a></li>
+                    <li><a href="products.html?category=motherboard" class="sidebar-sublink">Motherboards</a></li>
+                    <li><a href="products.html?category=cooling" class="sidebar-sublink">Cooling</a></li>
+                    <li><a href="products.html?category=power" class="sidebar-sublink">Power Supplies</a></li>
+                    <li><a href="products.html?category=cases" class="sidebar-sublink">PC Cases</a></li>
+                    <li><a href="products.html?category=accessories" class="sidebar-sublink">Accessories</a></li>
+                </ul>
+            </li>
+
+            <a href="#deals" class="sidebar-link"><i class="fas fa-percent"></i> Special Deals</a>
+            <a href="account.php" class="sidebar-link"><i class="fas fa-user-circle"></i> My Account</a>
+            <li>
+                <a href="cart.html" class="sidebar-link">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                    <span class="sidebar-cart-badge" id="sidebarCartCount">0</span>
+                </a>
+            </li>
+            <li><a href="#contact" class="sidebar-link"><i class="fas fa-envelope"></i> Contact</a></li>
+        </ul>
+    </nav>
+
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/translate.js"></script>
+    <script src="assets/js/script.js"></script>
+    <script src="assets/js/auth-nav.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/typing.js"></script>
+    <script>
+        // Ouvre le modal au clic sur le compte
+        document.querySelector('a[aria-label="Account"]').addEventListener('click', function (e) {
+            e.preventDefault(); // empêche la navigation vers login.html directement
+            document.getElementById('roleModal').style.display = 'flex';
+        });
+
+        function selectRole(role) {
+            closeRoleModal();
+
+            if (role === 'user') {
+                window.location.href = 'login.php';
+            } else if (role === 'administrator') {
+                window.location.href = 'adminlogin.php';
+            }
+        }
+
+        // ── Search Redirection Logic ─────────────────────────────────
+        const desktopSearchForm = document.querySelector('.search-box');
+        if (desktopSearchForm) {
+            desktopSearchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = desktopSearchForm.querySelector('input');
+                if (input && input.value.trim()) {
+                    window.location.href = `products.html?search=${encodeURIComponent(input.value.trim())}`;
+                }
+            });
+        }
+
+        const mobileSearchInput = document.querySelector('.sidebar-search input');
+        const mobileSearchBtn = document.querySelector('.sidebar-search button');
+        if (mobileSearchInput && mobileSearchBtn) {
+            const executeMobileSearch = () => {
+                if (mobileSearchInput.value.trim()) {
+                    window.location.href = `products.html?search=${encodeURIComponent(mobileSearchInput.value.trim())}`;
+                }
+            };
+            mobileSearchBtn.addEventListener('click', executeMobileSearch);
+            mobileSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    executeMobileSearch();
+                }
+            });
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').style.display = 'none';
+        }
+
+        // Fermer en cliquant sur l'overlay
+        document.getElementById('roleModal').addEventListener('click', function (e) {
+            if (e.target === this) closeRoleModal();
+        });
+
+        // ── Newsletter subscription handler ──────────────────────
+        (function () {
+            const form = document.getElementById('newsletterForm');
+            if (!form) return;
+            const input = form.querySelector('input[type="email"]');
+            const btn = form.querySelector('button');
+
+            btn.addEventListener('click', async () => {
+                const email = input.value.trim();
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showToast('Please enter a valid email address.', 'error');
+                    input.focus();
+                    return;
+                }
+
+                // Loading state
+                const origText = btn.textContent;
+                btn.textContent = 'Subscribing...';
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+
+                try {
+                    const res = await fetch('api/subscribe.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        showToast(data.message || 'Subscribed successfully!', 'success');
+                        input.value = '';
+                    } else {
+                        showToast(data.message || 'Subscription failed.', 'error');
+                    }
+                } catch (err) {
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    btn.textContent = origText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+            });
+
+            // Also submit on Enter key
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+
+            // Toast helper (uses existing toast element)
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toastMessage');
+                const icon = toast.querySelector('i');
+                if (toast && toastMsg) {
+                    toastMsg.textContent = message;
+                    if (icon) {
+                        icon.className = type === 'success'
+                            ? 'fas fa-check-circle'
+                            : 'fas fa-exclamation-circle';
+                    }
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 4000);
+                }
+            }
+        })();
+
+        // ── Theme toggle removed (handled via theme.js) ─────────
+
+
+
+
+        // ── Theme toggle removed (handled via theme.js) ─────────
+
+        // ── Scroll-to-top button visibility ───────────────────────
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollTop');
+            btn.style.opacity = window.scrollY > 300 ? '1' : '0';
+            btn.style.pointerEvents = window.scrollY > 300 ? 'auto' : 'none';
+        });
+
+        // ── Sidebar open / close ──────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            hamburgerBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            document.querySelectorAll('.sidebar-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const parent = btn.closest('.sidebar-dropdown');
+                    const isOpen = parent.classList.contains('open');
+                    document.querySelectorAll('.sidebar-dropdown.open').forEach(d => d.classList.remove('open'));
+                    if (!isOpen) parent.classList.add('open');
+                });
+            });
+
+            // ── Skeleton → real products handoff ─────────────────
+            // Reveal products grid once JS populates it
+            const skeleton = document.getElementById('skeletonGrid');
+            const grid = document.getElementById('featuredProducts');
+
+            function revealProducts() {
+                if (grid && grid.children.length > 0) {
+                    skeleton.classList.add('hidden');
+                    grid.classList.remove('hidden');
+                } else {
+                    setTimeout(revealProducts, 100);
+                }
+            }
+            revealProducts();
+
+            // ── Flip countdown timer (fallback for when no flash sales are active) ──
+            // flash-sales.js will override this with real end-date if API has data
+            if (!window._flashSalesLoaded) {
+                const deadline = new Date();
+                deadline.setDate(deadline.getDate() + 2);
+                deadline.setHours(deadline.getHours() + 18);
+                deadline.setMinutes(deadline.getMinutes() + 45);
+
+                function animateFlipFallback(el) {
+                    el.classList.add('flip-animate');
+                    setTimeout(() => el.classList.remove('flip-animate'), 400);
+                }
+
+                function updateTimerFallback() {
+                    const now = new Date();
+                    const diff = Math.max(0, deadline - now);
+
+                    const d = Math.floor(diff / 86400000);
+                    const h = Math.floor((diff % 86400000) / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+
+                    const pad = n => String(n).padStart(2, '0');
+
+                    const dEl = document.getElementById('days');
+                    const hEl = document.getElementById('hours');
+                    const mEl = document.getElementById('minutes');
+                    const sEl = document.getElementById('seconds');
+
+                    if (dEl && dEl.textContent !== pad(d)) { dEl.textContent = pad(d); animateFlipFallback(dEl.parentElement); }
+                    if (hEl && hEl.textContent !== pad(h)) { hEl.textContent = pad(h); animateFlipFallback(hEl.parentElement); }
+                    if (mEl && mEl.textContent !== pad(m)) { mEl.textContent = pad(m); animateFlipFallback(mEl.parentElement); }
+                    if (sEl) { sEl.textContent = pad(s); animateFlipFallback(sEl.parentElement); }
+                }
+
+                updateTimerFallback();
+                window._fallbackTimer = setInterval(updateTimerFallback, 1000);
+            }
+
+        });
+    </script>
+
+
+    <script src="assets/js/price-chart.js"></script>
+    <script src="assets/js/prod.js"></script>
+    <script src="assets/js/flash-sales.js"></script>
+
 </body>
+
 </html>

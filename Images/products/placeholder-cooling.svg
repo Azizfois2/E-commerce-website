@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Cooling product placeholder">
+  <rect width="320" height="240" rx="24" fill="#0b0f14"/>
+  <circle cx="160" cy="116" r="70" fill="#121a22" stroke="#00f5d4" stroke-width="4"/>
+  <circle cx="160" cy="116" r="18" fill="#00f5d4"/>
+  <g fill="#17232d" stroke="#2de2c5" stroke-width="2">
+    <path d="M160 98c28-46 66-22 40 10-16 20-36 18-40-10Z"/>
+    <path d="M178 116c46 28 22 66-10 40-20-16-18-36 10-40Z"/>
+    <path d="M160 134c-28 46-66 22-40-10 16-20 36-18 40 10Z"/>
+    <path d="M142 116c-46-28-22-66 10-40 20 16 18 36-10 40Z"/>
+  </g>
+  <text x="160" y="211" text-anchor="middle" fill="#e9fbf8" font-family="Arial, sans-serif" font-size="20" font-weight="700">COOLING</text>
+</svg>

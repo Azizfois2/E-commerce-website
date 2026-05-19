@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an Account — Maroc PC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/signup.css">
+	<link rel="stylesheet" href="assets/css/light-mode-industrial.css">
+</head>
+    <!-- Confirmation Modal -->
+    <div class="confirm-overlay" id="confirmOverlay"></div>
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-header">
+            <h4>Confirm Your Details</h4>
+            <button type="button" class="confirm-close" id="confirmClose">✕</button>
+        </div>
+        <div class="confirm-body">
+            <p class="confirm-subtitle">Please review your information before creating your account.</p>
+            
+            <ul class="confirm-list">
+                <li>
+                    <span class="confirm-label">Full Name</span>
+                    <span class="confirm-value" id="cf-name">—</span>
+                </li>
+                <li>
+                    <span class="confirm-label">Email</span>
+                    <span class="confirm-value" id="cf-email">—</span>
+                </li>
+                <li>
+                    <span class="confirm-label">Password</span>
+                    <span class="confirm-value" id="cf-pass">—</span>
+                </li>
+                <li>
+                    <span class="confirm-label">Birth Date</span>
+                    <span class="confirm-value" id="cf-dob">—</span>
+                </li>
+                <li>
+                    <span class="confirm-label">Payment</span>
+                    <span class="confirm-value" id="cf-mp">—</span>
+                </li>
+            </ul>
+        </div>
+        <div class="confirm-actions">
+            <button type="button" class="btn-secondary" id="confirmEdit">← Edit</button>
+            <button type="button" class="Bou" id="confirmSubmit">Create Account →</button>
+        </div>
+    </div>
+<body>
+    
+
+    <a href="index.html" class="back-link">← Back to Store</a>
+
+    <div class="container">
+        <div class="hero-side">
+            <img src="signup.png" alt="Gaming setup workspace">
+            <div class="hero-overlay">
+                <h2>Join the Elite</h2>
+                <p>Unlock exclusive builds, track orders, and get member-only pricing.</p>
+            </div>
+        </div>
+
+        <div class="inscription">
+            <form name="signup" method="post" action="signup.php" novalidate>
+                <h3 id="myH3">Create Account</h3>
+                <p class="subtitle">Start your journey with Maroc PC</p>
+
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" name="fullname" id="fullname" class="hh" placeholder="Youssef Aziz" required>
+                    <span class="error-msg" id="err-name">Please enter your full name</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" name="email" id="email" class="hh" placeholder="youssef@example.com" required>
+                    <span class="error-msg" id="err-email">Please enter a valid email</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="pass">Password</label>
+                    <div class="password-wrap">
+                        <input type="password" name="pass" id="pass" class="hh" placeholder="••••••••" required minlength="8">
+                        <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password">👁</button>
+                    </div>
+                    <span class="hint">At least 8 characters with a number and symbol</span>
+                    <span class="error-msg" id="err-pass">Password is too weak</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="dob">Birth Date</label>
+                    <input type="date" name="dob" id="dob" class="hh" required>
+                    <span class="error-msg" id="err-dob">Required</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Preference</label>
+                    <div class="radio-group">
+                        <label class="radio-card">
+                            <input type="radio" name="mp" value="master_card" id="master_card" required>
+                            <span class="radio-check"></span>
+                            <span class="radio-label">Mastercard</span>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="mp" value="carte_visa" id="carte_visa" required>
+                            <span class="radio-check"></span>
+                            <span class="radio-label">Visa</span>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="mp" value="vmt_elec" id="vmt_elec" required>
+                            <span class="radio-check"></span>
+                            <span class="radio-label">Bank Transfer</span>
+                        </label>
+                    </div>
+                    <span class="error-msg" id="err-mp">Select a payment method</span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="Bou">Create Account</button>
+                </div>
+
+                <p class="login-link">Already have an account? <a href="login.php">Sign in</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/form.js" defer></script>
+</body>
+</html>

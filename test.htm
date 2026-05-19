@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechGear — Product Image Downloader</title>
+<style>
+  :root {
+    --bg: #050505;
+    --card: #0d0f13;
+    --border: #1a1d24;
+    --cyan: #00ffcc;
+    --orange: #ff6b00;
+    --purple: #b06aff;
+    --text: #e6ebf5;
+    --muted: #6b7280;
+    --green: #00e676;
+    --red: #ff4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  h1 {
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .subtitle { color: var(--muted); font-size: 0.8rem; margin-bottom: 2rem; }
+
+  .controls {
+    display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+    align-items: center;
+  }
+  button {
+    background: var(--cyan); color: #000; border: none;
+    padding: 0.6rem 1.4rem; font-family: inherit; font-size: 0.8rem;
+    font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  button:hover { background: #00cc99; }
+  button.secondary {
+    background: transparent; color: var(--cyan);
+    border: 1px solid var(--cyan);
+  }
+  button.secondary:hover { background: rgba(0,255,204,0.08); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .progress-bar-wrap {
+    background: var(--border); height: 4px; border-radius: 2px;
+    margin-bottom: 2rem; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background: var(--cyan);
+    transition: width 0.4s ease; width: 0%;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    position: relative;
+  }
+  .card-img {
+    width: 100%; height: 160px; object-fit: cover;
+    background: #0a0b0e; display: block; margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+  }
+  .card-img.error { opacity: 0.2; filter: grayscale(1); }
+  .card-name { font-size: 0.78rem; color: var(--text); margin-bottom: 0.3rem; font-weight: 700; }
+  .card-filename {
+    font-size: 0.68rem; color: var(--muted);
+    margin-bottom: 0.6rem; word-break: break-all;
+  }
+  .card-source {
+    font-size: 0.65rem; padding: 0.2rem 0.5rem;
+    display: inline-block; margin-bottom: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .src-picsum { background: rgba(0,255,204,0.1); color: var(--cyan); border: 1px solid var(--cyan); }
+  .src-wikimedia { background: rgba(176,106,255,0.1); color: var(--purple); border: 1px solid var(--purple); }
+
+  .status {
+    font-size: 0.72rem; padding: 0.25rem 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .status.pending  { color: var(--muted); }
+  .status.loading  { color: var(--orange); }
+  .status.ok       { color: var(--green); }
+  .status.fail     { color: var(--red); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-pending  { background: var(--muted); }
+  .dot-loading  { background: var(--orange); animation: pulse 1s infinite; }
+  .dot-ok       { background: var(--green); }
+  .dot-fail     { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .dl-btn {
+    display: block; width: 100%; margin-top: 0.6rem;
+    background: rgba(0,255,204,0.07); color: var(--cyan);
+    border: 1px solid rgba(0,255,204,0.3);
+    padding: 0.45rem; font-family: inherit; font-size: 0.72rem;
+    text-align: center; cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.08em; transition: all 0.2s;
+  }
+  .dl-btn:hover { background: rgba(0,255,204,0.15); }
+  .dl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .log {
+    margin-top: 2rem;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 1rem; font-size: 0.72rem; line-height: 1.8;
+    max-height: 200px; overflow-y: auto; color: var(--muted);
+  }
+  .log .ok   { color: var(--green); }
+  .log .fail { color: var(--red); }
+  .log .info { color: var(--cyan); }
+
+  .summary {
+    margin-top: 1rem; font-size: 0.78rem; color: var(--muted);
+  }
+  .summary span { color: var(--cyan); font-weight: 700; }
+
+  .instructions {
+    background: rgba(0,255,204,0.04); border: 1px solid rgba(0,255,204,0.15);
+    padding: 1rem; margin-bottom: 2rem; font-size: 0.75rem;
+    line-height: 1.7; color: var(--muted);
+  }
+  .instructions strong { color: var(--cyan); }
+  code {
+    background: #111; padding: 0.1rem 0.4rem;
+    color: var(--orange); font-family: inherit;
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<h1>⬇ TechGear Image Downloader</h1>
+<p class="subtitle">Downloads all 14 product images and saves them to your images/products/ folder</p>
+
+<div class="instructions">
+  <strong>How to use:</strong><br>
+  1. Open this file from your project root (so relative paths work)<br>
+  2. Click <strong>Download All Images</strong> — each image fetches and saves automatically<br>
+  3. Images save to <code>images/products/filename.png</code> in your downloads folder<br>
+  4. Move them into your project at <code>images/products/</code><br>
+  <br>
+  <strong>Note:</strong> Browsers may ask permission or batch-block multiple downloads.
+  Use the individual <strong>↓ Save</strong> buttons if that happens.
+</div>
+
+<div class="controls">
+  <button id="btnAll">⬇ Download All Images</button>
+  <button class="secondary" id="btnCheck">✓ Test URLs First</button>
+  <span class="summary" id="summary">14 images · 0 downloaded</span>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="log" id="log"><span class="info">// Ready. Click "Test URLs First" or "Download All Images".</span></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  IMAGE DATA — 14 TechGear products
+// ═══════════════════════════════════════════════════
+const IMAGES = [
+  { name: "Wireless Headphones X1", filename: "headphones-x1.png", url: "https://picsum.photos/seed/headphones-x1/400/300", source: "picsum" },
+  { name: "Mechanical Keyboard Pro", filename: "keyboard-pro.png", url: "https://picsum.photos/seed/keyboard-pro/400/300", source: "picsum" },
+  { name: "UltraWide Monitor 34", filename: "monitor-34.png", url: "https://picsum.photos/seed/monitor-34/400/300", source: "picsum" },
+  { name: "Gaming Mouse RGB", filename: "mouse-rgb.png", url: "https://picsum.photos/seed/mouse-rgb/400/300", source: "picsum" },
+  { name: "USB-C Dock Station", filename: "dock-station.png", url: "https://picsum.photos/seed/dock-station/400/300", source: "picsum" },
+  { name: "Webcam 4K Stream", filename: "webcam-4k.png", url: "https://picsum.photos/seed/webcam-4k/400/300", source: "picsum" },
+  { name: "Portable SSD 1TB", filename: "ssd-1tb.png", url: "https://picsum.photos/seed/ssd-1tb/400/300", source: "picsum" },
+  { name: "Smart Watch Series 5", filename: "smartwatch-s5.png", url: "https://picsum.photos/seed/smartwatch-s5/400/300", source: "picsum" },
+  { name: "Noise Cancelling Buds", filename: "buds-nc.png", url: "https://picsum.photos/seed/buds-nc/400/300", source: "picsum" },
+  { name: "Drawing Tablet Pro", filename: "tablet-pro.png", url: "https://picsum.photos/seed/tablet-pro/400/300", source: "picsum" },
+  { name: "Router AX6000", filename: "router-ax6000.png", url: "https://picsum.photos/seed/router-ax6000/400/300", source: "picsum" },
+  { name: "Chair ErgoMesh", filename: "chair-ergo.png", url: "https://picsum.photos/seed/chair-ergo/400/300", source: "picsum" },
+  { name: "Desk Lamp LED", filename: "lamp-led.png", url: "https://picsum.photos/seed/lamp-led/400/300", source: "picsum" },
+  { name: "Cable Organizer", filename: "cable-org.png", url: "https://picsum.photos/seed/cable-org/400/300", source: "picsum" }
+];
+
+// ═══════════════════════════════════════════════════
+//  CORS PROXY CONFIGURATION
+// ═══════════════════════════════════════════════════
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+];
+
+// ── State ───────────────────────────────────────────
+let downloaded = 0;
+const statuses = {};
+IMAGES.forEach(img => statuses[img.filename] = 'pending');
+
+// ── Get proxied URL for fetching ────────────────────
+function getProxiedUrl(url, proxyIndex = 0) {
+  return PROXIES[proxyIndex](url);
+}
+
+// ── Fetch with timeout + proxy fallback ─────────────
+async function fetchWithFallback(url, timeout = 8000) {
+  // Try direct fetch first (works if server sends CORS headers)
+  // Then try each proxy in sequence
+  const attempts = [
+    { type: 'direct', fn: (signal) => fetch(url, { signal }) },
+    { type: 'proxy1', fn: (signal) => fetch(getProxiedUrl(url, 0), { signal }) },
+    { type: 'proxy2', fn: (signal) => fetch(getProxiedUrl(url, 1), { signal }) }
+  ];
+
+  for (const attempt of attempts) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const res = await attempt.fn(controller.signal);
+      clearTimeout(id);
+
+      if (res && res.ok) {
+        return res;
+      }
+    } catch (err) {
+      clearTimeout(id);
+      // Continue to next attempt
+    }
+  }
+
+  throw new Error('All sources failed for: ' + url);
+}
+
+// ── Build UI ────────────────────────────────────────
+const grid = document.getElementById('grid');
+
+IMAGES.forEach(img => {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const sourceClass = img.source === 'wikimedia' ? 'src-wikimedia' : 'src-picsum';
+  const sourceLabel = img.source === 'wikimedia' ? 'Wikimedia' : 'Picsum';
+
+  // Don't load image immediately — wait for user action to avoid CORS pre-load errors
+  card.innerHTML = `
+    <img class="card-img" id="img-${img.filename}"
+         data-src="${img.url}"
+         alt="${img.name}"
+         style="display:none;" />
+    <div class="card-img-placeholder" id="placeholder-${img.filename}" 
+         style="width:100%;height:160px;background:#0a0b0e;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.7rem;margin-bottom:0.75rem;">
+      Click "Test URLs" to preview
+    </div>
+
+    <div class="card-name">${img.name}</div>
+    <div class="card-filename">${img.filename}</div>
+    <div class="card-source ${sourceClass}">${sourceLabel}</div>
+
+    <div class="status pending" id="status-${img.filename}">
+      <div class="dot dot-pending"></div>
+      <span>Pending</span>
+    </div>
+
+    <button class="dl-btn" id="dl-${img.filename}">
+      ↓ Save ${img.filename}
+    </button>
+  `;
+
+  grid.appendChild(card);
+
+  document
+    .getElementById(`dl-${img.filename}`)
+    .addEventListener('click', () => downloadOne(img.filename));
+});
+
+// ── Load image preview ──────────────────────────────
+async function loadPreview(filename) {
+  const img = IMAGES.find(i => i.filename === filename);
+  const imgEl = document.getElementById(`img-${filename}`);
+  const placeholder = document.getElementById(`placeholder-${filename}`);
+
+  try {
+    const res = await fetchWithFallback(img.url);
+    const blob = await res.blob();
+    const urlBlob = URL.createObjectURL(blob);
+
+    imgEl.src = urlBlob;
+    imgEl.style.display = 'block';
+    imgEl.onload = () => {
+      placeholder.style.display = 'none';
+    };
+    imgEl.onerror = () => {
+      imgEl.classList.add('error');
+      placeholder.textContent = 'Failed to load image';
+    };
+  } catch (err) {
+    placeholder.textContent = 'Failed to load preview';
+    imgEl.classList.add('error');
+  }
+}
+
+// ── Status ──────────────────────────────────────────
+function setStatus(filename, state, text) {
+  statuses[filename] = state;
+  const el = document.getElementById('status-' + filename);
+
+  el.className = 'status ' + state;
+  el.innerHTML = `<div class="dot dot-${state}"></div><span>${text}</span>`;
+}
+
+// ── Log ─────────────────────────────────────────────
+function log(msg, type = '') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = type;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── Progress ────────────────────────────────────────
+function updateProgress() {
+  const done = Object.values(statuses)
+    .filter(s => s === 'ok' || s === 'fail').length;
+
+  const pct = (done / IMAGES.length) * 100;
+
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('summary').innerHTML =
+    `<span>${IMAGES.length}</span> images · <span>${downloaded}</span> downloaded`;
+}
+
+// ── Download one ────────────────────────────────────
+async function downloadOne(filename) {
+  const img = IMAGES.find(i => i.filename === filename);
+  const btn = document.getElementById('dl-' + filename);
+
+  btn.disabled = true;
+  setStatus(filename, 'loading', 'Fetching…');
+  log(`⬇ ${filename}`);
+
+  try {
+    const res = await fetchWithFallback(img.url);
+    const blob = await res.blob();
+
+    const urlBlob = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = urlBlob;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(urlBlob), 3000);
+
+    downloaded++;
+    setStatus(filename, 'ok', '✓ Saved');
+    log(`✓ ${filename}`, 'ok');
+
+  } catch (err) {
+    setStatus(filename, 'fail', '✗ Failed');
+    log(`✗ ${filename} — ${err.message}`, 'fail');
+    btn.disabled = false;
+  }
+
+  updateProgress();
+}
+
+// ── Test URLs ───────────────────────────────────────
+async function testAll() {
+  document.getElementById('btnCheck').disabled = true;
+  log('// Testing URLs…', 'info');
+
+  for (const img of IMAGES) {
+    setStatus(img.filename, 'loading', 'Testing…');
+
+    try {
+      await fetchWithFallback(img.url);
+      setStatus(img.filename, 'ok', '✓ Reachable');
+      log(`✓ ${img.filename}`, 'ok');
+      // Load preview after successful test
+      await loadPreview(img.filename);
+    } catch (err) {
+      setStatus(img.filename, 'fail', '✗ Blocked');
+      log(`✗ ${img.filename} — ${err.message}`, 'fail');
+    }
+  }
+
+  document.getElementById('btnCheck').disabled = false;
+}
+
+// ── Download all ────────────────────────────────────
+async function downloadAll() {
+  document.getElementById('btnAll').disabled = true;
+  log('// Downloading all…', 'info');
+
+  for (const img of IMAGES) {
+    await downloadOne(img.filename);
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  log('// Done.', 'info');
+  document.getElementById('btnAll').disabled = false;
+}
+
+// ── Bind buttons ────────────────────────────────────
+document.getElementById('btnAll').onclick = downloadAll;
+document.getElementById('btnCheck').onclick = testAll;
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+/* ============================================
+   LOGIN-SPECIFIC STYLES
+   ============================================ */
+
+.login-container {
+  max-width: 980px;
+}
+
+/* Options row: remember me + forgot */
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Custom checkbox */
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text);
+  user-select: none;
+}
+
+.remember-label input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.check-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--muted);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.check-box::after {
+  content: '✓';
+  font-size: 12px;
+  color: #000;
+  font-weight: 800;
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.remember-label input:checked + .check-box {
+  background: var(--cyan);
+  border-color: var(--cyan);
+}
+
+.remember-label input:checked + .check-box::after {
+  transform: scale(1);
+}
+
+.remember-text {
+  transition: color 0.2s;
+}
+
+.remember-label:hover .remember-text {
+  color: var(--white);
+}
+
+/* Forgot password link */
+.forgot-link {
+  font-size: 0.875rem;
+  color: var(--cyan);
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+}
+
+.forgot-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--cyan);
+  transition: width 0.3s ease;
+}
+
+.forgot-link:hover::after {
+  width: 100%;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--page-bg-3);
+  border: 1px solid var(--cyan);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--white);
+  font-size: 0.9rem;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 16px var(--cyan-glow);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast i {
+  color: var(--cyan);
+  font-style: normal;
+}
+
+/* Shake keyframes (if not already defined) */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+form.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Responsive tweaks for login */
+@media (max-width: 900px) {
+  .login-container {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

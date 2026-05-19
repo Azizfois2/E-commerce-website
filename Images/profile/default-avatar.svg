@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Default profile avatar</title>
+  <desc id="desc">A geometric user avatar for Maroc PC accounts.</desc>
+  <defs>
+    <linearGradient id="bg" x1="36" y1="28" x2="210" y2="218" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00f5d4"/>
+      <stop offset="0.54" stop-color="#0ea5a8"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="58" y1="56" x2="182" y2="186" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e6fffb"/>
+      <stop offset="1" stop-color="#9ca3af"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="44" fill="#0b0c10"/>
+  <rect x="12" y="12" width="216" height="216" rx="36" fill="url(#bg)" opacity=".9"/>
+  <path d="M55 178c9-30 33-48 65-48s56 18 65 48c2 8-4 16-12 16H67c-8 0-14-8-12-16Z" fill="#081116" opacity=".84"/>
+  <circle cx="120" cy="92" r="38" fill="#081116" opacity=".84"/>
+  <path d="M71 55h98c9 0 16 7 16 16v98c0 9-7 16-16 16H71c-9 0-16-7-16-16V71c0-9 7-16 16-16Zm8 17c-4 0-7 3-7 7v82c0 4 3 7 7 7h82c4 0 7-3 7-7V79c0-4-3-7-7-7H79Z" fill="url(#chip)" opacity=".16"/>
+  <path d="M120 30v18M120 192v18M30 120h18M192 120h18M64 41l13 13M176 186l13 13M176 54l13-13M64 199l13-13" stroke="#e6fffb" stroke-width="6" stroke-linecap="round" opacity=".48"/>
+</svg>

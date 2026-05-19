@@ -1,0 +1,353 @@
+/* ═══════════════════════════════════════════
+   INSTALLMENT (TAKSIT) — Styles
+   ═══════════════════════════════════════════ */
+
+/* ── Badge on product cards ─────────────────── */
+.installment-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(0, 245, 212, 0.06);
+    border: 1px solid rgba(0, 245, 212, 0.15);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim, #94a3b8);
+    margin-top: 8px;
+    transition: all 0.2s ease;
+}
+
+.installment-badge:hover {
+    background: rgba(0, 245, 212, 0.1);
+    border-color: rgba(0, 245, 212, 0.3);
+}
+
+.installment-badge i {
+    color: var(--cyan, #00f5d4);
+    font-size: 0.8rem;
+}
+
+.installment-badge strong {
+    color: var(--cyan, #00f5d4);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+
+/* ── Interactive widget ──────────────────────── */
+.installment-widget {
+    background: var(--card-bg, #1a1d24);
+    border: 1px solid var(--border, #2a2e38);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.installment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text, #e0e6ed);
+    margin-bottom: 16px;
+}
+
+.installment-header i {
+    color: var(--cyan, #00f5d4);
+}
+
+/* ── Plan buttons ────────────────────────────── */
+.installment-plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.installment-plan-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 4px;
+    border: 1px solid var(--border, #2a2e38);
+    border-radius: 12px;
+    background: var(--input-bg, #14161c);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.installment-plan-btn:hover {
+    border-color: rgba(0, 245, 212, 0.3);
+    background: rgba(0, 245, 212, 0.04);
+}
+
+.installment-plan-btn.active {
+    border-color: var(--cyan, #00f5d4);
+    background: rgba(0, 245, 212, 0.08);
+    box-shadow: 0 0 0 1px rgba(0, 245, 212, 0.15);
+}
+
+.plan-months {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text, #e0e6ed);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.installment-plan-btn.active .plan-months {
+    color: var(--cyan, #00f5d4);
+}
+
+.plan-amount {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted, #6b7280);
+    white-space: nowrap;
+}
+
+.installment-plan-btn.active .plan-amount {
+    color: var(--text, #e0e6ed);
+}
+
+/* ── Detail rows ─────────────────────────────── */
+.installment-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.installment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--muted, #6b7280);
+    padding: 4px 0;
+}
+
+.installment-row span:last-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim, #94a3b8);
+}
+
+.installment-total {
+    border-top: 1px solid var(--border, #2a2e38);
+    padding-top: 10px;
+    margin-top: 4px;
+    font-weight: 700;
+}
+
+.installment-total span:last-child {
+    color: var(--text, #e0e6ed);
+}
+
+/* ── Monthly highlight ───────────────────────── */
+.installment-monthly-highlight {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    padding: 14px;
+    margin-top: 8px;
+    background: rgba(0, 245, 212, 0.06);
+    border: 1px solid rgba(0, 245, 212, 0.18);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.installment-monthly-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--cyan, #00f5d4);
+}
+
+.installment-monthly-label {
+    font-size: 0.82rem;
+    color: var(--muted, #6b7280);
+}
+
+/* ═══════════════════════════════════════════
+   COMPARISON ARENA — Enhanced Styles
+   ═══════════════════════════════════════════ */
+
+/* ── Spec progress bars ──────────────────────── */
+.spec-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.spec-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--input-bg, #14161c);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.spec-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--cyan, #00f5d4);
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 2px;
+}
+
+.spec-bar-fill.winner {
+    background: linear-gradient(90deg, #00f5d4, #00e676);
+    box-shadow: 0 0 8px rgba(0, 245, 212, 0.3);
+}
+
+.spec-bar-fill.loser {
+    background: var(--muted, #6b7280);
+    opacity: 0.5;
+}
+
+.spec-bar-value {
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim, #94a3b8);
+    white-space: nowrap;
+    min-width: 50px;
+}
+
+/* ── Winner badge ────────────────────────────── */
+.winner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: rgba(0, 245, 212, 0.1);
+    border: 1px solid rgba(0, 245, 212, 0.25);
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--cyan, #00f5d4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    animation: badgePulse 0.4s ease;
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── "Best For" tags ─────────────────────────── */
+.best-for-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+}
+
+.best-for-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid;
+    animation: fadeSlideUp 0.3s ease forwards;
+}
+
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.best-for-tag.gaming {
+    background: rgba(138, 43, 226, 0.08);
+    border-color: rgba(138, 43, 226, 0.25);
+    color: #a855f7;
+}
+
+.best-for-tag.value {
+    background: rgba(0, 230, 118, 0.08);
+    border-color: rgba(0, 230, 118, 0.25);
+    color: #00e676;
+}
+
+.best-for-tag.creator {
+    background: rgba(0, 150, 255, 0.08);
+    border-color: rgba(0, 150, 255, 0.25);
+    color: #38bdf8;
+}
+
+.best-for-tag.efficiency {
+    background: rgba(255, 193, 7, 0.08);
+    border-color: rgba(255, 193, 7, 0.25);
+    color: #ffcf4d;
+}
+
+/* ── Compare table enhancements ──────────────── */
+.compare-table td.is-winner {
+    position: relative;
+}
+
+.compare-table td.is-winner::after {
+    content: '★';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.65rem;
+    color: var(--cyan, #00f5d4);
+}
+
+.compare-table .section-row td {
+    padding: 10px 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cyan, #00f5d4);
+    background: rgba(0, 245, 212, 0.04);
+    border-bottom: 1px solid rgba(0, 245, 212, 0.12);
+}
+
+/* ── Share comparison button ─────────────────── */
+.compare-share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--input-bg, #14161c);
+    border: 1px solid var(--border, #2a2e38);
+    border-radius: 10px;
+    color: var(--text, #e0e6ed);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Syne', sans-serif;
+    margin-top: 12px;
+}
+
+.compare-share-btn:hover {
+    border-color: var(--cyan, #00f5d4);
+    color: var(--cyan, #00f5d4);
+}
+
+.compare-share-btn i {
+    font-size: 0.85rem;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 600px) {
+    .installment-plans {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .installment-monthly-value {
+        font-size: 1.2rem;
+    }
+}

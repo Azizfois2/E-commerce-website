@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Storage product placeholder">
+  <rect width="320" height="240" rx="24" fill="#0b0f14"/>
+  <rect x="54" y="84" width="212" height="78" rx="16" fill="#121a22" stroke="#00f5d4" stroke-width="4"/>
+  <rect x="82" y="106" width="96" height="34" rx="8" fill="#17232d" stroke="#2de2c5" stroke-width="2"/>
+  <circle cx="222" cy="123" r="14" fill="#00f5d4"/>
+  <rect x="68" y="162" width="184" height="12" rx="6" fill="#273440"/>
+  <text x="130" y="129" text-anchor="middle" fill="#e9fbf8" font-family="Arial, sans-serif" font-size="18" font-weight="700">SSD</text>
+</svg>

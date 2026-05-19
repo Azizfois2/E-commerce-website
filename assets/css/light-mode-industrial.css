@@ -1,0 +1,2734 @@
+/* ============================================
+   INDUSTRIAL HIGH-KEY LIGHT MODE
+   "Brushed Aluminum / Engineering Precision"
+   ============================================ */
+
+/* ── 1. DESIGN TOKENS ─────────────────────────────────── */
+[data-theme="light"] {
+
+  /* Surfaces — bead-blasted aluminium stack */
+  --page-bg:   #EAECF0;   /* Cool aluminium base */
+  --page-bg-2: #F2F4F7;   /* Primary surface */
+  --page-bg-3: #F8F9FB;   /* Elevated surface */
+  --page-bg-4: #FFFFFF;   /* Pure white — used sparingly */
+
+  /* Brand accents — surgical precision, not decoration */
+  --cyan:      #007A6E;   /* Muted industrial teal */
+  --cyan-dim:  #005E55;   /* Pressed state */
+  --cyan-glow: rgba(0, 122, 110, 0.10);
+
+  --orange:    #D95F0A;   /* Safety orange — alerts & deals only */
+  --orange-glow: rgba(217, 95, 10, 0.10);
+
+  /* Typography — high-contrast charcoal hierarchy */
+  --white:  #0F172A;      /* Primary text (slate-900) */
+  --text:   #334155;      /* Body text (slate-700) */
+  --muted:  #64748B;      /* Tertiary / labels (slate-500) */
+
+  /* Borders — blueprint schematic lines */
+  --border:      rgba(15, 23, 42, 0.10);   /* Default: 1px structural line */
+  --border-cyan: rgba(0, 122, 110, 0.22);  /* Active / focus ring */
+
+  /* Component surfaces */
+  --card-bg:       rgba(255, 255, 255, 0.55);  /* Frosted aluminium */
+  --card-bg-hover: rgba(255, 255, 255, 0.90);  /* Lifted panel */
+  --nav-bg:        rgba(242, 244, 247, 0.96);
+  --spec-bg:       #FFFFFF;
+  --spec-border:   #CBD5E1;   /* Slate-300 — blueprint grid color */
+
+  /* Status */
+  --red:   #B91C1C;
+  --green: #15803D;
+
+  /* Blueprint grid overlay intensity */
+  --grid-line: rgba(100, 116, 139, 0.08);
+}
+
+/* ── 2. BODY & GLOBAL ─────────────────────────────────── */
+
+[data-theme="light"] body {
+  background:
+    /* Blueprint schematic grid */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      var(--grid-line) 39px,
+      var(--grid-line) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      var(--grid-line) 39px,
+      var(--grid-line) 40px
+    ),
+    /* Very subtle warm-to-cool vertical gradient */
+    linear-gradient(160deg, #E8EBF0 0%, #EEF0F4 40%, #E4E8EF 100%);
+  background-attachment: fixed;
+}
+
+/* ── 3. NAVBAR ─────────────────────────────────────────── */
+
+[data-theme="light"] .myDIV {
+  background: rgba(242, 244, 247, 0.94);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--spec-border);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .nav-logo {
+  mix-blend-mode: normal;
+  filter: brightness(0) saturate(100%);  /* Force logo to black — maximum contrast */
+}
+
+[data-theme="light"] .nav-link {
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  border-radius: 2px;   /* Industrial: near-sharp corners */
+}
+
+[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .nav-link.active {
+  color: var(--page-bg-4);
+  background: var(--cyan);
+  border-radius: 2px;
+}
+
+/* ── 4. SEARCH ─────────────────────────────────────────── */
+
+[data-theme="light"] .search-input {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: var(--white);
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .search-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0, 122, 110, 0.12), inset 0 1px 2px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .search-input::placeholder { color: #94A3B8; }
+
+/* ── 5. CART / ICON BUTTONS ────────────────────────────── */
+
+[data-theme="light"] .cart-icon {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: var(--text);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+  transition: all 0.15s ease;
+}
+
+[data-theme="light"] .cart-icon:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+[data-theme="light"] .theme-toggle {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: var(--text);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-color: var(--cyan);
+}
+
+/* ── 6. HERO ───────────────────────────────────────────── */
+
+[data-theme="light"] .hero-bg {
+  background-image:
+    /* Hard vignette — studio lighting simulation */
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.30) 60%, transparent 100%),
+    url('../../gup-light.png');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Hero stat cards — dark glass on light page = dramatic contrast */
+[data-theme="light"] .hero-stat-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(203, 213, 225, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-theme="light"] .hero-stat-card:hover {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: var(--cyan);
+  box-shadow: 0 12px 28px rgba(15,23,42,0.4), 0 0 16px var(--cyan-glow);
+}
+
+[data-theme="light"] .hero-stat-icon { color: var(--cyan); }
+
+[data-theme="light"] .hero-stat-title {
+  color: #F1F5F9;
+  text-shadow: none;
+}
+
+[data-theme="light"] .hero-stat-desc {
+  color: rgba(203, 213, 225, 0.80);
+  text-shadow: none;
+}
+
+[data-theme="light"] #Lktba {
+  color: #FFFFFF;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.75), 0 2px 28px rgba(0,0,0,0.55);
+}
+
+/* ── 7. TICKER ─────────────────────────────────────────── */
+
+[data-theme="light"] .ticker-wrapper {
+  background: var(--cyan);
+  border-bottom: 1px solid rgba(0, 94, 85, 0.30);
+}
+
+[data-theme="light"] .ticker-item {
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+/* ── 8. FEATURED SECTION ───────────────────────────────── */
+
+[data-theme="light"] .featured {
+  background: #F2F4F7;
+  border-top: 1px solid var(--spec-border);
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .featured-tag {
+  color: var(--orange);
+  border-color: var(--orange);
+  border-radius: 2px;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+}
+
+[data-theme="light"] .featured h2 {
+  color: #0F172A;
+}
+
+[data-theme="light"] .featured > .featured-inner > div > p {
+  color: var(--text);
+}
+
+/* Spec items — data terminal look */
+[data-theme="light"] .spec-item {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+[data-theme="light"] .spec-item:hover {
+  border-color: var(--orange);
+  background: #FFF8F5;
+}
+
+[data-theme="light"] .spec-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .spec-val {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+  font-size: 0.95rem;
+}
+
+/* Featured visual panel */
+[data-theme="light"] .featured-visual {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .featured-glow {
+  background: radial-gradient(circle, rgba(217, 95, 10, 0.18) 0%, transparent 70%);
+  filter: blur(60px);
+}
+
+/* ── 9. BUTTONS ────────────────────────────────────────── */
+
+[data-theme="light"] .btn-primary {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1.5px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,94,85,0.30);
+  border: 1px solid var(--cyan-dim);
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: var(--cyan-dim);
+  box-shadow: 0 4px 12px rgba(0,94,85,0.25);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-secondary {
+  color: #0F172A;
+  border: 1px solid #CBD5E1;
+  background: rgba(255,255,255,0.75);
+  border-radius: 3px;
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.12);
+}
+
+[data-theme="light"] .btn-outline {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 2px;
+  font-size: 0.72rem;
+}
+
+[data-theme="light"] .btn-outline:hover {
+  background: var(--cyan);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .featured-ctas .btn-primary {
+  padding: 16px 36px;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+}
+
+/* ── 10. PAYMENT BANNER ────────────────────────────────── */
+
+[data-theme="light"] .payment-banner {
+  background: #F8F9FB;
+  border-top: 1px solid var(--spec-border);
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .payment-banner h2 {
+  color: var(--muted);
+  letter-spacing: 4px;
+}
+
+[data-theme="light"] .payment-icon {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 2px;
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+  font-size: 1.4rem;
+}
+
+[data-theme="light"] .payment-icon:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: #F0FAF9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,122,110,0.12);
+}
+
+/* ── 11. CATEGORIES ────────────────────────────────────── */
+
+[data-theme="light"] .categories {
+  background: #EAECF0;
+}
+
+[data-theme="light"] .categories h2,
+[data-theme="light"] .featured-products h2,
+[data-theme="light"] .why-choose h2 {
+  color: #0F172A;
+}
+
+[data-theme="light"] .categories header p,
+[data-theme="light"] .featured-products header p,
+[data-theme="light"] .why-choose header p {
+  color: var(--muted);
+}
+
+[data-theme="light"] .category-card {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 3px;
+  color: var(--cyan);
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .category-card:hover {
+  background: #F0FAF9;
+  border-color: var(--cyan);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(15,23,42,0.12), 0 0 0 1px var(--cyan);
+}
+
+[data-theme="light"] .category-card h3 {
+  color: #0F172A;
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="light"] .category-card p {
+  color: var(--muted);
+}
+
+[data-theme="light"] .category-card small {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--cyan);
+  letter-spacing: 1px;
+}
+
+/* ── 12. PRODUCT CARDS ─────────────────────────────────── */
+
+[data-theme="light"] .featured-products {
+  background: #F2F4F7;
+  border-top: 1px solid var(--spec-border);
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .product-card {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .product-card:hover {
+  box-shadow: 0 8px 24px rgba(15,23,42,0.12);
+  transform: translateY(-4px);
+}
+
+[data-theme="light"] .product-img-wrap {
+  background: #F8F9FB;
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .product-category {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .product-card-name {
+  color: #0F172A;
+  font-weight: 700;
+}
+
+[data-theme="light"] .product-price {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+  font-size: 1.05rem;
+}
+
+[data-theme="light"] .product-old-price {
+  font-family: 'JetBrains Mono', monospace;
+  color: #94A3B8;
+}
+
+[data-theme="light"] .product-discount {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--orange);
+  font-weight: 700;
+}
+
+[data-theme="light"] .product-wishlist {
+  background: #FFFFFF;
+  border-color: var(--spec-border);
+  color: var(--muted);
+}
+
+[data-theme="light"] .product-wishlist:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* Skeleton loaders */
+[data-theme="light"] .skeleton-card {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 3px;
+}
+
+[data-theme="light"] .skeleton-img,
+[data-theme="light"] .skeleton-line {
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 200% 100%;
+}
+
+/* ── 13. DEALS SECTION ─────────────────────────────────── */
+
+[data-theme="light"] .deals-section {
+  background: linear-gradient(140deg, #0F172A 0%, #1E293B 55%, #0F172A 100%);
+  color: #F1F5F9;
+  border: none;
+}
+
+/* Keep the border inset for schematic feel */
+[data-theme="light"] .deals-section::before {
+  border: 1px solid rgba(0, 122, 110, 0.25);
+}
+
+[data-theme="light"] .deals-badge {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+}
+
+[data-theme="light"] #titre {
+  color: #F1F5F9;
+}
+
+[data-theme="light"] .deals-section > p {
+  color: rgba(203, 213, 225, 0.75);
+}
+
+/* Countdown — monospaced data display */
+[data-theme="light"] .timer-number {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(203, 213, 225, 0.15);
+  border-radius: 3px;
+}
+
+[data-theme="light"] .timer-digit {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+}
+
+[data-theme="light"] .sghir {
+  color: rgba(148, 163, 184, 0.80);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 3px;
+}
+
+[data-theme="light"] .deal-badge-large {
+  color: var(--cyan);
+  opacity: 0.06;
+}
+
+/* Deals primary button override — stays light on dark bg */
+[data-theme="light"] .deals-section .btn-primary {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-color: transparent;
+}
+
+[data-theme="light"] .deals-section .btn-primary:hover {
+  background: var(--cyan-dim);
+}
+
+/* ── 14. WHY CHOOSE ────────────────────────────────────── */
+
+[data-theme="light"] .why-choose {
+  background: #EAECF0;
+}
+
+[data-theme="light"] .feature-card {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+}
+
+[data-theme="light"] .feature-card:hover {
+  border-color: var(--cyan);
+  background: #F0FAF9;
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(15,23,42,0.10), 0 0 0 1px var(--cyan);
+}
+
+[data-theme="light"] .feature-icon {
+  background: rgba(0, 122, 110, 0.08);
+  border: 1px solid rgba(0, 122, 110, 0.18);
+  border-radius: 3px;
+  color: var(--cyan);
+}
+
+[data-theme="light"] .feature-card:hover .feature-icon {
+  background: rgba(0, 122, 110, 0.14);
+  box-shadow: 0 0 16px rgba(0, 122, 110, 0.15);
+}
+
+[data-theme="light"] .feature-card h3 {
+  color: #0F172A;
+  letter-spacing: 0.3px;
+}
+
+[data-theme="light"] .feature-card p {
+  color: var(--muted);
+}
+
+/* ── 15. NEWSLETTER ────────────────────────────────────── */
+
+[data-theme="light"] .newsletter {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .newsletter h2 {
+  color: #0F172A;
+}
+
+[data-theme="light"] .newsletter > p {
+  color: var(--muted);
+}
+
+[data-theme="light"] .newsletter-form input {
+  background: #F8F9FB;
+  border: 1px solid var(--spec-border);
+  border-radius: 2px;
+  color: #0F172A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .newsletter-form input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,122,110,0.12), inset 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .newsletter-form input::placeholder { color: #94A3B8; }
+
+[data-theme="light"] .newsletter-form button {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 2px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .newsletter-form button:hover {
+  background: var(--cyan-dim);
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0,94,85,0.20);
+}
+
+/* ── 16. FOOTER ────────────────────────────────────────── */
+
+[data-theme="light"] footer#contact {
+  background: #0F172A;   /* Dark footer on light page = anchor / weight */
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] .footer-logo {
+  color: var(--cyan) !important;
+}
+
+[data-theme="light"] .footer-column > p {
+  color: #94A3B8;
+}
+
+[data-theme="light"] .footer-column h4 {
+  color: #007A6E;   /* Cyan on dark footer */
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .footer-column li,
+[data-theme="light"] .smitek {
+  color: #64748B;
+}
+
+[data-theme="light"] .smitek:hover { color: var(--cyan); }
+
+[data-theme="light"] .social-links a {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #64748B;
+  border-radius: 2px;
+}
+
+[data-theme="light"] .social-links a:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] #contact > small {
+  color: #475569;
+  border-top-color: rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] #contact > .footer-links a {
+  color: #475569;
+}
+
+[data-theme="light"] #contact > .footer-links a:hover { color: var(--cyan); }
+
+/* ── 17. TOAST & MODAL ─────────────────────────────────── */
+
+[data-theme="light"] .toast {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: #0F172A;
+  border-left: 3px solid var(--cyan);
+  border-radius: 3px;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.14);
+}
+
+[data-theme="light"] .toast i { color: var(--cyan); }
+
+[data-theme="light"] .modal {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 4px;
+  box-shadow: 0 24px 48px rgba(15,23,42,0.18);
+}
+
+[data-theme="light"] .modal::backdrop {
+  background: rgba(15,23,42,0.55);
+  backdrop-filter: blur(3px);
+}
+
+[data-theme="light"] .modal-close {
+  background: #F1F5F9;
+  border: 1px solid var(--spec-border);
+  color: var(--muted);
+  border-radius: 2px;
+}
+
+/* ── 18. AI TERMINAL ───────────────────────────────────── */
+
+[data-theme="light"] .ai-terminal {
+  background: #0F172A;
+  border: 1px solid rgba(0,122,110,0.30);
+  box-shadow: 0 20px 50px rgba(15,23,42,0.25), 0 0 0 1px rgba(0,122,110,0.12);
+}
+
+[data-theme="light"] .ai-header {
+  background: var(--cyan);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .ai-header button { color: rgba(255,255,255,0.80); }
+[data-theme="light"] .ai-header button:hover { color: #FFFFFF; }
+
+[data-theme="light"] .ai-messages {
+  color: #CBD5E1;
+}
+
+[data-theme="light"] .ai-input {
+  background: #1E293B;
+  border: 1px solid rgba(203,213,225,0.15);
+  color: #F1F5F9;
+}
+
+[data-theme="light"] .ai-input:focus { border-color: var(--cyan); }
+
+[data-theme="light"] .bot-msg { color: #5EEAD4; border-left-color: var(--cyan); }
+[data-theme="light"] .user-msg { color: #CBD5E1; }
+
+[data-theme="light"] .ai-trigger {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-radius: 2px;
+  width: 44px;
+  height: 44px;
+  box-shadow: 0 4px 14px rgba(0,122,110,0.30);
+}
+
+[data-theme="light"] .ai-trigger:hover {
+  background: var(--cyan-dim);
+  box-shadow: 0 8px 20px rgba(0,122,110,0.35);
+  transform: translateY(-3px);
+}
+
+[data-theme="light"] .typing-indicator span { background: var(--cyan); }
+
+/* ── 19. SIDEBAR ───────────────────────────────────────── */
+
+[data-theme="light"] .sidebar {
+  background: #F2F4F7;
+  border-right: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .sidebar-header {
+  background: #F2F4F7;
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .sidebar-logo-link { color: var(--cyan) !important; }
+
+[data-theme="light"] .sidebar-close {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: var(--muted);
+  border-radius: 2px;
+}
+
+[data-theme="light"] .sidebar-close:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .sidebar-search input {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: #0F172A;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+[data-theme="light"] .sidebar-search button {
+  background: var(--cyan);
+  border-radius: 2px;
+}
+
+[data-theme="light"] .sidebar-link {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="light"] .sidebar-link i:first-child { color: var(--cyan); }
+
+[data-theme="light"] .sidebar-link:hover,
+[data-theme="light"] .sidebar-link.active {
+  background: rgba(0, 122, 110, 0.07);
+  border-left-color: var(--cyan);
+  color: #0F172A;
+}
+
+[data-theme="light"] .sidebar-sublink {
+  color: var(--muted);
+}
+
+[data-theme="light"] .sidebar-sublink:hover {
+  color: #0F172A;
+  border-left-color: var(--cyan);
+  background: rgba(0,122,110,0.05);
+}
+
+[data-theme="light"] .sidebar-submenu {
+  background: rgba(15,23,42,0.03);
+}
+
+[data-theme="light"] .sidebar-divider { background: var(--spec-border); }
+
+[data-theme="light"] .sidebar-overlay {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* ── 20. FILTER TABS ───────────────────────────────────── */
+
+[data-theme="light"] .filter-tab {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: var(--text);
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1.5px;
+  font-size: 0.68rem;
+}
+
+[data-theme="light"] .filter-tab:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: #F0FAF9;
+}
+
+[data-theme="light"] .filter-tab.active {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #FFFFFF;
+}
+
+/* ── 21. ROLE MODAL ────────────────────────────────────── */
+
+[data-theme="light"] .role-modal {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 4px;
+  color: #0F172A;
+  box-shadow: 0 24px 48px rgba(15,23,42,0.16);
+}
+
+[data-theme="light"] .role-modal-overlay {
+  background: rgba(15,23,42,0.40);
+}
+
+[data-theme="light"] .role-btn {
+  background: #F8F9FB;
+  border: 1px solid var(--spec-border);
+  color: #0F172A;
+  border-radius: 2px;
+}
+
+[data-theme="light"] .role-btn:hover {
+  background: #F0FAF9;
+  border-color: var(--cyan);
+}
+
+[data-theme="light"] .role-btn small { color: var(--muted); }
+[data-theme="light"] .role-cancel { color: var(--muted); }
+[data-theme="light"] .role-cancel:hover { color: #0F172A; }
+
+/* ── 22. SCROLL-TO-TOP ─────────────────────────────────── */
+
+[data-theme="light"] .button-nadi {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-radius: 2px;
+  width: 44px;
+  height: 44px;
+  box-shadow: 0 4px 14px rgba(0,122,110,0.30);
+}
+
+[data-theme="light"] .button-nadi:hover {
+  background: var(--cyan-dim);
+  box-shadow: 0 8px 20px rgba(0,122,110,0.35);
+}
+
+/* ── 23. ANIMATED ENTRANCE OVERRIDE ───────────────────── */
+/* Subtler entrance for the light engineering aesthetic */
+
+[data-theme="light"] .animate-on-scroll {
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+[data-theme="light"] .animate-on-scroll.visible {
+  transform: translateY(0);
+}
+
+/* ── 24. SECTION HEADERS ───────────────────────────────── */
+
+/* Add a left-rule accent to section headers — schematic label feel */
+[data-theme="light"] .categories header h2,
+[data-theme="light"] .featured-products header h2,
+[data-theme="light"] .why-choose header h2,
+[data-theme="light"] .newsletter h2 {
+  position: relative;
+  display: inline-block;
+}
+
+/* ── 25. TYPOGRAPHY GLOBAL LIGHT ───────────────────────── */
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4 {
+  color: #0F172A;
+}
+
+[data-theme="light"] a {
+  color: var(--muted);
+}
+
+[data-theme="light"] a:hover {
+  color: var(--cyan);
+}
+
+/* Monospaced prices and technical data everywhere */
+[data-theme="light"] .product-price,
+[data-theme="light"] .product-old-price,
+[data-theme="light"] .spec-val,
+[data-theme="light"] .spec-key,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .timer-digit {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── 26. HERO STATS GRID (LIGHT) ────────────────────────── */
+
+[data-theme="light"] .hero-stats {
+  /* stays as grid, no layout changes — only color overrides above */
+}
+
+/* ── 27. CART COUNT BADGE ───────────────────────────────── */
+
+[data-theme="light"] #cartCount {
+  background: var(--red);
+  border: 2px solid #F2F4F7;
+}
+
+/* ── 28. SUBTLE CROSS-HATCH ON SPEC PANELS ──────────────── */
+/* Adds faint engineering-drawing texture to spec grids */
+
+[data-theme="light"] .featured-specs::before {
+  content: '';
+  display: none;  /* reserving selector — activate if desired */
+}
+
+/* ── 29. PRODUCT BADGE (IN STOCK / SALE) ────────────────── */
+
+[data-theme="light"] .product-badge {
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+  font-size: 0.58rem;
+}
+
+/* ── END OF INDUSTRIAL HIGH-KEY LIGHT MODE ──────────────── */
+
+/* ============================================
+   HERO REFINEMENTS PATCH
+   Load after index.css and light-mode-industrial.css
+   Applies to BOTH themes unless scoped
+   ============================================ */
+
+/* ── 1. TEXT PROTECTION LAYER ─────────────────────────────
+   A hard-edged linear gradient scrim behind the text column.
+   Sits between the GPU photo and the copy — protects readability
+   without washing out the hardware image.
+   ──────────────────────────────────────────────────────── */
+
+.hero-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The scrim: covers left 65% of the hero, fades right */
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    /* Vertical: dense darkness at text baseline, breathes upward */
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.55) 30%,
+      rgba(0, 0, 0, 0.28) 65%,
+      transparent 100%
+    ),
+    /* Horizontal: opaque on text side, clear on GPU side */
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.60) 0%,
+      rgba(0, 0, 0, 0.40) 40%,
+      rgba(0, 0, 0, 0.10) 65%,
+      transparent 100%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure all hero content sits above the scrim */
+.hero-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Light mode: slightly cooler, denser scrim (bright image needs more protection) */
+[data-theme="light"] .hero-bg::before {
+  background:
+    linear-gradient(
+      to top,
+      rgba(5, 15, 30, 0.80) 0%,
+      rgba(5, 15, 30, 0.60) 30%,
+      rgba(5, 15, 30, 0.30) 65%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(5, 15, 30, 0.68) 0%,
+      rgba(5, 15, 30, 0.45) 42%,
+      rgba(5, 15, 30, 0.12) 68%,
+      transparent 100%
+    );
+}
+
+
+/* ── 2. GPU IMAGE COLOR GRADE ─────────────────────────────
+   CSS filters to cool down the warm silver/yellow tones of
+   the GPU photo and push it toward industrial cold-steel.
+   hue-rotate(-15deg): pulls yellows toward blue-silver
+   saturate(0.82): reduces warm gold cast
+   brightness(0.88): darkens slightly for contrast
+   contrast(1.08): micro-boost to accentuate metal textures
+   ──────────────────────────────────────────────────────── */
+
+.hero-bg {
+  /* Target the bg-image layer with a CSS filter on the pseudo-element below */
+}
+
+/* We apply the grade via a second pseudo (::after) that mimics the image
+   with a color-theory overlay — pure CSS, no image editing needed */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Cool blue-silver grade: multiply a very faint steel-blue over warm tones */
+  background: rgba(170, 195, 220, 0.08);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="light"] .hero-bg::after {
+  /* Stronger grade in light mode where the image is brighter */
+  background: rgba(140, 175, 215, 0.14);
+  mix-blend-mode: multiply;
+}
+
+/* Desaturate + cool the actual background image */
+.hero-bg {
+  filter: saturate(0.88) hue-rotate(-8deg) brightness(0.95) contrast(1.04);
+}
+
+/* But don't filter the text content — only the bg image.
+   Undo the filter on child elements by countering it. */
+.hero-bg > h1,
+.hero-bg > p,
+.hero-bg > #Lktba,
+.hero-bg > nav,
+.hero-bg > .hero-buttons,
+.hero-bg > .hero-stats {
+  filter: saturate(1.136) hue-rotate(8deg) brightness(1.053) contrast(0.962);
+}
+
+
+/* ── 3. CTA BUTTON TYPOGRAPHY RESET ──────────────────────
+   The current buttons have over-tracked uppercase Orbitron.
+   Reset to condensed, readable weight. Add the 1px inset gap
+   ("double border" / "ghost inset") technique for a precision
+   machined look.
+   ──────────────────────────────────────────────────────── */
+
+/* Primary button — solid fill + 1px inset gap ring */
+.hero-buttons .btn-primary,
+.hero-buttons .btn.btn-primary {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;         /* Reset from over-tracking */
+  text-transform: uppercase;
+  padding: 13px 28px;
+  border-radius: 2px;
+  background: #007A6E;
+  color: #FFFFFF;
+  border: 2px solid #007A6E;      /* Outer border = fill color */
+  /* 1px white inset gap — the "engineering tolerance" gap */
+  outline: 1px solid rgba(255, 255, 255, 0.50);
+  outline-offset: -4px;           /* Inset the outline 4px inside the border */
+  transition: background 0.15s ease, outline-color 0.15s ease, transform 0.15s ease;
+}
+
+.hero-buttons .btn-primary:hover,
+.hero-buttons .btn.btn-primary:hover {
+  background: #005E55;
+  border-color: #005E55;
+  outline-color: rgba(255, 255, 255, 0.70);
+  transform: translateY(-2px);
+}
+
+/* Dark mode: same treatment, slightly brighter fill */
+[data-theme="dark"] .hero-buttons .btn-primary,
+[data-theme="dark"] .hero-buttons .btn.btn-primary {
+  background: #00C4AA;
+  border-color: #00C4AA;
+  color: #000000;
+  outline-color: rgba(0, 0, 0, 0.30);
+}
+
+[data-theme="dark"] .hero-buttons .btn-primary:hover,
+[data-theme="dark"] .hero-buttons .btn.btn-primary:hover {
+  background: #00F5D4;
+  border-color: #00F5D4;
+}
+
+/* Secondary / outline button — ghost with inset gap */
+.hero-buttons .btn-secondary,
+.hero-buttons .btn.btn-secondary {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 13px 28px;
+  border-radius: 2px;
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid rgba(255, 255, 255, 0.80);
+  outline: 1px solid rgba(255, 255, 255, 0.25);
+  outline-offset: -4px;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(6px);
+}
+
+.hero-buttons .btn-secondary:hover,
+.hero-buttons .btn.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: #FFFFFF;
+  outline-color: rgba(255, 255, 255, 0.50);
+  transform: translateY(-2px);
+  color: #FFFFFF;
+}
+
+
+/* ── 4. COMPOSITION BALANCE — CENTER THE TEXT BLOCK ───────
+   The GPU is heavy-left. Solution: center the entire hero
+   content column horizontally with a max-width anchor,
+   so the text/buttons create a symmetrical vertical spine
+   that visually counterbalances the hardware mass.
+   ──────────────────────────────────────────────────────── */
+
+.hero-bg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 120px 10% 90px;
+}
+
+/* Title: tighter tracking, larger presence, centered */
+.hero-bg .hero-title,
+.hero-bg h1 {
+  text-align: center;
+  max-width: 800px;
+}
+
+/* Body text: constrained width so long lines don't bleed
+   into the GPU — feels deliberate, not accidental */
+.hero-bg #Lktba,
+.hero-bg p:not(.hero-stat-desc) {
+  max-width: 560px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Buttons: centered row, tight gap */
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Stat cards: remain as a centered 3-column grid,
+   but now they also benefit from the centered anchor.
+   Add a top separator line — schematic annotation rule */
+.hero-stats {
+  position: relative;
+  margin-top: 56px;
+  padding-top: 48px;
+}
+
+.hero-stats::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Stat cards themselves: match the industrial refinements */
+.hero-stat-card {
+  text-align: center;
+}
+
+
+/* ── 5. NAVBAR LOGO — FORCE PROPER RENDERING ──────────────
+   The light mode logo needs to not disappear; ensure it
+   renders as solid dark mark on the light nav surface.
+   ──────────────────────────────────────────────────────── */
+
+[data-theme="light"] .nav-logo {
+  filter: brightness(0) saturate(100%);   /* Renders PNG as solid black */
+  opacity: 0.85;
+}
+
+
+/* ── RESPONSIVE ADJUSTMENTS ────────────────────────────── */
+
+@media (max-width: 768px) {
+  .hero-bg {
+    padding: 100px 6% 70px;
+  }
+
+  .hero-bg::before {
+    background:
+      linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.55) 50%,
+        rgba(0, 0, 0, 0.20) 100%
+      );
+  }
+
+  .hero-buttons .btn-primary,
+  .hero-buttons .btn.btn-primary,
+  .hero-buttons .btn-secondary,
+  .hero-buttons .btn.btn-secondary {
+    font-size: 0.72rem;
+    padding: 12px 22px;
+    letter-spacing: 0.06em;
+  }
+}
+/* ============================================
+   TYPING ANIMATION — FINAL FIX
+   Replaces all previous typing CSS.
+   Load after hero-polish.css, replaces typing-fix.css
+   ============================================ */
+
+/* ── 1. KILL the old width-based animation entirely ─────── */
+.effet-nadi {
+  /* Strip all the broken animation properties */
+  animation: none !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  border-right: none !important;
+
+  /* The JS will inject a visible caret span instead */
+  display: inline;
+}
+
+/* ── 2. h1 sizing — unchanged from hero-polish ──────────── */
+.hero-bg h1,
+.hero-bg .hero-title {
+  font-size: clamp(2.4rem, 5vw, 4.2rem);   /* Pulled back slightly — stops overflow */
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #FFFFFF;
+  text-shadow:
+    0 2px 4px  rgba(0, 0, 0, 0.65),
+    0 4px 24px rgba(0, 0, 0, 0.40);
+}
+
+/* ── 3. JS-injected caret ───────────────────────────────── */
+.type-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--cyan, #00f5d4);
+  vertical-align: middle;
+  margin-left: 3px;
+  animation: caret-blink 0.8s step-end infinite;
+}
+
+@keyframes caret-blink {
+  from, to { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── 4. Hero content stays visible during JS execution ─── */
+.hero-bg #Lktba,
+.hero-bg .hero-buttons,
+.hero-bg .hero-stats {
+  /* Keep the fade-up animations from index.css but make
+     sure they don't fire before the typing finishes */
+  animation-play-state: paused;
+}
+
+.hero-bg #Lktba.ready,
+.hero-bg .hero-buttons.ready,
+.hero-bg .hero-stats.ready {
+  animation-play-state: running;
+}
+/* ============================================
+   INDUSTRIAL HIGH-KEY — SIDEBAR & NAV
+   Patch for: sidebar.css (document 3)
+   Load after the original file
+   ============================================ */
+
+[data-theme="light"] {
+  --cyan:         #007A6E;
+  --cyan-dim:     #005E55;
+  --card-bg:      rgba(255, 255, 255, 0.55);
+  --card-bg-hover:rgba(0, 122, 110, 0.07);
+  --border:       rgba(15, 23, 42, 0.10);
+  --border-cyan:  rgba(0, 122, 110, 0.22);
+  --text:         #334155;
+  --page-bg:      #EAECF0;
+  --page-bg-2:    #F2F4F7;
+  --page-bg-3:    #F8F9FB;
+  --white:        #0F172A;
+  --muted:        #64748B;
+  --red:          #B91C1C;
+  --spec-bg:      #FFFFFF;
+  --spec-border:  #CBD5E1;
+}
+
+/* ── NAV LOGO ─────────────────────────────── */
+[data-theme="light"] .nav-logo {
+  filter: brightness(0) saturate(100%);
+  opacity: 0.85;
+}
+
+/* ── HAMBURGER ────────────────────────────── */
+[data-theme="light"] .hamburger-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .hamburger-btn span {
+  background: #334155;
+}
+
+[data-theme="light"] .hamburger-btn:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+}
+
+[data-theme="light"] .hamburger-btn:hover span {
+  background: #FFFFFF;
+}
+
+/* ── SIDEBAR OVERLAY ──────────────────────── */
+[data-theme="light"] .sidebar-overlay {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* ── SIDEBAR PANEL ────────────────────────── */
+[data-theme="light"] .sidebar {
+  background: #F2F4F7;
+  border-right: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 122, 110, 0.25);
+}
+
+[data-theme="light"] .sidebar.open {
+  box-shadow: 8px 0 40px rgba(15,23,42,0.14), 2px 0 0 rgba(0,122,110,0.20);
+}
+
+/* ── SIDEBAR HEADER ───────────────────────── */
+[data-theme="light"] .sidebar-header {
+  background: #F2F4F7;
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .sidebar-logo-link {
+  color: var(--cyan) !important;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+[data-theme="light"] .sidebar-close {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  color: var(--muted);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .sidebar-close:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #FFFFFF;
+}
+
+/* ── SIDEBAR SEARCH ───────────────────────── */
+[data-theme="light"] .sidebar-search {
+  border-bottom: 1px solid var(--spec-border);
+}
+
+[data-theme="light"] .sidebar-search input {
+  background: #FFFFFF;
+  border: 1px solid var(--spec-border);
+  border-radius: 2px;
+  color: #0F172A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .sidebar-search input::placeholder {
+  color: #94A3B8;
+}
+
+[data-theme="light"] .sidebar-search input:focus {
+  border-color: var(--cyan);
+}
+
+[data-theme="light"] .sidebar-search button {
+  background: var(--cyan);
+  border-radius: 2px;
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .sidebar-search button:hover {
+  background: var(--cyan-dim);
+}
+
+/* ── SIDEBAR NAV LINKS ────────────────────── */
+[data-theme="light"] .sidebar-link {
+  color: #334155;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  border-left: 3px solid transparent;
+}
+
+[data-theme="light"] .sidebar-link i:first-child {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .sidebar-link:hover,
+[data-theme="light"] .sidebar-link.active {
+  color: #0F172A;
+  background: rgba(0, 122, 110, 0.07);
+  border-left-color: var(--cyan);
+}
+
+/* ── SIDEBAR DIVIDER ──────────────────────── */
+[data-theme="light"] .sidebar-divider {
+  background: var(--spec-border);
+}
+
+/* ── CART BADGE ───────────────────────────── */
+[data-theme="light"] .sidebar-cart-badge {
+  background: var(--red);
+  border: 2px solid #F2F4F7;
+}
+
+/* ── DROPDOWN SUBMENU ─────────────────────── */
+[data-theme="light"] .sidebar-submenu {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+[data-theme="light"] .sidebar-sublink {
+  color: #64748B;
+  font-size: 0.85rem;
+  border-left: 3px solid transparent;
+}
+
+[data-theme="light"] .sidebar-sublink:hover {
+  color: #0F172A;
+  border-left-color: var(--cyan);
+  background: rgba(0, 122, 110, 0.05);
+}
+/* ============================================
+   INDUSTRIAL HIGH-KEY — PRODUCTS PAGE
+   Patch for: products.css (document 4)
+   Load after the original file
+   Covers: header, filters, product cards, modal,
+           pagination, toast, footer, skeletons
+   ============================================ */
+
+/* ── LIGHT TOKEN OVERRIDE ─────────────────────────────────
+   Aligns with the industrial palette from light-mode-industrial.css
+   ──────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --page-bg:        #EAECF0;
+  --page-bg-2:      #F2F4F7;
+  --page-bg-3:      #F8F9FB;
+  --page-bg-4:      #FFFFFF;
+  --cyan:           #007A6E;
+  --cyan-dim:       #005E55;
+  --cyan-glow:      rgba(0, 122, 110, 0.10);
+  --cyan-glow-strong: rgba(0, 122, 110, 0.18);
+  --orange:         #D95F0A;
+  --orange-glow:    rgba(217, 95, 10, 0.10);
+  --white:          #0F172A;
+  --text:           #334155;
+  --muted:          #64748B;
+  --border:         rgba(15, 23, 42, 0.10);
+  --border-cyan:    rgba(0, 122, 110, 0.22);
+  --card-bg:        rgba(255, 255, 255, 0.55);
+  --card-bg-hover:  rgba(0, 122, 110, 0.07);
+  --input-bg:       #FFFFFF;
+  --red:            #B91C1C;
+  --green:          #15803D;
+  --yellow:         #B45309;
+  --shadow-sm:      0 1px 3px rgba(15,23,42,0.07);
+  --shadow-md:      0 4px 12px rgba(15,23,42,0.09);
+  --shadow-lg:      0 12px 32px rgba(15,23,42,0.12);
+  --shadow-cyan:    0 4px 14px rgba(0,122,110,0.20);
+}
+
+/* ── BODY GRID BACKGROUND ─────────────────── */
+[data-theme="light"] body {
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(100,116,139,0.07) 39px, rgba(100,116,139,0.07) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(100,116,139,0.07) 39px, rgba(100,116,139,0.07) 40px),
+    linear-gradient(160deg, #E8EBF0 0%, #EEF0F4 40%, #E4E8EF 100%);
+  background-attachment: fixed;
+}
+
+/* ── HEADER ───────────────────────────────── */
+[data-theme="light"] .header {
+  background: rgba(242, 244, 247, 0.94);
+  border-bottom: 1px solid #CBD5E1;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.90);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+}
+
+[data-theme="light"] .logo {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .logo i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .nav-link {
+  color: #334155;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .nav-link.active {
+  color: #FFFFFF;
+  background: var(--cyan);
+}
+
+/* Search */
+[data-theme="light"] .search-box input {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  color: #0F172A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .search-box input::placeholder {
+  color: #94A3B8;
+}
+
+[data-theme="light"] .search-box input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,122,110,0.12), inset 0 1px 2px rgba(15,23,42,0.05);
+  width: 100%;
+}
+
+[data-theme="light"] .search-btn {
+  color: #64748B;
+}
+
+[data-theme="light"] .search-btn:hover {
+  color: var(--cyan);
+}
+
+/* Icon buttons */
+[data-theme="light"] .cart-icon,
+[data-theme="light"] .mobile-menu-btn {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .cart-icon:hover,
+[data-theme="light"] .mobile-menu-btn:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .cart-count {
+  background: var(--red);
+  border: 2px solid #F2F4F7;
+}
+
+/* ── BREADCRUMB ───────────────────────────── */
+[data-theme="light"] .breadcrumb {
+  background: #F2F4F7;
+  border-bottom: 1px solid #CBD5E1;
+}
+
+[data-theme="light"] .breadcrumb-nav {
+  color: #64748B;
+}
+
+[data-theme="light"] .breadcrumb-nav a {
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="light"] .breadcrumb-nav span {
+  color: #334155;
+  font-weight: 600;
+}
+
+/* ── PRODUCTS PAGE ────────────────────────── */
+[data-theme="light"] .products-page {
+  background: #EAECF0;
+}
+
+/* ── FILTERS SIDEBAR ──────────────────────── */
+[data-theme="light"] .filters-sidebar {
+  background: #F2F4F7;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .filter-header {
+  border-bottom: 1px solid #CBD5E1;
+}
+
+[data-theme="light"] .filter-header h3 {
+  color: #0F172A;
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .filter-header h3 i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .clear-filters {
+  color: #64748B;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .clear-filters:hover {
+  color: var(--red);
+}
+
+[data-theme="light"] .filter-group h4 {
+  color: #0F172A;
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .filter-option {
+  color: #334155;
+}
+
+[data-theme="light"] .filter-option:hover {
+  color: #0F172A;
+}
+
+[data-theme="light"] .checkmark {
+  border: 1.5px solid #94A3B8;
+  border-radius: 2px;
+  background: #FFFFFF;
+}
+
+[data-theme="light"] .filter-option input:checked + .checkmark {
+  background: var(--cyan);
+  border-color: var(--cyan);
+}
+
+[data-theme="light"] .checkmark::after {
+  color: #FFFFFF;
+}
+
+/* Price range */
+[data-theme="light"] .price-inputs input {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+  color: #0F172A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
+}
+
+[data-theme="light"] .price-inputs input:focus {
+  border-color: var(--cyan);
+}
+
+[data-theme="light"] .price-inputs span {
+  color: #94A3B8;
+}
+
+[data-theme="light"] .price-slider {
+  background: #CBD5E1;
+}
+
+[data-theme="light"] .price-slider::-webkit-slider-thumb {
+  background: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,122,110,0.15);
+}
+
+[data-theme="light"] .price-slider::-moz-range-thumb {
+  background: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,122,110,0.15);
+}
+
+[data-theme="light"] .price-labels {
+  color: #94A3B8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+}
+
+/* ── BUTTONS ──────────────────────────────── */
+[data-theme="light"] .btn {
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+[data-theme="light"] .btn-primary {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border: 1px solid var(--cyan-dim);
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20);
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: var(--cyan-dim);
+  box-shadow: 0 4px 14px rgba(0,94,85,0.25);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: #F0FAF9;
+}
+
+/* ── PRODUCTS HEADER BAR ──────────────────── */
+[data-theme="light"] .products-header {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .products-count {
+  color: #334155;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="light"] .products-count span {
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+[data-theme="light"] .products-sort label {
+  color: #64748B;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .products-sort select {
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+  color: #0F172A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
+}
+
+[data-theme="light"] .products-sort select:focus {
+  border-color: var(--cyan);
+}
+
+[data-theme="light"] .view-btn {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+  color: #64748B;
+}
+
+[data-theme="light"] .view-btn:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: #F0FAF9;
+}
+
+[data-theme="light"] .view-btn.active {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #FFFFFF;
+}
+
+/* ── ACTIVE FILTER TAGS ───────────────────── */
+[data-theme="light"] .filter-tag {
+  background: rgba(0,122,110,0.08);
+  border: 1px solid rgba(0,122,110,0.25);
+  color: var(--cyan);
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .filter-tag:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #FFFFFF;
+}
+
+/* ── PRODUCT CARDS ────────────────────────── */
+[data-theme="light"] .product-card {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .product-card:hover {
+  box-shadow: 0 8px 24px rgba(15,23,42,0.12);
+  transform: translateY(-4px);
+}
+
+[data-theme="light"] .product-img-wrap {
+  background: #F8F9FB;
+  border-bottom: 1px solid #CBD5E1;
+}
+
+[data-theme="light"] .product-category {
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .product-name {
+  color: #0F172A;
+  font-weight: 700;
+}
+
+[data-theme="light"] .product-rating .stars {
+  color: #B45309;   /* Amber — muted, industrial */
+}
+
+[data-theme="light"] .product-reviews {
+  color: #94A3B8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Price row */
+[data-theme="light"] .product-price {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+[data-theme="light"] .product-old-price {
+  font-family: 'JetBrains Mono', monospace;
+  color: #94A3B8;
+  text-decoration: line-through;
+}
+
+[data-theme="light"] .product-discount {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--orange);
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+/* Badges */
+[data-theme="light"] .product-badge {
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+}
+
+[data-theme="light"] .badge-sale {
+  background: var(--red);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .badge-new {
+  background: var(--cyan);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .badge-hot {
+  background: var(--orange);
+  color: #FFFFFF;
+}
+
+/* Wishlist */
+[data-theme="light"] .product-wishlist {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #64748B;
+}
+
+[data-theme="light"] .product-wishlist:hover,
+[data-theme="light"] .product-wishlist.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #FFFFFF;
+}
+
+/* Quick view */
+[data-theme="light"] .product-quickview {
+  background: var(--cyan);
+  color: #FFFFFF;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .product-quickview:hover {
+  background: var(--cyan-dim);
+}
+
+/* Add to cart button */
+[data-theme="light"] .add-to-cart-btn {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.90),
+    inset 0 -1px 0 rgba(15,23,42,0.06);
+}
+
+[data-theme="light"] .add-to-cart-btn:hover {
+  background: var(--cyan);
+  border-color: var(--cyan-dim);
+  color: #FFFFFF;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    0 4px 14px rgba(0,94,85,0.22);
+}
+
+[data-theme="light"] .add-to-cart-btn.added {
+  background: var(--green);
+  border-color: #166534;
+  color: #FFFFFF;
+}
+
+/* ── SKELETON LOADERS ─────────────────────── */
+[data-theme="light"] .skeleton-card {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+}
+
+[data-theme="light"] .skeleton-img,
+[data-theme="light"] .skeleton-line {
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 200% 100%;
+}
+
+/* ── PAGINATION ───────────────────────────── */
+[data-theme="light"] .page-btn {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+  color: #334155;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+
+[data-theme="light"] .page-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: #F0FAF9;
+}
+
+[data-theme="light"] .page-btn.active {
+  background: var(--cyan);
+  border-color: var(--cyan-dim);
+  color: #FFFFFF;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20);
+}
+
+[data-theme="light"] .page-btn:disabled {
+  opacity: 0.35;
+}
+
+/* ── MODAL ────────────────────────────────── */
+[data-theme="light"] .modal-overlay {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+[data-theme="light"] .modal-content {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  box-shadow: 0 24px 48px rgba(15,23,42,0.18);
+}
+
+[data-theme="light"] .modal-close {
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+  color: #64748B;
+}
+
+[data-theme="light"] .modal-close:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .modal-image {
+  background: #F8F9FB;
+  border-right: 1px solid #CBD5E1;
+}
+
+[data-theme="light"] .modal-details h2 {
+  color: #0F172A;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="light"] .modal-details .price {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+}
+
+[data-theme="light"] .modal-details .description {
+  color: #334155;
+}
+
+[data-theme="light"] #quickViewModal.modal,
+[data-theme="light"] #compareModal.modal {
+  width: auto;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: inherit;
+}
+
+[data-theme="light"] .spec-item {
+  background: #F8F9FB;
+  border: 1px solid #CBD5E1;
+  border-radius: 2px;
+}
+
+[data-theme="light"] .spec-item .spec-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #64748B;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .spec-item .spec-val {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyan);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* ── TOAST ────────────────────────────────── */
+[data-theme="light"] .toast {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-left: 3px solid var(--cyan);
+  border-radius: 3px;
+  color: #0F172A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.14);
+}
+
+[data-theme="light"] .toast i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .toast.success {
+  border-left-color: var(--green);
+}
+
+[data-theme="light"] .toast.success i {
+  color: var(--green);
+}
+
+[data-theme="light"] .toast.error {
+  border-left-color: var(--red);
+}
+
+/* ── FOOTER ───────────────────────────────── */
+[data-theme="light"] .footer {
+  background: #0F172A;   /* Dark anchor — weight at the bottom */
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] .footer-logo {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .footer-column > p {
+  color: #94A3B8;
+}
+
+[data-theme="light"] .footer-column h4 {
+  color: #007A6E;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .footer-column li a {
+  color: #64748B;
+  font-size: 0.85rem;
+}
+
+[data-theme="light"] .footer-column li a:hover {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .contact-info li {
+  color: #64748B;
+}
+
+[data-theme="light"] .contact-info li i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .social-links a {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 2px;
+  color: #475569;
+}
+
+[data-theme="light"] .social-links a:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .footer-bottom {
+  border-top-color: rgba(255,255,255,0.08);
+  color: #475569;
+}
+
+[data-theme="light"] .footer-links a {
+  color: #475569;
+}
+
+[data-theme="light"] .footer-links a:hover {
+  color: var(--cyan);
+}
+
+/* ── SCROLLBAR ────────────────────────────── */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #EAECF0;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0,122,110,0.25);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan);
+}
+
+/* ── MOBILE FILTER DRAWER ─────────────────── */
+[data-theme="light"] .filters-overlay {
+  background: rgba(15,23,42,0.45);
+}
+
+[data-theme="light"] .filters-sidebar.open {
+  box-shadow: 8px 0 40px rgba(15,23,42,0.14);
+}
+/* ============================================
+   MAROC PC - THE "LABORATORY" LIGHT MODE FIX
+   ============================================ */
+
+[data-theme="light"] .hero-bg::before {
+    /* Instead of a dark tint, we use a 'Light-Diffusing' filter */
+    background: radial-gradient(
+        circle at 50% 45%, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.4) 100%
+    );
+    backdrop-filter: saturate(1.2) brightness(1.05);
+}
+
+/* 1. TEXT PROTECTION (The 'Glass' Panel) */
+[data-theme="light"] .hero-content-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px); /* This makes the metal behind the text look soft */
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+}
+
+/* 2. REVERTING TO WHITE TEXT (High-Authority) */
+[data-theme="light"] .hero-bg h1,
+[data-theme="light"] #Lktba {
+    color: #FFFFFF !important;
+    /* We use a sharp dark halo to ensure it cuts through the silver metal */
+    text-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(0, 0, 0, 0.2);
+}
+
+/* 3. BUTTONS AS ANCHORS */
+[data-theme="light"] .hero-buttons .btn-primary {
+    background: #00897B; /* Deep Teal - Professional */
+    color: #FFFFFF;
+    border: none;
+    box-shadow: 0 10px 20px rgba(0, 137, 123, 0.25);
+}
+
+[data-theme="light"] .hero-buttons .btn-secondary {
+    background: #1e293b; /* Deep Navy - Industrial Contrast */
+    color: #FFFFFF;
+    border: 1px solid #0f172a;
+}
+
+/* ═══════════════════════════════════════════
+   GOOGLE TRANSLATE WIDGET
+   ═══════════════════════════════════════════ */
+.nav-translate {
+  display: flex;
+  align-items: center;
+}
+
+.goog-te-gadget {
+  font-family: 'Syne', sans-serif !important;
+  color: transparent !important;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+}
+
+.goog-te-gadget > span,
+.goog-te-gadget img {
+  display: none !important;
+}
+
+.goog-te-gadget .goog-te-combo {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+  max-width: 140px;
+  width: auto;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.goog-te-gadget .goog-te-combo:hover {
+  border-color: var(--cyan);
+}
+
+/* ═══════════════════════════════════════════
+   CUSTOM FLAG TRANSLATE WIDGET
+   ═══════════════════════════════════════════ */
+.custom-translate-container {
+  position: relative;
+  display: inline-block;
+  margin: 0 8px;
+}
+
+.custom-translate-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 45px;
+  height: 45px;
+}
+
+.custom-translate-btn:hover {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #000;
+}
+
+.custom-translate-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background: var(--nav-bg);
+  border: 1px solid var(--border-cyan);
+  border-radius: 12px;
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+  min-width: 130px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.custom-translate-dropdown.show {
+  display: flex;
+  animation: slideDownFade 0.2s ease forwards;
+}
+
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.custom-translate-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.custom-translate-option:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
+.custom-translate-option:hover {
+  background: var(--card-bg-hover);
+  color: var(--cyan);
+}
+
+.flag-icon {
+  font-size: 1.4rem;
+}
+
+/* Hide the native google translate completely now that we have custom UI */
+#google_translate_element {
+  display: none !important;
+}
+
+.goog-te-gadget .goog-te-combo:hover {
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.15);
+}
+
+.goog-logo-link, .goog-te-gadget span {
+  display: none !important;
+}
+
+/* Hide the top banner */
+.skiptranslate iframe,
+body > .skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+/* Light Mode Overrides (if any variables differ, though CSS vars handle most of it) */
+[data-theme="light"] .goog-te-gadget .goog-te-combo {
+  /* It automatically uses the light theme variables because it's inside the DOM */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 900px) {
+  .goog-te-gadget .goog-te-combo {
+    max-width: 90px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INSTALLMENT CALCULATOR — Light Mode
+   ═══════════════════════════════════════════════════════════ */
+
+[data-theme="light"] .installment-badge {
+  background: rgba(0, 122, 110, 0.06);
+  border-color: rgba(0, 122, 110, 0.18);
+  color: var(--muted);
+}
+
+[data-theme="light"] .installment-badge:hover {
+  background: rgba(0, 122, 110, 0.1);
+  border-color: rgba(0, 122, 110, 0.3);
+}
+
+[data-theme="light"] .installment-badge i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .installment-badge strong {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .installment-widget {
+  background: #FFFFFF;
+  border-color: var(--spec-border);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .installment-header {
+  color: #0F172A;
+}
+
+[data-theme="light"] .installment-header i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .installment-plan-btn {
+  border-color: var(--spec-border);
+  background: #F8F9FB;
+}
+
+[data-theme="light"] .installment-plan-btn:hover {
+  border-color: rgba(0, 122, 110, 0.3);
+  background: #F0FAF9;
+}
+
+[data-theme="light"] .installment-plan-btn.active {
+  border-color: var(--cyan);
+  background: rgba(0, 122, 110, 0.06);
+  box-shadow: 0 0 0 1px rgba(0, 122, 110, 0.15);
+}
+
+[data-theme="light"] .plan-months {
+  color: #0F172A;
+}
+
+[data-theme="light"] .installment-plan-btn.active .plan-months {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .plan-amount {
+  color: var(--muted);
+}
+
+[data-theme="light"] .installment-plan-btn.active .plan-amount {
+  color: #0F172A;
+}
+
+[data-theme="light"] .installment-row {
+  color: var(--muted);
+}
+
+[data-theme="light"] .installment-row span:last-child {
+  color: var(--text);
+}
+
+[data-theme="light"] .installment-total {
+  border-top-color: var(--spec-border);
+}
+
+[data-theme="light"] .installment-total span:last-child {
+  color: #0F172A;
+}
+
+[data-theme="light"] .installment-monthly-highlight {
+  background: rgba(0, 122, 110, 0.05);
+  border-color: rgba(0, 122, 110, 0.18);
+}
+
+[data-theme="light"] .installment-monthly-value {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .installment-monthly-label {
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPARISON ARENA — Light Mode
+   ═══════════════════════════════════════════════════════════ */
+
+[data-theme="light"] .spec-bar {
+  background: #E2E8F0;
+}
+
+[data-theme="light"] .spec-bar-fill {
+  background: var(--cyan);
+}
+
+[data-theme="light"] .spec-bar-fill.winner {
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  box-shadow: 0 0 6px rgba(0, 122, 110, 0.25);
+}
+
+[data-theme="light"] .spec-bar-fill.loser {
+  background: #94A3B8;
+  opacity: 0.4;
+}
+
+[data-theme="light"] .spec-bar-value {
+  color: var(--text);
+}
+
+[data-theme="light"] .winner-badge {
+  background: rgba(0, 122, 110, 0.08);
+  border-color: rgba(0, 122, 110, 0.22);
+  color: var(--cyan);
+}
+
+[data-theme="light"] .best-for-tag.gaming {
+  background: rgba(109, 40, 217, 0.06);
+  border-color: rgba(109, 40, 217, 0.2);
+  color: #7c3aed;
+}
+
+[data-theme="light"] .best-for-tag.value {
+  background: rgba(21, 128, 61, 0.06);
+  border-color: rgba(21, 128, 61, 0.2);
+  color: var(--green);
+}
+
+[data-theme="light"] .best-for-tag.creator {
+  background: rgba(14, 116, 144, 0.06);
+  border-color: rgba(14, 116, 144, 0.2);
+  color: #0e7490;
+}
+
+[data-theme="light"] .best-for-tag.efficiency {
+  background: rgba(180, 130, 0, 0.06);
+  border-color: rgba(180, 130, 0, 0.2);
+  color: #b48200;
+}
+
+[data-theme="light"] .compare-table td.is-winner::after {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .compare-table .section-row td {
+  color: var(--cyan);
+  background: rgba(0, 122, 110, 0.04);
+  border-bottom-color: rgba(0, 122, 110, 0.12);
+}
+
+[data-theme="light"] .compare-share-btn {
+  background: #FFFFFF;
+  border-color: var(--spec-border);
+  color: var(--text);
+}
+
+[data-theme="light"] .compare-share-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FLASH SALES — Light Mode
+   (Deals section stays dark even in light mode for drama)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Flash sale cards inside the deals section inherit its dark bg */
+[data-theme="light"] .deals-section .flash-sale-card {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(203, 213, 225, 0.15);
+}
+
+[data-theme="light"] .deals-section .flash-sale-card:hover {
+  border-color: rgba(255, 61, 90, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .deals-section .flash-sale-img {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+[data-theme="light"] .deals-section .flash-sale-info h4 {
+  color: #F1F5F9;
+}
+
+[data-theme="light"] .deals-section .flash-sale-old {
+  color: #94A3B8;
+}
+
+[data-theme="light"] .deals-section .flash-stock-warning {
+  background: rgba(255, 61, 90, 0.12);
+  border-color: rgba(255, 61, 90, 0.25);
+}
+
+/* Flash sale badge on product cards (outside deals section = light bg) */
+[data-theme="light"] .product-flash-badge {
+  background: linear-gradient(135deg, #D95F0A, #E8760A);
+  box-shadow: 0 2px 8px rgba(217, 95, 10, 0.25);
+}
+
