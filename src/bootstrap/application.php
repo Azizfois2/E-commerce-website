@@ -149,7 +149,9 @@ function applyLoginSessionLifetime(bool $remember): void
     $_SESSION['remember_me'] = $remember;
     
     // Set a temporary cookie so the frontend JS (theme.js) can plant the localStorage footprint
-    setcookie('plant_footprint', '1', appCookieOptions(time() + 60));
+    $opts = appCookieOptions(time() + 60);
+    $opts['httponly'] = false; // Must be readable by JS
+    setcookie('plant_footprint', '1', $opts);
 
     if ($remember) {
         $expires = time() + REMEMBER_ME_SECONDS;

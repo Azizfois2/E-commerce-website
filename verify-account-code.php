@@ -180,6 +180,18 @@ $phone = $client ? htmlspecialchars($client['telephone']) : '';
                 <h2>Vérification par <?= $method === 'whatsapp' ? 'WhatsApp' : 'SMS' ?></h2>
                 <p>Entrez le code à 6 chiffres que nous venons d'envoyer par <?= $method === 'whatsapp' ? 'WhatsApp' : 'SMS' ?> au <strong><?= $phone ?></strong>.</p>
                 
+                <?php if (defined('DEV_MODE') && DEV_MODE): ?>
+                    <?php if ($method === 'whatsapp' && !empty($_SESSION['two_factor_login']['whatsapp_debug_code'])): ?>
+                        <div style="background: rgba(0, 230, 118, 0.1); border: 1px solid var(--green); color: var(--green); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;">
+                            Local dev WhatsApp code: <?= htmlspecialchars($_SESSION['two_factor_login']['whatsapp_debug_code']) ?>
+                        </div>
+                    <?php elseif ($method === 'sms' && !empty($_SESSION['two_factor_login']['sms_debug_code'])): ?>
+                        <div style="background: rgba(0, 230, 118, 0.1); border: 1px solid var(--green); color: var(--green); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;">
+                            Local dev SMS code: <?= htmlspecialchars($_SESSION['two_factor_login']['sms_debug_code']) ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+                
                 <?php if ($error): ?>
                     <div class="alert-error">
                         <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
