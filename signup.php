@@ -137,7 +137,6 @@ if ($requestMethod === "POST") {
                     sendTwoFactorCodeSMS($telephone, $fullname, $code);
                 }
                 
-                session_start();
                 $_SESSION['verify_account_email'] = $email;
                 $_SESSION['verify_account_method'] = $verify_method;
                 header("Location: verify-account-code.php");

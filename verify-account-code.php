@@ -1,7 +1,6 @@
 <?php
 require_once 'config.php';
 
-session_start();
 $email = $_SESSION['verify_account_email'] ?? '';
 $method = $_SESSION['verify_account_method'] ?? 'sms';
 
