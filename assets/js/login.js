@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ── Theme toggle ──────────────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const html = document.documentElement;
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+    }
+
     const form = document.forms.login;
     const passInput = document.getElementById('login-pass');
     const toggleBtn = document.getElementById('loginTogglePass');
