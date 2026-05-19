@@ -57,7 +57,9 @@ define('SMTP_FROM', envString('SMTP_FROM', envString('SMTP_USER', '')));
 define('SMTP_FROM_NAME', envString('SMTP_FROM_NAME', 'Maroc PC'));
 
 // Evolution API (optional). In DEV_MODE without these values, 2FA codes are logged locally.
+define('EVOLUTION_API_URL', envString('EVOLUTION_API_URL', 'http://localhost:8080'));
 define('EVOLUTION_API_KEY', envString('EVOLUTION_API_KEY', ''));
+define('EVOLUTION_INSTANCE_NAME', envString('EVOLUTION_INSTANCE_NAME', 'Maroc PC'));
 
 // Textbee SMS API (optional). In DEV_MODE without these values, SMS codes are logged locally.
 define('TEXTBEE_API_KEY', envString('TEXTBEE_API_KEY', ''));

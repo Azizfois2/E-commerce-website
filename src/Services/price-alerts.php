@@ -60,7 +60,8 @@ function sendPriceDropWhatsApp(string $phone, string $productName, float $price,
         ]);
 
         if ($payload !== false && function_exists('curl_init')) {
-            $ch = curl_init('http://localhost:8080/message/sendText/' . rawurlencode(EVOLUTION_INSTANCE_NAME));
+            $apiUrl = rtrim(EVOLUTION_API_URL, '/') . '/message/sendText/' . rawurlencode(EVOLUTION_INSTANCE_NAME);
+            $ch = curl_init($apiUrl);
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
                 CURLOPT_HTTPHEADER => [
