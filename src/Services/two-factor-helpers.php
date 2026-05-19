@@ -120,7 +120,7 @@ function sendTwoFactorCodeWhatsApp(string $phone, string $name, string $code): b
             "text" => $message
         ]);
         if ($payload !== false && function_exists('curl_init')) {
-            $ch = curl_init('http://localhost:8080/message/sendText/' . rawurlencode('Samsung Galaxy'));
+            $ch = curl_init('http://localhost:8080/message/sendText/' . rawurlencode(EVOLUTION_INSTANCE_NAME));
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
                 CURLOPT_HTTPHEADER => [
