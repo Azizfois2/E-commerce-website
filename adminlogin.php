@@ -26,6 +26,13 @@ if ($requestMethod === "POST") {
         $errors["general"] = "Invalid session, please try again.";
     }
 
+    if (empty($errors) && defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== '') {
+        $cfToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!verifyTurnstile($cfToken)) {
+            $errors["general"] = "CAPTCHA verification failed. Please try again.";
+        }
+    }
+
     $email    = trim($_POST["email"] ?? "");
     $pass_raw = trim($_POST["pass"]  ?? "");
 
@@ -126,16 +133,17 @@ function registerAdminFailedLogin(PDO $pdo, string $attemptKey, string $email): 
     }
 
     $nextAttempts = (int) $attempts + 1;
-    $lockSql = $nextAttempts >= ADMIN_MAX_FAILED_ATTEMPTS
-        ? ", locked_until = DATE_ADD(NOW(), INTERVAL " . ADMIN_LOCK_MINUTES . " MINUTE)"
-        : ", locked_until = NULL";
+    $lockedUntil = null;
+    if ($nextAttempts >= ADMIN_MAX_FAILED_ATTEMPTS) {
+        $lockedUntil = (new DateTime())->modify('+' . ADMIN_LOCK_MINUTES . ' minutes')->format('Y-m-d H:i:s');
+    }
 
     $stmt = $pdo->prepare(
         "UPDATE admin_login_attempts
-         SET failed_attempts = ?, last_failed_at = NOW() {$lockSql}
+         SET failed_attempts = ?, last_failed_at = NOW(), locked_until = ?
          WHERE attempt_key = ?"
     );
-    $stmt->execute([$nextAttempts, $attemptKey]);
+    $stmt->execute([$nextAttempts, $lockedUntil, $attemptKey]);
 }
 
 function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
@@ -154,6 +162,9 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/signup.css">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
+    <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+    <?php endif; ?>
 
     <style>
         .form-group.invalid .error-msg { display: block; }
@@ -346,6 +357,12 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
                     </div>
                     <span class="error-msg" id="err-login-pass"><?= $errors["pass"] ?? "Password is required" ?></span>
                 </div>
+
+                <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"></div>
+                    </div>
+                <?php endif; ?>
 
                 <div class="form-actions">
                     <button type="submit" class="Bou" id="loginBtn" style="background: var(--cyan); color: #000;">System Access</button>

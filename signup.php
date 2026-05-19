@@ -33,6 +33,13 @@ if ($requestMethod === "POST") {
         $errors["general"] = "Session invalide, veuillez réessayer.";
     }
 
+    if (empty($errors) && defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== '') {
+        $cfToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!verifyTurnstile($cfToken)) {
+            $errors["general"] = "CAPTCHA verification failed. Please try again.";
+        }
+    }
+
     // ── Sanitize ──────────────────────────────────────────
     $fullname = trim($_POST["fullname"] ?? "");
     $fullname = strip_tags($fullname);
@@ -176,6 +183,9 @@ function grp(string $field, array $errors): string
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
+    <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+    <?php endif; ?>
 
     <style>
         /* ── Styles manquants dans signup.css : alertes + surcharge invalid ── */
@@ -404,6 +414,12 @@ function grp(string $field, array $errors): string
                         </label>
                     </div>
                 </div>
+
+                <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"></div>
+                    </div>
+                <?php endif; ?>
 
                 <div class="form-actions">
                     <button type="submit" class="Bou">Create Account</button>

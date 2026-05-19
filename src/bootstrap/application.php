@@ -63,6 +63,10 @@ define('EVOLUTION_API_KEY', envString('EVOLUTION_API_KEY', ''));
 define('TEXTBEE_API_KEY', envString('TEXTBEE_API_KEY', ''));
 define('TEXTBEE_DEVICE_ID', envString('TEXTBEE_DEVICE_ID', ''));
 
+// Cloudflare Turnstile CAPTCHA keys
+define('TURNSTILE_SITE_KEY', envString('TURNSTILE_SITE_KEY', ''));
+define('TURNSTILE_SECRET_KEY', envString('TURNSTILE_SECRET_KEY', ''));
+
 // ── Google OAuth ──────────────────────────────────────────────
 define('GOOGLE_CLIENT_ID', envString('GOOGLE_CLIENT_ID', ''));
 define('GOOGLE_CLIENT_SECRET', envString('GOOGLE_CLIENT_SECRET', ''));
@@ -217,3 +221,42 @@ if (rand(1, 10) === 1) {
         // Silently ignore DB errors here to not break the app
     }
 }
+
+/**
+ * Verify Cloudflare Turnstile CAPTCHA token
+ */
+function verifyTurnstile(string $token): bool
+{
+    // If keys aren't set, skip verification (allows dev/testing to work out of the box)
+    if (defined('TURNSTILE_SECRET_KEY') && TURNSTILE_SECRET_KEY === '') {
+        return true;
+    }
+
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    $data = [
+        'secret' => TURNSTILE_SECRET_KEY,
+        'response' => $token,
+        'remoteip' => $ip
+    ];
+
+    $options = [
+        'http' => [
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => http_build_query($data),
+            'timeout' => 5
+        ]
+    ];
+
+    $context  = stream_context_create($options);
+    $result = @file_get_contents($url, false, $context);
+    
+    if ($result === false) {
+        return false;
+    }
+
+    $response = json_decode($result, true);
+    return isset($response['success']) && $response['success'] === true;
+}
+

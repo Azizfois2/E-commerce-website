@@ -49,6 +49,13 @@ if ($requestMethod === "POST") {
         $errors["general"] = "Session invalide, veuillez réessayer.";
     }
 
+    if (empty($errors) && defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== '') {
+        $cfToken = $_POST['cf-turnstile-response'] ?? '';
+        if (!verifyTurnstile($cfToken)) {
+            $errors["general"] = "CAPTCHA verification failed. Please try again.";
+        }
+    }
+
     $email    = trim($_POST["email"] ?? "");
     $pass_raw = trim($_POST["pass"]  ?? "");
     $remember = isset($_POST["remember"]);
@@ -181,6 +188,7 @@ if ($requestMethod === "POST") {
         }
     }
 }
+}
 
 // ─── Helper CSS ───────────────────────────────────────────────────
 function grp(string $field, array $errors): string {
@@ -239,13 +247,14 @@ function registerFailedLogin(PDO $pdo, int $clientId, int $currentAttempts): boo
     $nextAttempts = $currentAttempts + 1;
 
     if ($nextAttempts >= LOGIN_MAX_FAILED_ATTEMPTS) {
+        $lockedUntil = (new DateTime())->modify('+' . LOGIN_LOCK_MINUTES . ' minutes')->format('Y-m-d H:i:s');
         $stmt = $pdo->prepare(
             "UPDATE Client
              SET failed_login_attempts = ?,
-                 locked_until = DATE_ADD(NOW(), INTERVAL " . LOGIN_LOCK_MINUTES . " MINUTE)
+                 locked_until = ?
              WHERE id_client = ?"
         );
-        $stmt->execute([$nextAttempts, $clientId]);
+        $stmt->execute([$nextAttempts, $lockedUntil, $clientId]);
         return true;
     }
 
@@ -309,24 +318,25 @@ function registerGlobalFailedLogin(PDO $pdo, string $attemptKey, string $email):
 
     if ($attempts === false) {
         $stmt = $pdo->prepare(
-            \"INSERT INTO client_login_attempts (attempt_key, email, ip_address, failed_attempts, last_failed_at)
-             VALUES (?, ?, ?, 1, NOW())\"
+            "INSERT INTO client_login_attempts (attempt_key, email, ip_address, failed_attempts, last_failed_at)
+             VALUES (?, ?, ?, 1, NOW())"
         );
         $stmt->execute([$attemptKey, strtolower(trim($email)), loginClientIp()]);
         return;
     }
 
     $nextAttempts = (int) $attempts + 1;
-    $lockSql = $nextAttempts >= LOGIN_MAX_FAILED_ATTEMPTS
-        ? \", locked_until = DATE_ADD(NOW(), INTERVAL \" . LOGIN_LOCK_MINUTES . \" MINUTE)\"
-        : \", locked_until = NULL\";
+    $lockedUntil = null;
+    if ($nextAttempts >= LOGIN_MAX_FAILED_ATTEMPTS) {
+        $lockedUntil = (new DateTime())->modify('+' . LOGIN_LOCK_MINUTES . ' minutes')->format('Y-m-d H:i:s');
+    }
 
     $stmt = $pdo->prepare(
-        \"UPDATE client_login_attempts
-         SET failed_attempts = ?, last_failed_at = NOW() {$lockSql}
-         WHERE attempt_key = ?\"
+        "UPDATE client_login_attempts
+         SET failed_attempts = ?, last_failed_at = NOW(), locked_until = ?
+         WHERE attempt_key = ?"
     );
-    $stmt->execute([$nextAttempts, $attemptKey]);
+    $stmt->execute([$nextAttempts, $lockedUntil, $attemptKey]);
 }
 
 function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
@@ -346,6 +356,9 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
+    <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+    <?php endif; ?>
 
     <style>
         /* ── Surcharge : affiche .error-msg quand PHP ajoute .invalid ── */
@@ -472,6 +485,12 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                     </label>
                     <a href="forgot-password.php" class="forgot-link">Forgot password?</a>
                 </div>
+
+                <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"></div>
+                    </div>
+                <?php endif; ?>
 
                 <div class="form-actions">
                     <button type="submit" class="Bou" id="loginBtn">Sign In</button>
