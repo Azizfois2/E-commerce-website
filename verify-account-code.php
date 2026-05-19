@@ -3,6 +3,7 @@ require_once 'config.php';
 
 session_start();
 $email = $_SESSION['verify_account_email'] ?? '';
+$method = $_SESSION['verify_account_method'] ?? 'sms';
 
 if (!$email) {
     header("Location: signup.php");
@@ -170,10 +171,14 @@ $phone = $client ? htmlspecialchars($client['telephone']) : '';
                 </a>
             <?php else: ?>
                 <div class="verify-icon" style="color: #00f5d4;">
-                    <i class="fas fa-comment-sms"></i>
+                    <?php if ($method === 'whatsapp'): ?>
+                        <i class="fab fa-whatsapp"></i>
+                    <?php else: ?>
+                        <i class="fas fa-comment-sms"></i>
+                    <?php endif; ?>
                 </div>
-                <h2>Vérification par Téléphone</h2>
-                <p>Entrez le code à 6 chiffres que nous venons d'envoyer par SMS/WhatsApp au <strong><?= $phone ?></strong>.</p>
+                <h2>Vérification par <?= $method === 'whatsapp' ? 'WhatsApp' : 'SMS' ?></h2>
+                <p>Entrez le code à 6 chiffres que nous venons d'envoyer par <?= $method === 'whatsapp' ? 'WhatsApp' : 'SMS' ?> au <strong><?= $phone ?></strong>.</p>
                 
                 <?php if ($error): ?>
                     <div class="alert-error">
