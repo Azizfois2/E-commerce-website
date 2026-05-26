@@ -873,206 +873,168 @@
 
         const store = window.selectedPickupStore;
         const verifyCode = pickupVerificationCode || getPickupVerificationCode();
-
-        // Populate Template
-        document.getElementById('ticketOrderId').textContent = '#' + String(orderId).padStart(6, '0');
         const firstName = document.getElementById('firstName')?.value || 'Customer';
         const lastName = document.getElementById('lastName')?.value || '';
-        document.getElementById('ticketCustomerName').textContent = `${firstName} ${lastName}`.trim();
-        document.getElementById('ticketTotal').textContent = formatMoney(total);
-        document.getElementById('ticketVerifyCode').textContent = verifyCode;
+        const customerName = `${firstName} ${lastName}`.trim();
         
-        document.getElementById('ticketStoreName').textContent = store.name;
-        document.getElementById('ticketStoreAddress').textContent = store.address;
-        document.getElementById('ticketStoreHours').textContent = 'Hours: ' + store.hours;
-        
-        const d = new Date();
-        document.getElementById('ticketDate').textContent = d.toLocaleString();
-
-        // Populate Items
-        const itemsList = document.getElementById('ticketItemsList');
-        itemsList.innerHTML = '';
-        ticketItems.forEach(item => {
-            const li = document.createElement('li');
-            li.style.borderBottom = '1px dashed rgba(255,255,255,0.1)';
-            li.style.padding = '8px 0';
-            li.style.display = 'flex';
-            li.style.justifyContent = 'space-between';
-            li.innerHTML = `<span>${item.quantity}x ${item.name}</span> <span style="color:#00f5d4;">${formatMoney(item.price * item.quantity)}</span>`;
-            itemsList.appendChild(li);
-        });
-
-        // Check if html2pdf is available
-        if (typeof html2pdf === 'undefined') {
-            console.error('html2pdf library not loaded');
-            downloadPickupTicketHtmlFallback(document.getElementById('pickupTicketTemplate'), verifyCode);
-            return;
-        }
-
-        // Trigger html2pdf with improved settings
-        const element = document.getElementById('pickupTicketTemplate');
-        if (!element) {
-            console.error('Ticket template element not found');
-            alert('Unable to generate PDF ticket. Please contact support.');
-            return;
-        }
-
-        const opt = {
-            margin:       10,
-            filename:     `MarocPC_Pickup_${verifyCode}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-                scale: 2, 
-                useCORS: true, 
-                logging: true,
-                backgroundColor: '#0f172a',
-                letterRendering: true,
-                allowTaint: true,
-                foreignObjectRendering: false,
-                imageTimeout: 0,
-                removeContainer: true
-            },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak:    { mode: ['avoid-all'] }
+        // Prepare data for server-side PDF generation
+        const ticketData = {
+            order_id: '#' + String(orderId).padStart(6, '0'),
+            customer_name: customerName,
+            total: formatMoney(total),
+            date: new Date().toLocaleString(),
+            verification_code: verifyCode,
+            store_name: store.name,
+            store_address: store.address,
+            store_hours: store.hours,
+            items: ticketItems.map(item => ({
+                quantity: item.quantity,
+                name: item.name,
+                price: formatMoney(item.price * item.quantity)
+            }))
         };
-
-        // Clone and prepare element for rendering with inline styles
-        const renderNode = element.cloneNode(true);
-        renderNode.id = 'pickupTicketTemplateRender';
         
-        // Force all styles to be inline and visible
-        renderNode.style.cssText = `
-            display: block !important;
-            position: absolute !important;
-            left: 50% !important;
-            top: 100px !important;
-            transform: translateX(-50%) !important;
-            z-index: 99999 !important;
-            pointer-events: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            width: 800px !important;
-            padding: 40px !important;
-            background: #0f172a !important;
-            color: #fff !important;
-            font-family: 'Space Mono', monospace !important;
-            border: 2px solid #00f5d4 !important;
-        `;
-        
-        document.body.appendChild(renderNode);
-
-        // Wait for fonts and ensure visibility
-        console.log('Waiting for fonts to load...');
-        
-        setTimeout(() => {
-            console.log('Starting PDF generation...');
-            html2pdf()
-                .set(opt)
-                .from(renderNode)
-                .save()
-                .then(() => {
-                    console.log('PDF generated successfully');
-                    renderNode.remove();
-                })
-                .catch((error) => {
-                    console.error('PDF generation error:', error);
-                    renderNode.remove();
-                    // Use HTML fallback
-                    downloadPickupTicketHtmlFallback(element, verifyCode);
-                });
-        }, 1000);
+        // Use server-side generation (more reliable than client-side)
+        generateTicketServerSide(ticketData);
     }
-
-    function waitForTicketAssets(element) {
-        const images = Array.from(element.querySelectorAll('img'));
-        if (!images.length) return Promise.resolve();
-
-        return Promise.all(images.map(img => {
-            if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-            return new Promise(resolve => {
-                img.addEventListener('load', resolve, { once: true });
-                img.addEventListener('error', resolve, { once: true });
-                setTimeout(resolve, 1200);
+    
+    async function generateTicketServerSide(ticketData) {
+        try {
+            const response = await fetch('generate-pickup-ticket-pdf.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ticketData)
             });
-        }));
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Open printable HTML in new window
+                const printWindow = window.open('', '_blank', 'width=900,height=1200');
+                if (printWindow) {
+                    printWindow.document.write(result.html);
+                    printWindow.document.close();
+                    
+                    // Show success message
+                    showToast('✅ Ticket opened in new window. Use Print → Save as PDF');
+                } else {
+                    // Popup blocked - download HTML file instead
+                    downloadHTMLTicket(result.html, ticketData.verification_code);
+                }
+            } else {
+                console.error('Server-side generation failed:', result.error);
+                // Fallback to client-side HTML
+                generateTicketClientSide(ticketData);
+            }
+        } catch (error) {
+            console.error('Failed to generate ticket:', error);
+            // Fallback to client-side HTML
+            generateTicketClientSide(ticketData);
+        }
     }
-
-    function downloadPickupTicketHtmlFallback(element, verifyCode) {
-        if (!element) {
-            alert('Pickup ticket download failed. Please copy the pickup code from this confirmation screen.');
-            return;
+    
+    function generateTicketClientSide(ticketData) {
+        // Client-side HTML generation as fallback
+        const html = createTicketHTML(ticketData);
+        const printWindow = window.open('', '_blank', 'width=900,height=1200');
+        if (printWindow) {
+            printWindow.document.write(html);
+            printWindow.document.close();
+        } else {
+            downloadHTMLTicket(html, ticketData.verification_code);
         }
-
-        const html = `<!doctype html>
-<html lang="en">
+    }
+    
+    function createTicketHTML(data) {
+        let itemsHTML = '';
+        data.items.forEach(item => {
+            itemsHTML += `<div class="item">
+                <span class="item-name">${item.quantity}x ${item.name}</span>
+                <span class="item-price">${item.price}</span>
+            </div>`;
+        });
+        
+        return `<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maroc PC Pickup Ticket - ${verifyCode}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>Maroc PC Pickup Ticket - ${data.verification_code}</title>
     <style>
+        @page { size: A4; margin: 0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: start center;
-            background: #0f172a;
-            padding: 24px;
-            font-family: 'Space Mono', monospace;
-        }
-        .ticket-actions {
-            width: 800px;
-            max-width: 100%;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-bottom: 12px;
-        }
-        button {
-            border: 1px solid #00f5d4;
-            border-radius: 8px;
-            background: #00f5d4;
-            color: #0f172a;
-            font: 700 14px system-ui, sans-serif;
-            padding: 10px 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        button:hover {
-            background: #00d4b8;
-            transform: translateY(-1px);
-        }
-        button.secondary {
-            background: transparent;
-            color: #00f5d4;
-        }
-        button.secondary:hover {
-            background: rgba(0, 245, 212, 0.1);
-        }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; padding: 40px; }
+        .ticket { max-width: 800px; margin: 0 auto; border: 3px solid #00f5d4; padding: 40px; background: #0f172a; }
+        .header { text-align: center; border-bottom: 2px solid #00f5d4; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: #00f5d4; font-size: 36px; letter-spacing: 4px; margin-bottom: 10px; }
+        .header p { color: #94a3b8; font-size: 16px; }
+        .content { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .section { flex: 1; }
+        .section h3 { color: #00f5d4; font-size: 18px; margin-bottom: 15px; }
+        .section p { margin: 8px 0; font-size: 14px; }
+        .label { color: #94a3b8; }
+        .value { font-weight: bold; color: #fff; }
+        .verification-code { background: rgba(0, 245, 212, 0.1); border: 2px dashed #00f5d4; padding: 20px; text-align: center; border-radius: 8px; }
+        .verification-code .code { font-size: 28px; font-weight: bold; letter-spacing: 4px; color: #00f5d4; }
+        .store-info { background: rgba(255, 255, 255, 0.05); padding: 20px; border-left: 4px solid #00f5d4; margin-bottom: 30px; }
+        .store-info h3 { color: #00f5d4; margin-bottom: 10px; }
+        .store-info h4 { font-size: 20px; margin-bottom: 5px; }
+        .store-info p { color: #cbd5e1; margin: 5px 0; }
+        .items { margin-bottom: 30px; }
+        .items h3 { color: #00f5d4; border-bottom: 1px solid rgba(0, 245, 212, 0.3); padding-bottom: 10px; margin-bottom: 15px; }
+        .item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); }
+        .item-name { color: #fff; }
+        .item-price { color: #00f5d4; font-weight: bold; }
+        .footer { text-align: center; padding-top: 20px; border-top: 1px solid rgba(0, 245, 212, 0.3); color: #94a3b8; font-size: 12px; }
+        .footer p { margin: 5px 0; }
+        .print-btn { position: fixed; top: 20px; right: 20px; background: #00f5d4; color: #0f172a; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; z-index: 1000; }
         @media print {
-            body { display: block; padding: 0; background: #0f172a; }
-            .ticket-actions { display: none !important; }
-        }
-        @media (max-width: 850px) {
-            .ticket-actions { width: 100%; }
+            body { background: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-btn { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="ticket-actions">
-        <button class="secondary" onclick="window.close()">Close</button>
-        <button onclick="window.print()"><i class="fas fa-print"></i> Print or Save as PDF</button>
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <div class="ticket">
+        <div class="header">
+            <h1>MAROC PC</h1>
+            <p>AUTHORIZED STORE PICKUP TICKET</p>
+        </div>
+        <div class="content">
+            <div class="section">
+                <h3>ORDER DETAILS</h3>
+                <p><span class="label">Order #:</span> <span class="value">${data.order_id}</span></p>
+                <p><span class="label">Customer:</span> <span class="value">${data.customer_name}</span></p>
+                <p><span class="label">Total:</span> <span class="value">${data.total}</span></p>
+                <p><span class="label">Date:</span> <span class="value">${data.date}</span></p>
+            </div>
+            <div class="section">
+                <h3>VERIFICATION CODE</h3>
+                <div class="verification-code">
+                    <div class="code">${data.verification_code}</div>
+                </div>
+            </div>
+        </div>
+        <div class="store-info">
+            <h3>📍 PICKUP LOCATION</h3>
+            <h4>${data.store_name}</h4>
+            <p>${data.store_address}</p>
+            <p>${data.store_hours}</p>
+        </div>
+        <div class="items">
+            <h3>ITEMS TO COLLECT</h3>
+            ${itemsHTML}
+        </div>
+        <div class="footer">
+            <p>Please bring this ticket and a valid ID to collect your order.</p>
+            <p>For assistance, contact: support@marocpc.com</p>
+        </div>
     </div>
-    ${element.outerHTML}
-    <script>
-        // Auto-print dialog on load (optional)
-        // window.addEventListener('load', () => setTimeout(() => window.print(), 500));
-    </script>
 </body>
 </html>`;
-
+    }
+    
+    function downloadHTMLTicket(html, verifyCode) {
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1080,24 +1042,9 @@
         a.download = `MarocPC_Pickup_${verifyCode}.html`;
         a.click();
         URL.revokeObjectURL(url);
-
-        // Also open in new window for immediate printing
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write(html);
-            printWindow.document.close();
-        }
+        showToast('📄 Ticket downloaded as HTML. Open it and use Print → Save as PDF');
     }
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `MarocPC_Pickup_${verifyCode || 'Ticket'}.html`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 3000);
-        alert('PDF generation failed, so an HTML pickup ticket was downloaded instead. Open it and use Print or Save as PDF.');
+
     }
 
     // ── Init Place Order (Credit Card, COD, Bitcoin, etc.) ──
