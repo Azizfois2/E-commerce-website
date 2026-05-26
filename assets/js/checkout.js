@@ -4,7 +4,7 @@
     const TAX_RATE = 0.0825;
     const COD_FEE = 30;
     const FREE_SHIPPING_THRESHOLD = 1000;
-    const SHIPPING_PRICES = { standard: 100, express: 200, overnight: 400, free: 0 };
+    const SHIPPING_PRICES = { standard: 100, express: 200, overnight: 400, free: 0, pickup: 0 };
 
     // Test card numbers for simulated payment
     const TEST_CARDS = {
@@ -85,6 +85,40 @@
         let id = 'TXN-';
         for (let i = 0; i < 12; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
         return id;
+    }
+
+    function selectedShippingMethod() {
+        return document.querySelector('input[name="shipping"]:checked')?.value || 'standard';
+    }
+
+    function generatePickupVerificationCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const bytes = new Uint8Array(8);
+        if (window.crypto?.getRandomValues) {
+            window.crypto.getRandomValues(bytes);
+        } else {
+            for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+        }
+        const token = Array.from(bytes, byte => chars[byte % chars.length]).join('');
+        return `PICKUP-${token.slice(0, 4)}-${token.slice(4)}`;
+    }
+
+    function getPickupVerificationCode() {
+        if (!window.currentPickupVerificationCode) {
+            window.currentPickupVerificationCode = generatePickupVerificationCode();
+        }
+        return window.currentPickupVerificationCode;
+    }
+
+    function formatPickupAddress(store) {
+        if (!store) return '';
+        return [
+            'Store Pickup',
+            store.name ? `Store: ${store.name}` : '',
+            store.address ? `Address: ${store.address}` : '',
+            store.hours ? `Hours: ${store.hours}` : '',
+            store.phone ? `Phone: ${store.phone}` : ''
+        ].filter(Boolean).join('\n');
     }
 
     function luhnCheck(cardNo) {
@@ -215,8 +249,7 @@
     }
 
     function selectedShippingPrice(subtotal) {
-        const sel = document.querySelector('input[name="shipping"]:checked');
-        const type = sel ? sel.value : 'standard';
+        const type = selectedShippingMethod();
         const base = SHIPPING_PRICES[type] ?? SHIPPING_PRICES.standard;
         return (subtotal >= FREE_SHIPPING_THRESHOLD && type === 'standard') ? 0 : base;
     }
@@ -458,13 +491,18 @@
 
     function initShippingUpdates() {
         const update = () => {
-            const method = document.querySelector('input[name="shipping"]:checked')?.value;
+            const method = selectedShippingMethod();
             els.shippingInputs.forEach(input => {
                 const label = input.closest('.shipping-option');
                 if (label) label.classList.toggle('active', input.checked);
             });
             const mapContainer = document.getElementById('pickupMapContainer');
             if (mapContainer) mapContainer.style.display = method === 'pickup' ? 'block' : 'none';
+            if (method !== 'pickup') {
+                window.selectedPickupStore = null;
+                window.currentPickupVerificationCode = '';
+                document.querySelectorAll('.pickup-node.selected').forEach(node => node.classList.remove('selected'));
+            }
             syncCheckout();
         };
         els.shippingInputs.forEach(input => input.addEventListener('change', update));
@@ -668,6 +706,10 @@
 
     // ── Build Address ────────────────────────────────────────
     function buildAddress() {
+        if (selectedShippingMethod() === 'pickup') {
+            return formatPickupAddress(window.selectedPickupStore);
+        }
+
         const fn = document.getElementById('firstName')?.value.trim() || '';
         const ln = document.getElementById('lastName')?.value.trim() || '';
         const email = document.getElementById('email')?.value.trim() || '';
@@ -692,14 +734,22 @@
 
     // ── Validate Shipping Form ───────────────────────────────
     function validateShipping() {
-        const required = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'zip'];
+        const isPickup = selectedShippingMethod() === 'pickup';
+        const required = isPickup
+            ? ['firstName', 'lastName', 'email', 'phone']
+            : ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'zip'];
         for (const id of required) {
             const el = document.getElementById(id);
             if (!el || !el.value.trim()) {
                 el?.focus();
-                alert(`Please fill in all required shipping fields.`);
+                alert(isPickup ? 'Please fill in your pickup contact details.' : 'Please fill in all required shipping fields.');
                 return false;
             }
+        }
+        if (isPickup && !window.selectedPickupStore) {
+            document.getElementById('pickupMapContainer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            alert('Please select a pickup location before placing your order.');
+            return false;
         }
         return true;
     }
@@ -731,7 +781,9 @@
     // ── Place Order (common backend call) ────────────────────
     async function placeOrder(paymentMethod, transactionId, paypalOrderId) {
         const items = getCartItems();
-        const shippingMethod = document.querySelector('input[name="shipping"]:checked')?.value || 'standard';
+        const shippingMethod = selectedShippingMethod();
+        const pickupStore = shippingMethod === 'pickup' ? window.selectedPickupStore : null;
+        const pickupVerificationCode = pickupStore ? getPickupVerificationCode() : '';
         const shippingAddress = buildAddress();
         const billingSame = document.getElementById('sameAsShipping')?.checked;
         const billingAddress = billingSame ? shippingAddress : '';
@@ -749,6 +801,8 @@
             notes: document.getElementById('orderNotes')?.value.trim() || '',
             transaction_id: transactionId || null,
             paypal_order_id: paypalOrderId || null,
+            pickup_store: pickupStore,
+            pickup_verification_code: pickupVerificationCode,
             // Extra info to save
             save_info: document.getElementById('saveInfo')?.checked || false,
             newsletter: document.getElementById('newsletterSignup')?.checked || false,
@@ -769,11 +823,9 @@
     }
 
     // ── Show Confirmation ────────────────────────────────────
-    function showConfirmation(orderId, transactionId, paymentMethod, total) {
-        const shippingMethod = document.querySelector('input[name="shipping"]:checked')?.value || 'standard';
-        
-        try { localStorage.removeItem('cart'); } catch (e) {}
-        if (typeof Cart !== 'undefined') Cart.items = [];
+    function showConfirmation(orderId, transactionId, paymentMethod, total, ticketItems = getCartItems(), pickupVerificationCode = '') {
+        const shippingMethod = selectedShippingMethod();
+        const isPickup = shippingMethod === 'pickup';
 
         const methodLabels = {
             'credit-card': 'Credit / Debit Card',
@@ -789,27 +841,38 @@
         document.getElementById('transactionId').textContent = transactionId || '—';
         document.getElementById('confirmPaymentMethod').textContent = methodLabels[paymentMethod] || paymentMethod;
         document.getElementById('confirmAmount').textContent = formatMoney(total);
+        const pickupCodeRow = document.getElementById('pickupCodeRow');
+        const confirmPickupCode = document.getElementById('confirmPickupCode');
+        if (pickupCodeRow && confirmPickupCode) {
+            pickupCodeRow.style.display = isPickup ? 'flex' : 'none';
+            confirmPickupCode.textContent = isPickup ? pickupVerificationCode : '—';
+        }
+        const confirmationMessage = document.getElementById('confirmationMessage');
+        if (confirmationMessage) {
+            confirmationMessage.textContent = isPickup
+                ? 'Your pickup order has been placed. Download or print your ticket and bring a valid ID to the selected store.'
+                : 'Thank you for your purchase. Your order has been placed successfully.';
+        }
         document.getElementById('confirmationModal').classList.add('active');
 
-        if (shippingMethod === 'pickup') {
-            generatePickupTicket(orderId, total);
+        const ticketButton = document.getElementById('downloadPickupTicketBtn');
+        if (ticketButton) {
+            ticketButton.style.display = isPickup ? 'inline-flex' : 'none';
+            ticketButton.onclick = isPickup ? () => generatePickupTicket(orderId, total, ticketItems, pickupVerificationCode) : null;
         }
+
+        try { localStorage.removeItem('cart'); } catch (e) {}
+        if (typeof Cart !== 'undefined') Cart.items = [];
     }
 
-    function generatePickupTicket(orderId, total) {
+    function generatePickupTicket(orderId, total, ticketItems = getCartItems(), pickupVerificationCode = '') {
         if (!window.selectedPickupStore) {
             console.warn('No pickup store selected.');
             return;
         }
 
         const store = window.selectedPickupStore;
-        
-        // Generate random verification code
-        const codeChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code1 = '', code2 = '';
-        for(let i=0; i<4; i++) { code1 += codeChars.charAt(Math.floor(Math.random() * codeChars.length)); }
-        for(let i=0; i<4; i++) { code2 += codeChars.charAt(Math.floor(Math.random() * codeChars.length)); }
-        const verifyCode = `PICKUP-${code1}-${code2}`;
+        const verifyCode = pickupVerificationCode || getPickupVerificationCode();
 
         // Populate Template
         document.getElementById('ticketOrderId').textContent = '#' + String(orderId).padStart(6, '0');
@@ -829,8 +892,7 @@
         // Populate Items
         const itemsList = document.getElementById('ticketItemsList');
         itemsList.innerHTML = '';
-        const items = getCartItems();
-        items.forEach(item => {
+        ticketItems.forEach(item => {
             const li = document.createElement('li');
             li.style.borderBottom = '1px dashed rgba(255,255,255,0.1)';
             li.style.padding = '8px 0';
@@ -840,21 +902,185 @@
             itemsList.appendChild(li);
         });
 
-        // Trigger html2pdf
+        // Check if html2pdf is available
+        if (typeof html2pdf === 'undefined') {
+            console.error('html2pdf library not loaded');
+            downloadPickupTicketHtmlFallback(document.getElementById('pickupTicketTemplate'), verifyCode);
+            return;
+        }
+
+        // Trigger html2pdf with improved settings
         const element = document.getElementById('pickupTicketTemplate');
+        if (!element) {
+            console.error('Ticket template element not found');
+            alert('Unable to generate PDF ticket. Please contact support.');
+            return;
+        }
+
         const opt = {
-            margin:       0,
+            margin:       [0.5, 0.5, 0.5, 0.5],
             filename:     `MarocPC_Pickup_${verifyCode}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f172a' },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            image:        { type: 'jpeg', quality: 0.95 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                backgroundColor: '#0f172a',
+                letterRendering: true,
+                allowTaint: false
+            },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        // Temporarily display to render, then hide
-        element.parentElement.style.display = 'block';
-        html2pdf().set(opt).from(element).save().then(() => {
-            element.parentElement.style.display = 'none';
-        });
+        // Clone and prepare element for rendering
+        const renderNode = element.cloneNode(true);
+        renderNode.id = 'pickupTicketTemplateRender';
+        renderNode.style.cssText = `
+            display: block !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            z-index: 99999 !important;
+            pointer-events: none !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        `;
+        document.body.appendChild(renderNode);
+
+        // Wait for fonts and images to load
+        setTimeout(() => {
+            html2pdf()
+                .set(opt)
+                .from(renderNode)
+                .save()
+                .then(() => {
+                    console.log('PDF generated successfully');
+                    renderNode.remove();
+                })
+                .catch((error) => {
+                    console.error('PDF generation error:', error);
+                    renderNode.remove();
+                    downloadPickupTicketHtmlFallback(element, verifyCode);
+                });
+        }, 500);
+    }
+
+    function waitForTicketAssets(element) {
+        const images = Array.from(element.querySelectorAll('img'));
+        if (!images.length) return Promise.resolve();
+
+        return Promise.all(images.map(img => {
+            if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+            return new Promise(resolve => {
+                img.addEventListener('load', resolve, { once: true });
+                img.addEventListener('error', resolve, { once: true });
+                setTimeout(resolve, 1200);
+            });
+        }));
+    }
+
+    function downloadPickupTicketHtmlFallback(element, verifyCode) {
+        if (!element) {
+            alert('Pickup ticket download failed. Please copy the pickup code from this confirmation screen.');
+            return;
+        }
+
+        const html = `<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maroc PC Pickup Ticket - ${verifyCode}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: start center;
+            background: #0f172a;
+            padding: 24px;
+            font-family: 'Space Mono', monospace;
+        }
+        .ticket-actions {
+            width: 800px;
+            max-width: 100%;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+        button {
+            border: 1px solid #00f5d4;
+            border-radius: 8px;
+            background: #00f5d4;
+            color: #0f172a;
+            font: 700 14px system-ui, sans-serif;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #00d4b8;
+            transform: translateY(-1px);
+        }
+        button.secondary {
+            background: transparent;
+            color: #00f5d4;
+        }
+        button.secondary:hover {
+            background: rgba(0, 245, 212, 0.1);
+        }
+        @media print {
+            body { display: block; padding: 0; background: #0f172a; }
+            .ticket-actions { display: none !important; }
+        }
+        @media (max-width: 850px) {
+            .ticket-actions { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-actions">
+        <button class="secondary" onclick="window.close()">Close</button>
+        <button onclick="window.print()"><i class="fas fa-print"></i> Print or Save as PDF</button>
+    </div>
+    ${element.outerHTML}
+    <script>
+        // Auto-print dialog on load (optional)
+        // window.addEventListener('load', () => setTimeout(() => window.print(), 500));
+    </script>
+</body>
+</html>`;
+
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `MarocPC_Pickup_${verifyCode}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        // Also open in new window for immediate printing
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
+    }
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `MarocPC_Pickup_${verifyCode || 'Ticket'}.html`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+        alert('PDF generation failed, so an HTML pickup ticket was downloaded instead. Open it and use Print or Save as PDF.');
     }
 
     // ── Init Place Order (Credit Card, COD, Bitcoin, etc.) ──
@@ -951,7 +1177,7 @@
 
                 const data = await placeOrder(paymentMethod, transactionId, null);
                 if (data.success) {
-                    showConfirmation(data.orderId, transactionId, paymentMethod, t.total);
+                    showConfirmation(data.orderId, transactionId, paymentMethod, t.total, items, window.currentPickupVerificationCode || '');
                 } else {
                     alert(data.error || 'Order failed. Please try again.');
                 }
@@ -1025,7 +1251,7 @@
                     const orderData = await placeOrder('paypal', txnId, details.id);
 
                     if (orderData.success) {
-                        showConfirmation(orderData.orderId, txnId, 'paypal', t.total);
+                        showConfirmation(orderData.orderId, txnId, 'paypal', t.total, items, window.currentPickupVerificationCode || '');
                     } else {
                         alert(orderData.error || 'Order failed after PayPal payment.');
                     }
@@ -1098,7 +1324,7 @@
                 els.paymentProcessing.querySelector('.processing-card-icon').style.color = '';
                 
                 if (data.success) {
-                    showConfirmation(data.orderId, transactionId, methodName === 'Apple Pay' ? 'apple-pay' : 'google-pay', t.total);
+                    showConfirmation(data.orderId, transactionId, methodName === 'Apple Pay' ? 'apple-pay' : 'google-pay', t.total, items, window.currentPickupVerificationCode || '');
                 } else {
                     alert(data.error || 'Order placement failed. Please try again.');
                 }
@@ -1122,6 +1348,12 @@
         if (trackBtn) {
             trackBtn.addEventListener('click', () => {
                 window.location.href = 'account.php?tab=orders';
+            });
+        }
+        const closeBtn = document.getElementById('closeConfirmationBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                document.getElementById('confirmationModal')?.classList.remove('active');
             });
         }
     }
@@ -1379,6 +1611,7 @@
                 const loc = locations[city] || locations['casablanca'];
                 
                 window.selectedPickupStore = loc; // Store globally for PDF ticket
+                window.currentPickupVerificationCode = '';
 
                 detailsEl.innerHTML = `
                     <h4 style="margin:0 0 14px; color:var(--cyan); font-family:'Orbitron', sans-serif; font-size:0.95rem; letter-spacing:0.5px;">

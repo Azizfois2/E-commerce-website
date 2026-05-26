@@ -827,7 +827,7 @@ $address = (string)$user['adresse'];
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <h2>Order Confirmed!</h2>
-                <p>Thank you for your purchase. Your order has been placed successfully.</p>
+                <p id="confirmationMessage">Thank you for your purchase. Your order has been placed successfully.</p>
                 <div class="order-info">
                     <div class="info-row">
                         <span>Order Number:</span>
@@ -845,6 +845,10 @@ $address = (string)$user['adresse'];
                         <span>Amount Charged:</span>
                         <strong id="confirmAmount">—</strong>
                     </div>
+                    <div class="info-row" id="pickupCodeRow" style="display:none;">
+                        <span>Pickup Code:</span>
+                        <strong id="confirmPickupCode">—</strong>
+                    </div>
                     <div class="info-row">
                         <span>Confirmation Email:</span>
                         <span id="confirmEmail">sent to your email</span>
@@ -852,7 +856,11 @@ $address = (string)$user['adresse'];
                 </div>
                 <div class="confirmation-actions">
                     <a href="index.html" class="btn btn-primary">Continue Shopping</a>
+                    <button class="btn btn-outline" id="downloadPickupTicketBtn" type="button" style="display:none;">
+                        <i class="fas fa-file-arrow-down"></i> Download Pickup Ticket
+                    </button>
                     <button class="btn btn-outline" id="trackOrderBtn">Track Order</button>
+                    <button class="btn btn-outline" id="closeConfirmationBtn" type="button">Close</button>
                 </div>
             </div>
         </div>
@@ -883,9 +891,10 @@ $address = (string)$user['adresse'];
     </div>
 
     <!-- Hidden PDF Ticket Template for Store Pickup -->
-    <div style="display:none;">
+    <div id="pickupTicketHost" style="display:none; position:fixed; left:-10000px; top:0; width:800px; z-index:-1; pointer-events:none;">
         <div id="pickupTicketTemplate" style="width: 800px; padding: 40px; background: #0f172a; color: #fff; font-family: 'Space Mono', monospace; border: 2px solid #00f5d4; position: relative;">
             <div style="text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(0,245,212,0.3); padding-bottom: 20px;">
+                <img src="logo.png" alt="Maroc PC logo" style="width: 82px; height: 82px; object-fit: contain; margin-bottom: 12px;">
                 <h1 style="font-family: 'Orbitron', sans-serif; color: #00f5d4; margin: 0; font-size: 2.5rem; letter-spacing: 2px;">MAROC PC</h1>
                 <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 10px;">AUTHORIZED STORE PICKUP TICKET</p>
             </div>
@@ -919,6 +928,16 @@ $address = (string)$user['adresse'];
                 </ul>
             </div>
 
+            <div style="display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom: 32px;">
+                <div aria-hidden="true" style="width:96px; height:96px; border:8px solid #e2e8f0; background:
+                    linear-gradient(90deg, #0f172a 8px, transparent 8px) 0 0/24px 24px,
+                    linear-gradient(#0f172a 8px, transparent 8px) 0 0/24px 24px,
+                    #e2e8f0;"></div>
+                <div style="color:#94a3b8; font-size:0.85rem; max-width:300px; line-height:1.5;">
+                    Terminal scan reference. Staff should match the verification code and customer ID before releasing items.
+                </div>
+            </div>
+
             <div style="text-align: center; color: #64748b; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
                 <p>Please present this ticket and a valid ID at the counter.</p>
                 <p>Generated on <span id="ticketDate"></span></p>
@@ -933,7 +952,12 @@ $address = (string)$user['adresse'];
 
 
     <!-- html2pdf Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" 
+            integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"
+            onload="console.log('html2pdf loaded successfully')"
+            onerror="console.error('Failed to load html2pdf library')"></script>
 
     <!-- PayPal SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo htmlspecialchars(envString('PAYPAL_CLIENT_ID', 'sb')); ?>&currency=USD&intent=capture&disable-funding=credit,card" data-sdk-integration-source="button-factory"></script>
@@ -945,7 +969,7 @@ $address = (string)$user['adresse'];
     <script src="assets/js/data.js"></script>
     <script src="assets/js/cart.js"></script>
     <script src="assets/js/translate.js"></script>
-    <script src="assets/js/checkout.js" defer></script>
+    <script src="assets/js/checkout.js?v=<?= urlencode((string) filemtime(__DIR__ . '/assets/js/checkout.js')) ?>" defer></script>
     
     <script>
         // Plant footprint for session expiration detection

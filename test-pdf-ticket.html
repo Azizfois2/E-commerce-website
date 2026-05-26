@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PDF Ticket Generation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1e293b;
+            color: #fff;
+        }
+        .test-controls {
+            background: #334155;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #00f5d4;
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #00d4b8;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background: #1e293b;
+        }
+        .success { color: #00e676; }
+        .error { color: #ff3d5a; }
+    </style>
+</head>
+<body>
+    <h1>🎫 PDF Ticket Generation Test</h1>
+    
+    <div class="test-controls">
+        <h2>Test Controls</h2>
+        <button onclick="testPDFGeneration()">Generate Test PDF</button>
+        <button onclick="testHTMLFallback()">Test HTML Fallback</button>
+        <button onclick="checkLibrary()">Check html2pdf Library</button>
+        
+        <div class="status" id="status">
+            Ready to test...
+        </div>
+    </div>
+
+    <!-- Hidden PDF Template -->
+    <div id="ticketHost" style="display:none; position:fixed; left:-10000px; top:0; width:800px;">
+        <div id="ticketTemplate" style="width: 800px; padding: 40px; background: #0f172a; color: #fff; font-family: 'Space Mono', monospace; border: 2px solid #00f5d4;">
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(0,245,212,0.3); padding-bottom: 20px;">
+                <h1 style="font-family: 'Orbitron', sans-serif; color: #00f5d4; margin: 0; font-size: 2.5rem; letter-spacing: 2px;">MAROC PC</h1>
+                <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 10px;">AUTHORIZED STORE PICKUP TICKET</p>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div>
+                    <h3 style="color: #00f5d4; margin-bottom: 10px;">ORDER DETAILS</h3>
+                    <p style="margin: 5px 0;"><span style="color: #94a3b8;">Order #:</span> <strong>#000123</strong></p>
+                    <p style="margin: 5px 0;"><span style="color: #94a3b8;">Customer:</span> <strong>Test Customer</strong></p>
+                    <p style="margin: 5px 0;"><span style="color: #94a3b8;">Total:</span> <strong>5,999.00 MAD</strong></p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 style="color: #00f5d4; margin-bottom: 10px;">VERIFICATION CODE</h3>
+                    <div style="background: rgba(0,245,212,0.1); border: 1px dashed #00f5d4; padding: 15px; border-radius: 8px;">
+                        <span style="font-size: 1.8rem; font-weight: bold; letter-spacing: 4px; color: #fff;">PICKUP-TEST-1234</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 8px; border-left: 4px solid #00f5d4;">
+                <h3 style="color: #00f5d4; margin-top: 0; margin-bottom: 10px;"><i class="fas fa-store"></i> PICKUP LOCATION</h3>
+                <h4 style="margin: 0 0 5px; font-size: 1.4rem;">Maroc PC - Casablanca Center</h4>
+                <p style="margin: 5px 0; color: #cbd5e1;">123 Boulevard Mohammed V, Casablanca</p>
+                <p style="margin: 5px 0; color: #cbd5e1;">Hours: Mon-Sat 9:00 AM - 8:00 PM</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #00f5d4; border-bottom: 1px solid rgba(0,245,212,0.3); padding-bottom: 10px;">ITEMS TO COLLECT</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 8px 0; display: flex; justify-content: space-between;">
+                        <span>1x AMD Ryzen 7 5800X</span>
+                        <span style="color:#00f5d4;">2,999.00 MAD</span>
+                    </li>
+                    <li style="border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 8px 0; display: flex; justify-content: space-between;">
+                        <span>1x NVIDIA RTX 3070</span>
+                        <span style="color:#00f5d4;">3,000.00 MAD</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; padding-top: 20px; border-top: 1px solid rgba(0,245,212,0.3); color: #94a3b8; font-size: 0.9rem;">
+                <p style="margin: 5px 0;">Please bring this ticket and a valid ID to collect your order.</p>
+                <p style="margin: 5px 0;">Generated: <span id="ticketDate"><?php echo date('Y-m-d H:i:s'); ?></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- html2pdf Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" 
+            integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = 'status ' + type;
+        }
+
+        function checkLibrary() {
+            if (typeof html2pdf === 'undefined') {
+                updateStatus('❌ html2pdf library is NOT loaded!', 'error');
+            } else {
+                updateStatus('✅ html2pdf library is loaded successfully!', 'success');
+            }
+        }
+
+        function testPDFGeneration() {
+            updateStatus('⏳ Generating PDF...', 'info');
+
+            if (typeof html2pdf === 'undefined') {
+                updateStatus('❌ html2pdf library not loaded!', 'error');
+                return;
+            }
+
+            const element = document.getElementById('ticketTemplate');
+            if (!element) {
+                updateStatus('❌ Template element not found!', 'error');
+                return;
+            }
+
+            const opt = {
+                margin:       [0.5, 0.5, 0.5, 0.5],
+                filename:     'MarocPC_Test_Ticket.pdf',
+                image:        { type: 'jpeg', quality: 0.95 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: true,
+                    backgroundColor: '#0f172a',
+                    letterRendering: true
+                },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Clone element for rendering
+            const renderNode = element.cloneNode(true);
+            renderNode.style.cssText = `
+                display: block !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                z-index: 99999 !important;
+                opacity: 1 !important;
+            `;
+            document.body.appendChild(renderNode);
+
+            setTimeout(() => {
+                html2pdf()
+                    .set(opt)
+                    .from(renderNode)
+                    .save()
+                    .then(() => {
+                        updateStatus('✅ PDF generated successfully!', 'success');
+                        renderNode.remove();
+                    })
+                    .catch((error) => {
+                        updateStatus('❌ PDF generation failed: ' + error.message, 'error');
+                        console.error('PDF Error:', error);
+                        renderNode.remove();
+                    });
+            }, 500);
+        }
+
+        function testHTMLFallback() {
+            updateStatus('⏳ Generating HTML fallback...', 'info');
+
+            const element = document.getElementById('ticketTemplate');
+            if (!element) {
+                updateStatus('❌ Template element not found!', 'error');
+                return;
+            }
+
+            const html = `<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Maroc PC Pickup Ticket</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 24px; background: #0f172a; font-family: 'Space Mono', monospace; }
+        .actions { text-align: center; margin-bottom: 20px; }
+        button { background: #00f5d4; color: #0f172a; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        @media print { .actions { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="actions">
+        <button onclick="window.print()">🖨️ Print or Save as PDF</button>
+    </div>
+    ${element.outerHTML}
+</body>
+</html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'MarocPC_Test_Ticket.html';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            updateStatus('✅ HTML file downloaded! Open it and use Print to PDF.', 'success');
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            setTimeout(checkLibrary, 500);
+        });
+    </script>
+</body>
+</html>
