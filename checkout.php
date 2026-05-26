@@ -231,6 +231,92 @@ $address = (string)$user['adresse'];
                                     <span class="option-price free">FREE</span>
                                 </div>
                             </label>
+                            <label class="shipping-option free-option" id="pickupOptionLabel">
+                                <input type="radio" name="shipping" value="pickup">
+                                <div class="option-content">
+                                    <div class="option-info">
+                                        <span class="option-name">Store Pickup</span>
+                                        <span class="option-time">Available today at select locations</span>
+                                    </div>
+                                    <span class="option-price free">FREE</span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div id="pickupMapContainer" style="display:none; margin-top:20px; padding:24px; background:var(--page-bg-3); border:1px solid var(--border); border-radius:16px;">
+                            <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; font-size:1rem; letter-spacing:1px; color:var(--text);"><i class="fas fa-map-location-dot" style="color:var(--cyan);"></i> Select a Pickup Location</h3>
+                            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:20px; font-family:'Space Mono', monospace;">Interactive terminal grid — click a city node to select your store</p>
+                            <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:24px; align-items:start;">
+                                <!-- Map with overlay nodes (same pattern as index.html) -->
+                                <div class="pickup-map-wrapper" style="position:relative; border:1px solid rgba(0,245,212,0.15); border-radius:12px; background:transparent; aspect-ratio:800/795;">
+                                    <?php include 'morocco-full-styled.svg'; ?>
+                                    
+                                    <!-- City Nodes (positioned like index.html) -->
+                                    <div class="pickup-node" data-city="tangier" style="position:absolute; top:1%; left:74.5%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="rabat" style="position:absolute; top:11%; left:68.5%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="casablanca" style="position:absolute; top:14.5%; left:64%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="fes" style="position:absolute; top:10%; left:75.5%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="marrakech" style="position:absolute; top:27%; left:61%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="agadir" style="position:absolute; top:37%; left:53.5%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="oujda" style="position:absolute; top:8%; left:92%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="laayoune" style="position:absolute; top:62%; left:38%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                    <div class="pickup-node" data-city="dakhla" style="position:absolute; top:82%; left:30%;">
+                                        <span class="pickup-dot"></span>
+                                    </div>
+                                </div>
+                                <!-- Details panel -->
+                                <div class="pickup-details" id="pickupDetails" style="padding:20px; background:rgba(0,245,212,0.02); border:1px solid rgba(0,245,212,0.1); border-radius:12px; min-height:200px;">
+                                    <div style="text-align:center; padding:40px 10px; color:var(--muted);">
+                                        <i class="fas fa-map-pin" style="font-size:2rem; color:rgba(0,245,212,0.3); margin-bottom:12px; display:block;"></i>
+                                        <p style="font-size:0.9rem; margin:0;">Click a city node on the map to view store details.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <style>
+                                .pickup-node { cursor:pointer; z-index:2; transform: translate(-50%, -50%); }
+                                .pickup-dot {
+                                    display:block; width:12px; height:12px; border-radius:50%;
+                                    background:var(--cyan, #00f5d4); border:2px solid var(--page-bg, #fff);
+                                    box-shadow: 0 0 10px rgba(0,245,212,0.6);
+                                    transition: transform 0.25s, box-shadow 0.25s, background 0.2s;
+                                    animation: pickupPulse 2s ease-in-out infinite;
+                                }
+                                body.dark-mode .pickup-dot {
+                                    border-color: #0f172a; /* Dark background to cut out the dot */
+                                }
+                                .pickup-node:hover .pickup-dot {
+                                    transform:scale(1.5);
+                                    box-shadow: 0 0 15px rgba(0,245,212,0.8);
+                                }
+                                .pickup-node.selected .pickup-dot {
+                                    background:#fff; transform:scale(1.4);
+                                    box-shadow: 0 0 15px rgba(0,245,212,1);
+                                    animation:none;
+                                }
+                                @keyframes pickupPulse {
+                                    0%, 100% { box-shadow: 0 0 6px rgba(0,245,212,0.4); transform: scale(1); }
+                                    50% { box-shadow: 0 0 12px rgba(0,245,212,0.7); transform: scale(1.1); }
+                                }
+                                @media (max-width:768px) {
+                                    #pickupMapContainer > div:nth-child(3) { grid-template-columns:1fr !important; }
+                                }
+                            </style>
                         </div>
                     </div>
 
@@ -391,6 +477,18 @@ $address = (string)$user['adresse'];
                                 <div class="cod-fee-notice">
                                     <i class="fas fa-info-circle"></i>
                                     <span>A handling fee of <strong>30 MAD</strong> applies for COD orders</span>
+                                </div>
+                                <div id="codDepositNotice" style="display:none; margin-top:20px; padding:16px; background:rgba(255,160,0,0.1); border:1px solid rgba(255,160,0,0.3); border-radius:12px;">
+                                    <h4 style="margin-top:0; color:#ffb300; display:flex; align-items:center; gap:8px;">
+                                        <i class="fas fa-shield-halved"></i> Security Deposit Required
+                                    </h4>
+                                    <p style="font-size:0.9rem; margin-bottom:12px;">
+                                        Because your order exceeds <strong>8,000 MAD</strong>, a fully refundable security deposit of <strong>200 MAD</strong> is required before shipping via Wafacash or CIH Bank to prevent fake orders. Our agent will contact you with payment details.
+                                    </p>
+                                    <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.85rem; cursor:pointer;">
+                                        <input type="checkbox" id="codDepositAgree" style="margin-top:2px;">
+                                        <span>I understand and agree to pay the 200 MAD security deposit.</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -784,6 +882,58 @@ $address = (string)$user['adresse'];
         <span id="toastMessage">Item added to cart!</span>
     </div>
 
+    <!-- Hidden PDF Ticket Template for Store Pickup -->
+    <div style="display:none;">
+        <div id="pickupTicketTemplate" style="width: 800px; padding: 40px; background: #0f172a; color: #fff; font-family: 'Space Mono', monospace; border: 2px solid #00f5d4; position: relative;">
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(0,245,212,0.3); padding-bottom: 20px;">
+                <h1 style="font-family: 'Orbitron', sans-serif; color: #00f5d4; margin: 0; font-size: 2.5rem; letter-spacing: 2px;">MAROC PC</h1>
+                <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 10px;">AUTHORIZED STORE PICKUP TICKET</p>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div>
+                    <h3 style="color: #00f5d4; margin-bottom: 10px; font-size: 1.2rem;">ORDER DETAILS</h3>
+                    <p style="margin: 5px 0; font-size: 1rem;"><span style="color: #94a3b8;">Order #:</span> <strong id="ticketOrderId">---</strong></p>
+                    <p style="margin: 5px 0; font-size: 1rem;"><span style="color: #94a3b8;">Customer:</span> <strong id="ticketCustomerName">---</strong></p>
+                    <p style="margin: 5px 0; font-size: 1rem;"><span style="color: #94a3b8;">Total:</span> <strong id="ticketTotal">---</strong></p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 style="color: #00f5d4; margin-bottom: 10px; font-size: 1.2rem;">VERIFICATION CODE</h3>
+                    <div style="background: rgba(0,245,212,0.1); border: 1px dashed #00f5d4; padding: 15px; border-radius: 8px;">
+                        <span id="ticketVerifyCode" style="font-size: 1.8rem; font-weight: bold; letter-spacing: 4px; color: #fff;">PICKUP-XXXX-XXXX</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 8px; border-left: 4px solid #00f5d4;">
+                <h3 style="color: #00f5d4; margin-top: 0; margin-bottom: 10px; font-size: 1.2rem;"><i class="fas fa-store"></i> PICKUP LOCATION</h3>
+                <h4 id="ticketStoreName" style="margin: 0 0 5px; font-size: 1.4rem;">Store Name</h4>
+                <p id="ticketStoreAddress" style="margin: 5px 0; color: #cbd5e1; font-size: 1rem;">Store Address</p>
+                <p id="ticketStoreHours" style="margin: 5px 0; color: #cbd5e1; font-size: 1rem;">Hours: ---</p>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <h3 style="color: #00f5d4; border-bottom: 1px solid rgba(0,245,212,0.3); padding-bottom: 10px; font-size: 1.2rem;">ITEMS TO COLLECT</h3>
+                <ul id="ticketItemsList" style="list-style: none; padding: 0; margin: 0; font-size: 1rem; line-height: 1.6;">
+                    <!-- Items injected here -->
+                </ul>
+            </div>
+
+            <div style="text-align: center; color: #64748b; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <p>Please present this ticket and a valid ID at the counter.</p>
+                <p>Generated on <span id="ticketDate"></span></p>
+            </div>
+            <!-- Decorative corner brackets -->
+            <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; border-top: 2px solid #00f5d4; border-left: 2px solid #00f5d4;"></div>
+            <div style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-top: 2px solid #00f5d4; border-right: 2px solid #00f5d4;"></div>
+            <div style="position: absolute; bottom: 10px; left: 10px; width: 20px; height: 20px; border-bottom: 2px solid #00f5d4; border-left: 2px solid #00f5d4;"></div>
+            <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; border-bottom: 2px solid #00f5d4; border-right: 2px solid #00f5d4;"></div>
+        </div>
+    </div>
+
+
+    <!-- html2pdf Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- PayPal SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo htmlspecialchars(envString('PAYPAL_CLIENT_ID', 'sb')); ?>&currency=USD&intent=capture&disable-funding=credit,card" data-sdk-integration-source="button-factory"></script>

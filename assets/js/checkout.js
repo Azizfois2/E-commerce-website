@@ -393,6 +393,15 @@
             codRow.style.display = 'none';
         }
 
+        const codNotice = document.getElementById('codDepositNotice');
+        if (codNotice) {
+            if (t.total > 8000 && selectedPaymentMethod() === 'cod') {
+                codNotice.style.display = 'block';
+            } else {
+                codNotice.style.display = 'none';
+            }
+        }
+
         if (els.orderTotal) els.orderTotal.textContent = formatMoney(t.total);
     }
 
@@ -449,17 +458,17 @@
 
     function initShippingUpdates() {
         const update = () => {
+            const method = document.querySelector('input[name="shipping"]:checked')?.value;
             els.shippingInputs.forEach(input => {
                 const label = input.closest('.shipping-option');
                 if (label) label.classList.toggle('active', input.checked);
             });
+            const mapContainer = document.getElementById('pickupMapContainer');
+            if (mapContainer) mapContainer.style.display = method === 'pickup' ? 'block' : 'none';
             syncCheckout();
         };
         els.shippingInputs.forEach(input => input.addEventListener('change', update));
-        els.shippingInputs.forEach(input => {
-            const label = input.closest('.shipping-option');
-            if (label) label.classList.toggle('active', input.checked);
-        });
+        update();
     }
 
     function initCryptoUpdates() {
@@ -661,14 +670,24 @@
     function buildAddress() {
         const fn = document.getElementById('firstName')?.value.trim() || '';
         const ln = document.getElementById('lastName')?.value.trim() || '';
+        const email = document.getElementById('email')?.value.trim() || '';
+        const phone = document.getElementById('phone')?.value.trim() || '';
         const addr = document.getElementById('address')?.value.trim() || '';
         const addr2 = document.getElementById('address2')?.value.trim() || '';
         const city = document.getElementById('city')?.value.trim() || '';
-        const state = document.getElementById('state')?.value || '';
+        const stateSelect = document.getElementById('state');
+        const countrySelect = document.getElementById('country');
+        const state = stateSelect?.selectedOptions?.[0]?.textContent.trim() || stateSelect?.value || '';
         const zip = document.getElementById('zip')?.value.trim() || '';
-        const country = document.getElementById('country')?.value || '';
-        const parts = [addr, addr2, `${city}, ${state} ${zip}`, country].filter(Boolean);
-        return `${fn} ${ln}\n${parts.join('\n')}`;
+        const country = countrySelect?.selectedOptions?.[0]?.textContent.trim() || countrySelect?.value || '';
+        const nameLine = `${fn} ${ln}`.trim();
+        const contactLines = [
+            nameLine,
+            email ? `Email: ${email}` : '',
+            phone ? `Phone: ${phone}` : ''
+        ].filter(Boolean);
+        const addressLines = [addr, addr2, `${city}, ${state} ${zip}`.trim(), country].filter(Boolean);
+        return [...contactLines, ...addressLines].join('\n');
     }
 
     // ── Validate Shipping Form ───────────────────────────────
@@ -735,6 +754,7 @@
             newsletter: document.getElementById('newsletterSignup')?.checked || false,
             firstName: document.getElementById('firstName')?.value.trim() || '',
             lastName: document.getElementById('lastName')?.value.trim() || '',
+            email: document.getElementById('email')?.value.trim() || '',
             phone: document.getElementById('phone')?.value.trim() || '',
             save_card: document.getElementById('saveCard')?.checked || false
         };
@@ -750,6 +770,8 @@
 
     // ── Show Confirmation ────────────────────────────────────
     function showConfirmation(orderId, transactionId, paymentMethod, total) {
+        const shippingMethod = document.querySelector('input[name="shipping"]:checked')?.value || 'standard';
+        
         try { localStorage.removeItem('cart'); } catch (e) {}
         if (typeof Cart !== 'undefined') Cart.items = [];
 
@@ -768,6 +790,71 @@
         document.getElementById('confirmPaymentMethod').textContent = methodLabels[paymentMethod] || paymentMethod;
         document.getElementById('confirmAmount').textContent = formatMoney(total);
         document.getElementById('confirmationModal').classList.add('active');
+
+        if (shippingMethod === 'pickup') {
+            generatePickupTicket(orderId, total);
+        }
+    }
+
+    function generatePickupTicket(orderId, total) {
+        if (!window.selectedPickupStore) {
+            console.warn('No pickup store selected.');
+            return;
+        }
+
+        const store = window.selectedPickupStore;
+        
+        // Generate random verification code
+        const codeChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code1 = '', code2 = '';
+        for(let i=0; i<4; i++) { code1 += codeChars.charAt(Math.floor(Math.random() * codeChars.length)); }
+        for(let i=0; i<4; i++) { code2 += codeChars.charAt(Math.floor(Math.random() * codeChars.length)); }
+        const verifyCode = `PICKUP-${code1}-${code2}`;
+
+        // Populate Template
+        document.getElementById('ticketOrderId').textContent = '#' + String(orderId).padStart(6, '0');
+        const firstName = document.getElementById('firstName')?.value || 'Customer';
+        const lastName = document.getElementById('lastName')?.value || '';
+        document.getElementById('ticketCustomerName').textContent = `${firstName} ${lastName}`.trim();
+        document.getElementById('ticketTotal').textContent = formatMoney(total);
+        document.getElementById('ticketVerifyCode').textContent = verifyCode;
+        
+        document.getElementById('ticketStoreName').textContent = store.name;
+        document.getElementById('ticketStoreAddress').textContent = store.address;
+        document.getElementById('ticketStoreHours').textContent = 'Hours: ' + store.hours;
+        
+        const d = new Date();
+        document.getElementById('ticketDate').textContent = d.toLocaleString();
+
+        // Populate Items
+        const itemsList = document.getElementById('ticketItemsList');
+        itemsList.innerHTML = '';
+        const items = getCartItems();
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.style.borderBottom = '1px dashed rgba(255,255,255,0.1)';
+            li.style.padding = '8px 0';
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.innerHTML = `<span>${item.quantity}x ${item.name}</span> <span style="color:#00f5d4;">${formatMoney(item.price * item.quantity)}</span>`;
+            itemsList.appendChild(li);
+        });
+
+        // Trigger html2pdf
+        const element = document.getElementById('pickupTicketTemplate');
+        const opt = {
+            margin:       0,
+            filename:     `MarocPC_Pickup_${verifyCode}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f172a' },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Temporarily display to render, then hide
+        element.parentElement.style.display = 'block';
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.parentElement.style.display = 'none';
+        });
     }
 
     // ── Init Place Order (Credit Card, COD, Bitcoin, etc.) ──
@@ -788,6 +875,18 @@
             if (paymentMethod === 'paypal') {
                 alert('Please use the PayPal button above to complete your payment.');
                 return;
+            }
+
+            // COD Deposit validation
+            if (paymentMethod === 'cod') {
+                const t = computeTotals(items);
+                if (t.total > 8000) {
+                    const agree = document.getElementById('codDepositAgree');
+                    if (agree && !agree.checked) {
+                        alert('You must agree to the Security Deposit for high-value Cash on Delivery orders.');
+                        return;
+                    }
+                }
             }
 
             // Card validation
@@ -1251,6 +1350,60 @@
             return { success: false, reason: 'Network error.' };
         }
     }
+    // ── Map Pickup Logic ─────────────────────────────────────
+    function initPickupMap() {
+        const nodes = document.querySelectorAll('.pickup-node');
+        if (!nodes.length) return;
+
+        const detailsEl = document.getElementById('pickupDetails');
+        const locations = {
+            'tangier':    { name: 'Tangier Terminal',       address: '32 Rue de la Liberté, Iberia',      hours: '10:00 – 22:00', phone: '+212 539-112233' },
+            'rabat':      { name: 'Rabat Showroom',         address: 'Avenue Fal Ould Oumeir, Agdal',     hours: '09:00 – 19:00', phone: '+212 537-654321' },
+            'casablanca': { name: 'Casablanca HQ',          address: '123 Boulevard Zerktouni, Maarif',   hours: '09:00 – 20:00', phone: '+212 522-123456' },
+            'fes':        { name: 'Fes Terminal',            address: '12 Rue Atlas, Ville Nouvelle',      hours: '09:30 – 19:30', phone: '+212 535-778899' },
+            'marrakech':  { name: 'Marrakech Terminal',      address: '45 Avenue Mohammed V, Guéliz',      hours: '10:00 – 21:00', phone: '+212 524-987654' },
+            'agadir':     { name: 'Agadir Terminal',         address: 'Av. Hassan II, Talborjt',           hours: '09:30 – 20:30', phone: '+212 528-445566' },
+            'oujda':      { name: 'Oujda East Hub',          address: '8 Boulevard Derfoufi, Oujda',       hours: '09:00 – 18:30', phone: '+212 536-223344' },
+            'laayoune':   { name: 'Laâyoune South Terminal', address: 'Avenue de la Marche Verte, Laâyoune', hours: '10:00 – 20:00', phone: '+212 528-990011' },
+            'dakhla':     { name: 'Dakhla Sahara Point',     address: 'Boulevard Mohammed V, Dakhla',      hours: '10:00 – 19:00', phone: '+212 528-776655' }
+        };
+
+        nodes.forEach(node => {
+            node.addEventListener('click', () => {
+                // Deselect all
+                nodes.forEach(n => n.classList.remove('selected'));
+                // Select this
+                node.classList.add('selected');
+
+                const city = node.dataset.city;
+                const loc = locations[city] || locations['casablanca'];
+                
+                window.selectedPickupStore = loc; // Store globally for PDF ticket
+
+                detailsEl.innerHTML = `
+                    <h4 style="margin:0 0 14px; color:var(--cyan); font-family:'Orbitron', sans-serif; font-size:0.95rem; letter-spacing:0.5px;">
+                        <i class="fas fa-store"></i> ${loc.name}
+                    </h4>
+                    <div style="margin-bottom:10px; font-size:0.88rem; color:var(--text); display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-map-marker-alt" style="color:var(--cyan); width:16px; text-align:center;"></i> ${loc.address}
+                    </div>
+                    <div style="margin-bottom:10px; font-size:0.88rem; color:var(--text); display:flex; align-items:center; gap:10px;">
+                        <i class="far fa-clock" style="color:var(--cyan); width:16px; text-align:center;"></i> ${loc.hours}
+                    </div>
+                    <div style="margin-bottom:16px; font-size:0.88rem; color:var(--text); display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-phone" style="color:var(--cyan); width:16px; text-align:center;"></i> ${loc.phone}
+                    </div>
+                    <div style="padding:10px 14px; background:rgba(0,245,212,0.06); border:1px solid rgba(0,245,212,0.15); border-radius:8px; font-size:0.82rem; color:var(--muted); margin-bottom:16px;">
+                        <i class="fas fa-info-circle" style="color:var(--cyan);"></i> Present your order confirmation code at the counter. Valid ID required.
+                    </div>
+                    <button type="button" class="button button-primary" style="width:100%; padding:12px; border-radius:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:0.85rem;"
+                        onclick="this.innerHTML='<i class=\\'fas fa-check\\'></i> ${loc.name} Selected'; this.style.background='rgba(0,245,212,0.15)'; this.style.color='var(--cyan)'; this.style.border='1px solid var(--cyan)'; this.disabled=true;">
+                        <i class="fas fa-check-circle"></i> Select This Store
+                    </button>
+                `;
+            });
+        });
+    }
 
     // ── Init ─────────────────────────────────────────────────
     function init() {
@@ -1278,6 +1431,7 @@
                 initConfirmationActions();
                 initNfcBiometricSimulation();
                 initThemeObserver();
+                initPickupMap();
                 initRealStripeElements();
             })
             .catch(() => {
