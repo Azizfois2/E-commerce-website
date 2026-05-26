@@ -918,38 +918,54 @@
         }
 
         const opt = {
-            margin:       [0.5, 0.5, 0.5, 0.5],
+            margin:       10,
             filename:     `MarocPC_Pickup_${verifyCode}.pdf`,
-            image:        { type: 'jpeg', quality: 0.95 },
+            image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
                 scale: 2, 
                 useCORS: true, 
-                logging: false,
+                logging: true,
                 backgroundColor: '#0f172a',
                 letterRendering: true,
-                allowTaint: false
+                allowTaint: true,
+                foreignObjectRendering: false,
+                imageTimeout: 0,
+                removeContainer: true
             },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all'] }
         };
 
-        // Clone and prepare element for rendering
+        // Clone and prepare element for rendering with inline styles
         const renderNode = element.cloneNode(true);
         renderNode.id = 'pickupTicketTemplateRender';
+        
+        // Force all styles to be inline and visible
         renderNode.style.cssText = `
             display: block !important;
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: absolute !important;
+            left: 50% !important;
+            top: 100px !important;
+            transform: translateX(-50%) !important;
             z-index: 99999 !important;
             pointer-events: none !important;
             opacity: 1 !important;
             visibility: visible !important;
+            width: 800px !important;
+            padding: 40px !important;
+            background: #0f172a !important;
+            color: #fff !important;
+            font-family: 'Space Mono', monospace !important;
+            border: 2px solid #00f5d4 !important;
         `;
+        
         document.body.appendChild(renderNode);
 
-        // Wait for fonts and images to load
+        // Wait for fonts and ensure visibility
+        console.log('Waiting for fonts to load...');
+        
         setTimeout(() => {
+            console.log('Starting PDF generation...');
             html2pdf()
                 .set(opt)
                 .from(renderNode)
@@ -961,9 +977,10 @@
                 .catch((error) => {
                     console.error('PDF generation error:', error);
                     renderNode.remove();
+                    // Use HTML fallback
                     downloadPickupTicketHtmlFallback(element, verifyCode);
                 });
-        }, 500);
+        }, 1000);
     }
 
     function waitForTicketAssets(element) {
