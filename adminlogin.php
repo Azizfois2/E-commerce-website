@@ -1,11 +1,18 @@
 <?php
 require_once 'admin-helpers.php';
+require_once __DIR__ . '/includes/i18n.php';
+i18n_start_page_translation();
 
 $requestMethod = $_SERVER["REQUEST_METHOD"] ?? "GET";
 const ADMIN_LOGIN_FAILED_MESSAGE = "Invalid administrator credentials. Check your information and try again.";
 const ADMIN_LOGIN_LOCK_MESSAGE = "Too many administrator attempts. Try again in a few minutes.";
 const ADMIN_MAX_FAILED_ATTEMPTS = 3;
 const ADMIN_LOCK_MINUTES = 15;
+
+$adminSessionExpired = isset($_GET['session_expired']) && $_GET['session_expired'] === '1';
+if ($adminSessionExpired && isset($_COOKIE['has_active_admin_session'])) {
+    setcookie('has_active_admin_session', '', appCookieOptions(time() - 3600));
+}
 
 // ─── Si déjà connecté ────────────────────────────────
 if (isset($_SESSION["admin_id"])) {
@@ -16,6 +23,10 @@ if (isset($_SESSION["admin_id"])) {
 $errors   = [];
 $success  = false;
 $email    = "";
+
+if ($adminSessionExpired) {
+    $errors["general"] = i18n_t('auth.session_expired', [], 'Your session has expired. Please sign in again.');
+}
 
 $pdo = db();
 ensureAdminUsersTable($pdo);
@@ -70,6 +81,7 @@ if ($requestMethod === "POST") {
                 $_SESSION['admin_id'] = (int) $admin['id'];
                 $_SESSION['admin_nom'] = (string) ($admin['name'] ?: 'Administrator');
                 $_SESSION['admin_email'] = strtolower(trim($email));
+                applyAdminSessionLifetime();
 
                 $success = true;
                 header('Location: dashboard.php');
@@ -153,7 +165,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -300,13 +312,13 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
         <p class="glitch-sub">// unauthorized credentials</p>
     </div>
 
-    <a href="index.html" class="back-link">← Back to Store</a>
+    <a href="<?= htmlspecialchars(i18n_url('index.php'), ENT_QUOTES, 'UTF-8') ?>" class="back-link">← <?php i18n_e('auth.back_to_store', [], 'Back to Store'); ?></a>
 
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" style="position: absolute; top: 1.5rem; right: 2rem;">
         <i class="fas fa-sun icon-sun"></i>
         <i class="fas fa-moon icon-moon"></i>
     </button>
-    <div id="google_translate_element" class="nav-translate" style="position: absolute; top: 1.5rem; right: 6rem;"></div>
+    <?= i18n_language_switcher('nav-translate', 'position: absolute; top: 1.5rem; right: 6rem;') ?>
 
 
     <div class="container login-container" id="loginContainer">
@@ -329,7 +341,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
             <?php endif; ?>
 
             <?php if (!empty($errors["general"])): ?>
-                <div class="alert-error" role="alert" aria-live="polite">
+                <div class="alert-error" role="alert" aria-live="polite" <?= $adminSessionExpired ? 'data-admin-session-expired="1"' : '' ?>>
                     <span aria-hidden="true">❌</span>
                     <span><?= htmlspecialchars($errors["general"]) ?></span>
                 </div>
@@ -360,8 +372,13 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
 
                 <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
                     <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"></div>
+                        <div class="cf-turnstile" 
+                             data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"
+                             data-callback="onTurnstileSuccess"
+                             data-error-callback="onTurnstileError"
+                             data-expired-callback="onTurnstileExpired"></div>
                     </div>
+                    <div id="turnstileError" style="display: none; text-align: center; color: var(--danger); font-size: 0.9rem; margin-bottom: 16px;"></div>
                 <?php endif; ?>
 
                 <div class="form-actions">
@@ -373,10 +390,35 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
 
     <!-- Required Scripts -->
     <script src="assets/js/login.js" defer></script>
-    <script src="assets/js/translate.js"></script>
+    <?= i18n_language_switcher_assets() ?>
     <script src="assets/js/theme.js"></script>
 
-    <?php if (!empty($errors["general"])): ?>
+    <script>
+    (function() {
+        const isGetExpired = <?= $adminSessionExpired ? 'true' : 'false' ?>;
+        let hadAdminSession = false;
+        try {
+            hadAdminSession = localStorage.getItem('has_active_admin_session') === '1';
+            if (hadAdminSession || isGetExpired) {
+                localStorage.removeItem('has_active_admin_session');
+            }
+        } catch (_) {}
+
+        if (!isGetExpired && hadAdminSession && !document.querySelector('[data-admin-session-expired]')) {
+            const form = document.querySelector('form[name="adminlogin"]');
+            if (!form || !form.parentElement) return;
+            const alert = document.createElement('div');
+            alert.className = 'alert-error';
+            alert.setAttribute('role', 'alert');
+            alert.setAttribute('aria-live', 'polite');
+            alert.setAttribute('data-admin-session-expired', '1');
+            alert.innerHTML = '<span aria-hidden="true">!</span><span><?= htmlspecialchars(i18n_t('auth.session_expired', [], 'Your session has expired. Please sign in again.'), ENT_QUOTES, 'UTF-8') ?></span>';
+            form.parentElement.insertBefore(alert, form);
+        }
+    })();
+    </script>
+
+    <?php if (!empty($errors["general"]) && !$adminSessionExpired): ?>
     <script>
     (function() {
         const overlay = document.getElementById('glitchOverlay');
@@ -400,6 +442,96 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
     })();
     </script>
     <?php endif; ?>
+    
+    <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+    <script>
+        // Turnstile Callbacks with comprehensive error handling for Admin Login
+        let turnstileToken = null;
+        
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+            console.log('✅ Turnstile: Admin token received successfully');
+            
+            const errorDiv = document.getElementById('turnstileError');
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            const submitBtn = document.getElementById('loginBtn');
+            if (submitBtn) submitBtn.disabled = false;
+        }
+        
+        function onTurnstileError(error) {
+            console.error('❌ Turnstile: Admin verification error', error);
+            turnstileToken = null;
+            
+            const errorDiv = document.getElementById('turnstileError');
+            if (errorDiv) {
+                errorDiv.textContent = '🛡️ Security verification failed. Refresh and try again.';
+                errorDiv.style.display = 'block';
+            }
+            
+            const submitBtn = document.getElementById('loginBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            
+            // Enhanced admin logging
+            console.log('🔒 Admin Security Check Failed');
+            console.log('1. Verify site key matches Cloudflare dashboard');
+            console.log('2. Check domain whitelist in Cloudflare settings');
+            console.log('3. Inspect Network tab for blocked requests');
+            console.log('4. Test with different browser/incognito mode');
+        }
+        
+        function onTurnstileExpired() {
+            console.warn('⏰ Turnstile: Admin token expired');
+            turnstileToken = null;
+            
+            const errorDiv = document.getElementById('turnstileError');
+            if (errorDiv) {
+                errorDiv.textContent = '⏰ Security check expired. Widget will refresh automatically.';
+                errorDiv.style.display = 'block';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+            }
+        }
+        
+        // Prevent admin form submission without token
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[name="adminlogin"]');
+            const submitBtn = document.getElementById('loginBtn');
+            
+            if (form && submitBtn) {
+                form.addEventListener('submit', function(e) {
+                    const tokenInput = document.querySelector('input[name="cf-turnstile-response"]');
+                    const token = tokenInput ? tokenInput.value : '';
+                    
+                    if (!token) {
+                        e.preventDefault();
+                        console.error('❌ Admin login blocked: Missing Turnstile token');
+                        
+                        const errorDiv = document.getElementById('turnstileError');
+                        if (errorDiv) {
+                            errorDiv.textContent = '🛡️ Complete security verification to access admin portal.';
+                            errorDiv.style.display = 'block';
+                        }
+                        
+                        submitBtn.style.animation = 'shake 0.5s';
+                        setTimeout(() => submitBtn.style.animation = '', 500);
+                        
+                        return false;
+                    }
+                    
+                    console.log('✅ Admin form submission: Turnstile token verified');
+                });
+            }
+        });
+        
+        console.log('🔒 Admin Turnstile: Initialized');
+    </script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+    <?php endif; ?>
 </body>
 </html>
-

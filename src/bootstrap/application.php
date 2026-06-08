@@ -119,6 +119,17 @@ function db(): PDO
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
             http_response_code(500);
+            $requestPath = $_SERVER['REQUEST_URI'] ?? '';
+            if (str_contains($requestPath, '/api/')) {
+                if (!headers_sent()) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                }
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Database connection failed. Please try again later.',
+                ]);
+                exit;
+            }
             exit('Database connection failed.');
         }
     }
@@ -168,6 +179,36 @@ function applyLoginSessionLifetime(bool $remember): void
     }
 }
 
+function applyAdminSessionLifetime(): void
+{
+    $_SESSION['admin_session_started'] = time();
+
+    setcookie(session_name(), session_id(), appCookieOptions(0));
+    setcookie('has_active_admin_session', '1', appCookieOptions(0));
+
+    $opts = appCookieOptions(time() + 60);
+    $opts['httponly'] = false;
+    setcookie('plant_admin_footprint', '1', $opts);
+}
+
+function destroyAdminSession(): void
+{
+    unset(
+        $_SESSION['admin_id'],
+        $_SESSION['admin_nom'],
+        $_SESSION['admin_email'],
+        $_SESSION['admin_session_started']
+    );
+
+    if (isset($_COOKIE['has_active_admin_session'])) {
+        setcookie('has_active_admin_session', '', appCookieOptions(time() - 3600));
+    }
+
+    if (isset($_COOKIE['plant_admin_footprint'])) {
+        setcookie('plant_admin_footprint', '', appCookieOptions(time() - 3600));
+    }
+}
+
 function destroyAppSession(): void
 {
     $_SESSION = [];
@@ -182,6 +223,14 @@ function destroyAppSession(): void
 
     if (isset($_COOKIE['has_active_session'])) {
         setcookie('has_active_session', '', appCookieOptions(time() - 3600));
+    }
+
+    if (isset($_COOKIE['has_active_admin_session'])) {
+        setcookie('has_active_admin_session', '', appCookieOptions(time() - 3600));
+    }
+
+    if (isset($_COOKIE['plant_admin_footprint'])) {
+        setcookie('plant_admin_footprint', '', appCookieOptions(time() - 3600));
     }
 
     session_destroy();
@@ -228,39 +277,117 @@ if (rand(1, 10) === 1) {
 
 /**
  * Verify Cloudflare Turnstile CAPTCHA token
+ * Enhanced with comprehensive error handling and logging
  */
 function verifyTurnstile(string $token): bool
 {
     // If keys aren't set, skip verification (allows dev/testing to work out of the box)
-    if (defined('TURNSTILE_SECRET_KEY') && TURNSTILE_SECRET_KEY === '') {
+    if (!defined('TURNSTILE_SECRET_KEY') || TURNSTILE_SECRET_KEY === '') {
+        error_log('Turnstile: Secret key not configured - skipping verification');
         return true;
+    }
+
+    // Check if token was provided
+    if (empty($token)) {
+        error_log('Turnstile: No token provided in request');
+        return false;
     }
 
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
     $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    
+    // Log verification attempt (useful for debugging)
+    error_log("Turnstile: Verifying token for IP: {$ip}");
+    
     $data = [
         'secret' => TURNSTILE_SECRET_KEY,
         'response' => $token,
         'remoteip' => $ip
     ];
 
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method'  => 'POST',
-            'content' => http_build_query($data),
-            'timeout' => 5
+    // Use cURL for better error handling
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query($data),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/x-www-form-urlencoded'
         ]
-    ];
+    ]);
 
-    $context  = stream_context_create($options);
-    $result = @file_get_contents($url, false, $context);
-    
-    if ($result === false) {
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    $curlErrno = curl_errno($ch);
+    curl_close($ch);
+
+    // Check for cURL errors
+    if ($curlErrno !== 0) {
+        error_log("Turnstile: cURL error [{$curlErrno}]: {$curlError}");
         return false;
     }
 
-    $response = json_decode($result, true);
-    return isset($response['success']) && $response['success'] === true;
-}
+    // Check HTTP response code
+    if ($httpCode !== 200) {
+        error_log("Turnstile: HTTP error code: {$httpCode}");
+        error_log("Turnstile: Response body: " . substr($result, 0, 500));
+        return false;
+    }
 
+    // Parse JSON response
+    $response = json_decode($result, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log("Turnstile: JSON decode error: " . json_last_error_msg());
+        error_log("Turnstile: Raw response: " . substr($result, 0, 500));
+        return false;
+    }
+
+    // Check success status
+    if (!isset($response['success'])) {
+        error_log("Turnstile: Missing 'success' field in response");
+        error_log("Turnstile: Full response: " . json_encode($response));
+        return false;
+    }
+
+    if ($response['success'] !== true) {
+        // Log error codes for debugging
+        $errorCodes = $response['error-codes'] ?? [];
+        error_log("Turnstile: Verification failed with errors: " . json_encode($errorCodes));
+        
+        // Log common error meanings for quick debugging
+        foreach ($errorCodes as $code) {
+            $meaning = match($code) {
+                'missing-input-secret' => 'Secret key is missing',
+                'invalid-input-secret' => 'Secret key is invalid',
+                'missing-input-response' => 'Token is missing',
+                'invalid-input-response' => 'Token is invalid or expired',
+                'bad-request' => 'Request is malformed',
+                'timeout-or-duplicate' => 'Token already used or expired',
+                'internal-error' => 'Cloudflare internal error',
+                default => 'Unknown error'
+            };
+            error_log("Turnstile: Error code '{$code}': {$meaning}");
+        }
+        
+        return false;
+    }
+
+    // Optional: Verify hostname matches (security check)
+    if (isset($response['hostname'])) {
+        $expectedHost = $_SERVER['HTTP_HOST'] ?? '';
+        if ($response['hostname'] !== $expectedHost) {
+            error_log("Turnstile: Hostname mismatch - expected '{$expectedHost}', got '{$response['hostname']}'");
+            // Note: Don't fail here as hostname might differ in dev environments
+            // return false;
+        }
+    }
+
+    // Log successful verification
+    error_log("Turnstile: Verification successful for IP: {$ip}");
+    
+    return true;
+}

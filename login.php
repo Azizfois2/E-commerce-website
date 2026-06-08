@@ -2,16 +2,18 @@
 require_once 'config.php';
 require_once 'mailer.php';
 require_once 'two-factor-helpers.php';
+require_once __DIR__ . '/includes/i18n.php';
+i18n_start_page_translation();
 
 $requestMethod = $_SERVER["REQUEST_METHOD"] ?? "GET";
 const LOGIN_MAX_FAILED_ATTEMPTS = 3;
 const LOGIN_LOCK_MINUTES = 15;
 
 // ── Validate redirect target (prevent open redirect) ─────────────
-$next = $_GET['next'] ?? ($_POST['next'] ?? 'index.html');
+$next = $_GET['next'] ?? ($_POST['next'] ?? 'index.php');
 // Only allow relative paths — block absolute URLs, protocol-relative, and javascript:
 if (preg_match('#^(https?://|//|javascript:)#i', $next) || strpos($next, '..') !== false) {
-    $next = 'index.html';
+    $next = 'index.php';
 }
 
 // ─── Si déjà connecté → rediriger ────────────────────────────────
@@ -29,12 +31,14 @@ if ($requestMethod !== "POST") {
     $oauthError = $_GET['error'] ?? '';
     $providerLabels = [
         'facebook' => 'Facebook',
-        'xbox' => 'Xbox',
+        'steam' => 'Steam',
         'apple' => 'Apple',
     ];
 
     if ($oauthError === 'google_auth_failed') {
-        $errors["general"] = "Google login failed. Please try again or use your email.";
+        $detail = $_GET['detail'] ?? '';
+        $errors["general"] = "Google login failed. Please try again or use your email."
+            . ($detail !== '' ? " [Debug: " . htmlspecialchars($detail) . "]" : "");
     } elseif ($oauthError === 'provider_unavailable') {
         $provider = strtolower((string) ($_GET['provider'] ?? ''));
         $providerName = $providerLabels[$provider] ?? 'This provider';
@@ -346,7 +350,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
 }
 ?>
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -354,7 +358,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/signup.css">
+    <link rel="stylesheet" href="assets/css/signup.css?v=<?= urlencode((string) filemtime(__DIR__ . '/assets/css/signup.css')) ?>">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
     <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
@@ -398,15 +402,15 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
     </style>
 	<link rel="stylesheet" href="assets/css/light-mode-industrial.css">
 </head>
-<body>
+<body class="auth-page auth-balanced auth-login">
 
-    <a href="index.html" class="back-link">← Back to Store</a>
+    <a href="<?= htmlspecialchars(i18n_url('index.php'), ENT_QUOTES, 'UTF-8') ?>" class="back-link">&larr; <?php i18n_e('auth.back_to_store', [], 'Back to Store'); ?></a>
 
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" style="position: absolute; top: 1.5rem; right: 2rem;">
         <i class="fas fa-sun icon-sun"></i>
         <i class="fas fa-moon icon-moon"></i>
     </button>
-    <div id="google_translate_element" class="nav-translate" style="position: absolute; top: 1.5rem; right: 6rem;"></div>
+    <?= i18n_language_switcher('nav-translate', 'position: absolute; top: 1.5rem; right: 6rem;') ?>
 
 
     <div class="container login-container">
@@ -415,8 +419,14 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
         <div class="hero-side">
             <img src="signup.png" alt="Gaming setup workspace">
             <div class="hero-overlay">
-                <h2>Welcome Back</h2>
-                <p>Access your orders, saved builds, and member-exclusive deals.</p>
+                <span class="hero-kicker">Account access</span>
+                <h2>Your setup is waiting</h2>
+                <p>Access saved builds, order history, and faster checkout from one secure place.</p>
+                <div class="hero-trust-list" aria-label="Account benefits">
+                    <span><i class="fas fa-box-open"></i> Orders</span>
+                    <span><i class="fas fa-bookmark"></i> Saved parts</span>
+                    <span><i class="fas fa-shield-halved"></i> 2FA ready</span>
+                </div>
             </div>
         </div>
 
@@ -443,8 +453,9 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                 <?= csrfField() ?>
                 <input type="hidden" name="next" value="<?= htmlspecialchars($next, ENT_QUOTES, 'UTF-8') ?>">
 
-                <h3 id="myH3">Sign In</h3>
-                <p class="subtitle">Enter your credentials to continue</p>
+                <span class="auth-kicker">Maroc PC account</span>
+                <h3 id="myH3">Welcome back</h3>
+                <p class="subtitle">Sign in to manage orders, saved builds, and account security.</p>
 
                 <!-- ── Email ──────────────────────────────────── -->
                 <div class="<?= grp('email', $errors) ?>">
@@ -466,7 +477,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                         <input type="password" name="pass" id="login-pass" class="hh"
                                placeholder="••••••••" required>
                         <button type="button" class="toggle-pass" id="loginTogglePass"
-                                aria-label="Show password">👁</button>
+                                aria-label="Show password"><i class="fas fa-eye"></i></button>
                     </div>
                     <span class="error-msg" id="err-login-pass">
                         <?= isset($errors["pass"])
@@ -481,15 +492,23 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                         <input type="checkbox" name="remember" id="remember"
                                <?= isset($_POST["remember"]) ? "checked" : "" ?>>
                         <span class="check-box"></span>
-                        <span class="remember-text">Remember me</span>
+                        <span class="remember-copy">
+                            <span class="remember-text">Remember this device</span>
+                            <small>Keep me signed in for 30 days.</small>
+                        </span>
                     </label>
                     <a href="forgot-password.php" class="forgot-link">Forgot password?</a>
                 </div>
 
                 <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
                     <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"></div>
+                        <div class="cf-turnstile" 
+                             data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>"
+                             data-callback="onTurnstileSuccess"
+                             data-error-callback="onTurnstileError"
+                             data-expired-callback="onTurnstileExpired"></div>
                     </div>
+                    <div id="turnstileError" style="display: none; text-align: center; color: var(--danger); font-size: 0.9rem; margin-bottom: 16px;"></div>
                 <?php endif; ?>
 
                 <div class="form-actions">
@@ -497,7 +516,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                 </div>
 
                 <div class="social-login">
-                    <p>Or sign in with</p>
+                    <p>Or continue with</p>
                     <div class="social-provider-grid">
                         <a href="google-callback.php?next=<?= urlencode($next) ?>" class="social-provider provider-google">
                             <i class="fab fa-google"></i>
@@ -511,16 +530,16 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                             <i class="fab fa-discord"></i>
                             <span>Discord</span>
                         </a>
-                        <a href="xbox-login.php?next=<?= urlencode($next) ?>" class="social-provider provider-xbox">
-                            <i class="fab fa-xbox"></i>
-                            <span>Xbox</span>
+                        <a href="steam-login.php?next=<?= urlencode($next) ?>" class="social-provider provider-steam">
+                            <i class="fab fa-steam"></i>
+                            <span>Steam</span>
                         </a>
 
                     </div>
                 </div>
 
                 <p class="login-link" style="margin-top: 1.5rem;">
-                    New here? <a href="signup.php">Create an account</a>
+                    New here? <a href="signup.php" data-auth-transition="signup">Create an account</a>
                 </p>
 
             </form>
@@ -539,8 +558,8 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
         </span>
     </div>
 
-    <script src="assets/js/translate.js"></script>
-    <script src="assets/js/login.js" defer></script>
+    <?= i18n_language_switcher_assets() ?>
+    <script src="assets/js/login.js?v=<?= urlencode((string) filemtime(__DIR__ . '/assets/js/login.js')) ?>" defer></script>
     <script src="assets/js/theme.js" defer></script>
     
     <script>
@@ -566,7 +585,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                             const toast = document.getElementById('loginToast');
                             const toastMsg = document.getElementById('loginToastMsg');
                             if (toast && toastMsg) {
-                                toastMsg.textContent = 'Your session has expired. Please sign in again.';
+                                toastMsg.textContent = <?= json_encode(i18n_t('auth.session_expired'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
                                 toast.style.borderColor = 'var(--red)';
                                 const icon = toast.querySelector('i');
                                 if (icon) {
@@ -588,5 +607,116 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
             <?php endif; ?>
         })();
     </script>
+    <script src="assets/js/auth-premium.js?v=<?= urlencode((string) filemtime(__DIR__ . '/assets/js/auth-premium.js')) ?>" defer></script>
+    
+    <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
+    <script>
+        // Turnstile Callbacks with comprehensive error handling
+        let turnstileToken = null;
+        
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+            console.log('✅ Turnstile: Token received successfully');
+            
+            // Hide error message if visible
+            const errorDiv = document.getElementById('turnstileError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+            
+            // Enable submit button
+            const submitBtn = document.getElementById('loginBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function onTurnstileError(error) {
+            console.error('❌ Turnstile: Error occurred', error);
+            turnstileToken = null;
+            
+            // Show user-friendly error message
+            const errorDiv = document.getElementById('turnstileError');
+            if (errorDiv) {
+                errorDiv.textContent = '⚠️ Security check failed. Please refresh the page and try again.';
+                errorDiv.style.display = 'block';
+            }
+            
+            // Disable submit button
+            const submitBtn = document.getElementById('loginBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+            
+            // Log to help debugging
+            console.log('💡 Troubleshooting tips:');
+            console.log('1. Check if site key matches Cloudflare dashboard');
+            console.log('2. Verify domain is whitelisted in Cloudflare');
+            console.log('3. Disable ad blockers/privacy extensions');
+            console.log('4. Check browser console for blocked requests');
+        }
+        
+        function onTurnstileExpired() {
+            console.warn('⏰ Turnstile: Token expired (tokens last 5 minutes)');
+            turnstileToken = null;
+            
+            // Show expiration message
+            const errorDiv = document.getElementById('turnstileError');
+            if (errorDiv) {
+                errorDiv.textContent = '⏰ Security check expired. The widget will refresh automatically.';
+                errorDiv.style.display = 'block';
+                
+                // Auto-hide after 3 seconds as widget auto-refreshes
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Prevent form submission if token missing or expired
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[name="login"]');
+            const submitBtn = document.getElementById('loginBtn');
+            
+            if (form && submitBtn) {
+                form.addEventListener('submit', function(e) {
+                    const tokenInput = document.querySelector('input[name="cf-turnstile-response"]');
+                    const token = tokenInput ? tokenInput.value : '';
+                    
+                    if (!token) {
+                        e.preventDefault();
+                        console.error('❌ Form submission blocked: No Turnstile token');
+                        
+                        const errorDiv = document.getElementById('turnstileError');
+                        if (errorDiv) {
+                            errorDiv.textContent = '⚠️ Please complete the security check before signing in.';
+                            errorDiv.style.display = 'block';
+                        }
+                        
+                        // Shake effect for visual feedback
+                        submitBtn.style.animation = 'shake 0.5s';
+                        setTimeout(() => {
+                            submitBtn.style.animation = '';
+                        }, 500);
+                        
+                        return false;
+                    }
+                    
+                    console.log('✅ Form submission: Turnstile token present');
+                });
+            }
+        });
+        
+        // Debug mode: Log widget load
+        console.log('🔒 Turnstile: Widget initialized');
+    </script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+    <?php endif; ?>
 </body>
 </html>
