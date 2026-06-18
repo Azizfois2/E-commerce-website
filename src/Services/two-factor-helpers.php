@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 require_once dirname(__DIR__, 2) . '/mailer.php';
+require_once __DIR__ . '/evolution-api.php';
 
 function twoFactorEnsureColumns(PDO $pdo): void
 {
@@ -45,6 +46,32 @@ function twoFactorChooseMethod(array $client, ?string $preferred): string
     $preferred = twoFactorNormalizeMethod($preferred ?: ($client['two_factor_method'] ?? 'email'));
     $available = twoFactorAvailableMethods($client);
     return in_array($preferred, $available, true) ? $preferred : 'email';
+}
+
+function twoFactorStartLoginChallenge(array $client, string $next = 'index.php', bool $remember = false, ?string $preferredMethod = null): void
+{
+    $method = twoFactorChooseMethod($client, $preferredMethod);
+    $_SESSION['two_factor_login'] = [
+        'client_id' => (int) $client['id_client'],
+        'name' => (string) ($client['nom'] ?? ''),
+        'email' => (string) ($client['email'] ?? ''),
+        'phone' => (string) ($client['telephone'] ?? ''),
+        'method' => $method,
+        'next' => $next,
+        'remember' => $remember,
+        'code_hash' => null,
+        'expires_at' => time() + 300,
+        'attempts' => 0,
+    ];
+
+    if ($method !== 'authenticator') {
+        $code = (string) random_int(100000, 999999);
+        $_SESSION['two_factor_login']['code_hash'] = password_hash($code, PASSWORD_DEFAULT);
+        twoFactorSendCode($method, $client, $code);
+    }
+
+    header('Location: verify-2fa.php');
+    exit();
 }
 
 function twoFactorSendCode(string $method, array $client, string $code): bool
@@ -115,33 +142,11 @@ function sendTwoFactorCodeWhatsApp(string $phone, string $name, string $code): b
 
     $message = "Maroc PC login code: {$code}. It expires in 5 minutes.";
     if (defined('EVOLUTION_API_KEY') && EVOLUTION_API_KEY !== '') {
-        $payload = json_encode([
-            "number" => ltrim($phone, '+'),
-            "text" => $message
-        ]);
-        if ($payload !== false && function_exists('curl_init')) {
-            $apiUrl = rtrim(EVOLUTION_API_URL, '/') . '/message/sendText/' . rawurlencode(EVOLUTION_INSTANCE_NAME);
-            $ch = curl_init($apiUrl);
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_HTTPHEADER => [
-                    'apikey: ' . EVOLUTION_API_KEY,
-                    'Content-Type: application/json',
-                ],
-                CURLOPT_POSTFIELDS => $payload,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 12,
-            ]);
-            $raw = curl_exec($ch);
-            $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $err = curl_error($ch);
-            curl_close($ch);
-            if ($status >= 200 && $status < 300) {
-                // Return true only if successful. If it failed, it falls down to local DEV mode fallback.
-                return true;
-            }
-            error_log('[EVOLUTION API ERROR] ' . ($err ?: (string) $raw));
+        $error = null;
+        if (evolutionSendText($phone, $message, $error)) {
+            return true;
         }
+        error_log('[EVOLUTION API ERROR] ' . (string) $error);
     }
 
     if (DEV_MODE) {

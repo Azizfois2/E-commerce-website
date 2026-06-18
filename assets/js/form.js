@@ -13,8 +13,98 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.addEventListener('click', () => {
         const isPass = passInput.type === 'password';
         passInput.type = isPass ? 'text' : 'password';
-        toggleBtn.textContent = isPass ? '🙈' : '👁';
+        toggleBtn.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
         toggleBtn.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+    });
+
+    // ── Password Strength Meter ───────────────────────────────
+    const strengthMeter = document.getElementById('passwordStrength');
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    const requirementsBox = document.getElementById('passwordRequirements');
+    
+    // Requirement elements
+    const reqLength = document.getElementById('req-length');
+    const reqNumber = document.getElementById('req-number');
+    const reqSymbol = document.getElementById('req-symbol');
+    const reqUpper = document.getElementById('req-upper');
+
+    function checkPasswordRequirements(password) {
+        const requirements = {
+            length: password.length >= 8,
+            number: /[0-9]/.test(password),
+            symbol: /[^a-zA-Z0-9]/.test(password),
+            upper: /[A-Z]/.test(password)
+        };
+        
+        // Update visual indicators
+        reqLength.classList.toggle('met', requirements.length);
+        reqNumber.classList.toggle('met', requirements.number);
+        reqSymbol.classList.toggle('met', requirements.symbol);
+        if (reqUpper) reqUpper.classList.toggle('met', requirements.upper);
+        
+        return requirements;
+    }
+
+    function calculatePasswordStrength(password) {
+        if (!password) return { strength: 0, text: 'Enter password', class: '' };
+        
+        let strength = 0;
+        
+        // Length check
+        if (password.length >= 8) strength += 25;
+        if (password.length >= 12) strength += 15;
+        
+        // Character variety
+        if (/[a-z]/.test(password)) strength += 15;
+        if (/[A-Z]/.test(password)) strength += 15;
+        if (/[0-9]/.test(password)) strength += 15;
+        if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
+        
+        // Determine strength level
+        if (strength < 40) return { strength: 33, text: 'Weak', class: 'weak' };
+        if (strength < 70) return { strength: 66, text: 'Medium', class: 'medium' };
+        return { strength: 100, text: 'Strong', class: 'strong' };
+    }
+
+    passInput.addEventListener('input', (e) => {
+        const password = e.target.value;
+        
+        // Always show requirements when there's focus or content
+        requirementsBox.classList.add('active');
+            
+        if (password.length > 0) {
+            strengthMeter.classList.add('active');
+            
+            // Check requirements
+            checkPasswordRequirements(password);
+            
+            // Update strength meter
+            const result = calculatePasswordStrength(password);
+            strengthFill.className = 'strength-fill ' + result.class;
+            strengthText.className = 'strength-text ' + result.class;
+            strengthText.textContent = result.text;
+        } else {
+            strengthMeter.classList.remove('active');
+            // Reset all requirements to unmet
+            checkPasswordRequirements('');
+        }
+    });
+
+    // Show requirements immediately on focus — before the user types anything
+    passInput.addEventListener('focus', () => {
+        requirementsBox.classList.add('active');
+        if (passInput.value.length > 0) {
+            strengthMeter.classList.add('active');
+        }
+    });
+
+    // Hide requirements when user leaves the field AND it's empty
+    passInput.addEventListener('blur', () => {
+        if (passInput.value.length === 0) {
+            requirementsBox.classList.remove('active');
+            strengthMeter.classList.remove('active');
+        }
     });
 
     // ── Validators ────────────────────────────────────────────
@@ -25,9 +115,44 @@ document.addEventListener('DOMContentLoaded', () => {
         // FIX: compare date strings directly to avoid UTC/local timezone offset bug
         dob:      (v) => v !== '' && v < new Date().toISOString().slice(0, 10),
         adresse:  (v) => v.trim().length >= 5,
-        telephone: (v) => v.trim().length >= 8
+        telephone: (v) => {
+            const selectedMethod = form.querySelector('input[name="verify_method"]:checked')?.value || 'email';
+            return selectedMethod === 'email' || v.trim().length >= 8;
+        },
+        terms_agree: () => form.elements.terms_agree?.checked === true
         // FIX: mp validator now explicitly queries the form rather than relying on closure
     };
+
+    const phoneGroup = document.querySelector('.phone-group');
+    const phoneInput = document.getElementById('telephone');
+    const verificationChoices = form.querySelectorAll('input[name="verify_method"]');
+
+    function syncPhoneRequirement() {
+        const selectedMethod = form.querySelector('input[name="verify_method"]:checked')?.value || 'email';
+        const needsPhone = selectedMethod !== 'email';
+
+        if (phoneInput) {
+            phoneInput.required = needsPhone;
+            phoneInput.setAttribute('aria-required', needsPhone ? 'true' : 'false');
+        }
+
+        if (phoneGroup) {
+            phoneGroup.classList.toggle('phone-required', needsPhone);
+            phoneGroup.classList.toggle('phone-optional', !needsPhone);
+            if (!needsPhone) {
+                phoneGroup.classList.remove('invalid');
+            }
+        }
+    }
+
+    verificationChoices.forEach(choice => {
+        choice.addEventListener('change', () => {
+            syncPhoneRequirement();
+            validateField('telephone');
+        });
+    });
+
+    syncPhoneRequirement();
 
     // ── Real-time validation ──────────────────────────────────
     Object.keys(validators).forEach(field => {
@@ -39,6 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
         targets.forEach(el => {
             el.addEventListener('blur',   () => validateField(field));
             el.addEventListener('change', () => validateField(field));
+            el.addEventListener('input',  () => {
+                // Clear invalid state on input
+                const group = el.closest('.form-group');
+                if (group && group.classList.contains('invalid')) {
+                    group.classList.remove('invalid');
+                }
+            });
         });
     });
 
@@ -51,9 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
             : input.closest('.form-group');
         if (!group) return true;
 
-        const val = input.value ?? '';
+        const val = input.type === 'checkbox' ? (input.checked ? '1' : '') : (input.value ?? '');
         const valid = validators[name](val);
         group.classList.toggle('invalid', !valid);
+        group.classList.toggle('valid', valid && val.length > 0);
         return valid;
     }
 
@@ -134,9 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmSubmit.addEventListener('click', () => {
         confirmSubmit.textContent = 'Creating…';
         confirmSubmit.disabled    = true;
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3ef74137-7336-41af-9a23-1526acbc2e88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({runId:'post-fix',hypothesisId:'H6',location:'js/form.js:confirmSubmit',message:'Signup form confirmed and submitting',data:{action:form.action},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         form.submit();
     });
 
@@ -156,6 +286,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        openConfirm();
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.textContent = 'Creating…';
+            submitButton.disabled = true;
+        }
+        form.submit();
     });
 });

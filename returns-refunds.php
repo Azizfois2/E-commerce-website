@@ -1,13 +1,22 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/includes/i18n.php';
+i18n_start_page_translation();
+$returnsPhraseMap = i18n_page_phrase_map(i18n_current_locale());
+$returnsT = static function (string $text) use ($returnsPhraseMap): string {
+    return $returnsPhraseMap[$text] ?? $text;
+};
+$returnsE = static function (string $text) use ($returnsT): string {
+    return htmlspecialchars($returnsT($text), ENT_QUOTES, 'UTF-8');
+};
 ?>
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Returns, Refunds & After-Sales Service - Maroc PC</title>
-    <meta name="description" content="Start a return, refund, warranty, repair, missing item, or damaged package request with Maroc PC after-sales support.">
+    <title><?= $returnsE('Returns, Refunds & After-Sales Service'); ?> - Maroc PC</title>
+    <meta name="description" content="<?= $returnsE('Start a return, refund, warranty, repair, missing item, or damaged package request with Maroc PC after-sales support.'); ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -16,6 +25,7 @@ require_once 'config.php';
     <link rel="stylesheet" href="assets/css/auth-nav.css">
     <link rel="stylesheet" href="assets/css/after-sales.css">
     <link rel="stylesheet" href="assets/css/light-mode-industrial.css">
+    <?= i18n_preference_assets() ?>
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
 </head>
 <body>
@@ -24,29 +34,29 @@ require_once 'config.php';
             <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
                 <span></span><span></span><span></span>
             </button>
-            <a href="index.html" class="logo">
+            <a href="<?= htmlspecialchars(i18n_url('index.php'), ENT_QUOTES, 'UTF-8') ?>" class="logo">
                 <img src="logo.png" alt="Maroc PC Logo" class="nav-logo">
             </a>
             <nav class="nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="products.html" class="nav-link">Products</a>
-                <a href="builder.php" class="nav-link">Builder</a>
-                <a href="index.html#categories" class="nav-link">Categories</a>
-                <a href="index.html#deals" class="nav-link">Deals</a>
+                <a href="<?= htmlspecialchars(i18n_url('index.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-link"><?php i18n_e('nav.home'); ?></a>
+                <a href="<?= htmlspecialchars(i18n_url('products.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-link"><?php i18n_e('nav.products'); ?></a>
+                <a href="<?= htmlspecialchars(i18n_url('builder.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-link"><?php i18n_e('nav.pc_build_wizard'); ?></a>
+                <a href="<?= htmlspecialchars(i18n_url('index.php#categories'), ENT_QUOTES, 'UTF-8') ?>" class="nav-link"><?php i18n_e('nav.categories'); ?></a>
+                <a href="<?= htmlspecialchars(i18n_url('index.php#deals'), ENT_QUOTES, 'UTF-8') ?>" class="nav-link"><?php i18n_e('nav.deals'); ?></a>
             </nav>
             <div style="flex:1"></div>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                 <i class="fas fa-sun icon-sun"></i>
                 <i class="fas fa-moon icon-moon"></i>
             </button>
-            <div id="google_translate_element" class="nav-translate"></div>
+            <?= i18n_language_switcher('nav-translate') ?>
             <div class="cart-wrapper" id="userNav">
-                <a href="login.php" class="cart-icon" aria-label="Account">
+                <a href="<?= htmlspecialchars(i18n_url('account.php'), ENT_QUOTES, 'UTF-8') ?>" class="cart-icon" aria-label="<?php i18n_e('nav.account'); ?>">
                     <i class="fas fa-user"></i>
                 </a>
             </div>
             <div class="cart-wrapper">
-                <a href="cart.html" class="cart-icon" aria-label="Shopping cart">
+                <a href="<?= htmlspecialchars(i18n_url('cart.php'), ENT_QUOTES, 'UTF-8') ?>" class="cart-icon" aria-label="<?php i18n_e('nav.shopping_cart'); ?>">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
                 </a>
@@ -57,77 +67,77 @@ require_once 'config.php';
     <main class="after-sales-page">
         <section class="after-hero">
             <div class="after-hero-copy">
-                <span class="eyebrow"><i class="fas fa-headset"></i> After-Sales Desk</span>
-                <h1>Returns, Refunds & Warranty Service</h1>
-                <p>Open a service ticket for returns, refunds, exchanges, warranty diagnostics, damaged parcels, or missing items. We triage hardware cases with order checks, serial verification, and clear next steps.</p>
+                <span class="eyebrow"><i class="fas fa-headset"></i> <?= $returnsE('After-Sales Desk'); ?></span>
+                <h1><?= $returnsE('Returns, Refunds & Warranty Service'); ?></h1>
+                <p><?= $returnsE('Open a service ticket for returns, refunds, exchanges, warranty diagnostics, damaged parcels, or missing items. We triage hardware cases with order checks, serial verification, and clear next steps.'); ?></p>
                 <div class="after-actions">
-                    <a href="#service-request" class="btn btn-primary">Start a Request</a>
-                    <a href="account.php?tab=orders" class="btn btn-secondary">Track My Orders</a>
+                    <a href="#service-request" class="btn btn-primary"><?= $returnsE('Start a Request'); ?></a>
+                    <a href="account.php?tab=orders" class="btn btn-secondary"><?= $returnsE('Track My Orders'); ?></a>
                 </div>
             </div>
             <div class="after-hero-panel" aria-label="Service promise">
-                <strong>RMA response</strong>
-                <span>1-2 business days</span>
-                <small>Urgent triage for damaged or missing items.</small>
+                <strong><?= $returnsE('RMA response'); ?></strong>
+                <span><?= $returnsE('1-2 business days'); ?></span>
+                <small><?= $returnsE('Urgent triage for damaged or missing items.'); ?></small>
             </div>
         </section>
 
         <section class="service-metrics" aria-label="After-sales commitments">
             <article>
                 <i class="fas fa-rotate-left"></i>
-                <strong>14 days</strong>
-                <span>Return or exchange window for eligible complete items.</span>
+                <strong><?= $returnsE('14 days'); ?></strong>
+                <span><?= $returnsE('Return or exchange window for eligible complete items.'); ?></span>
             </article>
             <article>
                 <i class="fas fa-screwdriver-wrench"></i>
-                <strong>48h</strong>
-                <span>Initial diagnostic plan for warranty and repair cases.</span>
+                <strong><?= $returnsE('48h'); ?></strong>
+                <span><?= $returnsE('Initial diagnostic plan for warranty and repair cases.'); ?></span>
             </article>
             <article>
                 <i class="fas fa-money-bill-transfer"></i>
-                <strong>3-10 days</strong>
-                <span>Refund processing after inspection approval.</span>
+                <strong><?= $returnsE('3-10 days'); ?></strong>
+                <span><?= $returnsE('Refund processing after inspection approval.'); ?></span>
             </article>
             <article>
                 <i class="fas fa-box-open"></i>
-                <strong>24h</strong>
-                <span>Damaged parcel or missing-item priority review.</span>
+                <strong><?= $returnsE('24h'); ?></strong>
+                <span><?= $returnsE('Damaged parcel or missing-item priority review.'); ?></span>
             </article>
         </section>
 
         <section class="after-grid">
             <article class="policy-panel">
                 <span class="eyebrow">Policy</span>
-                <h2>What We Can Handle</h2>
+                <h2><?= $returnsE('What We Can Handle'); ?></h2>
                 <div class="policy-list">
                     <div>
-                        <strong>Returns & exchanges</strong>
-                        <p>Accepted for complete products with accessories, manuals, packaging, and no physical damage. Opened items may need inspection before approval.</p>
+                        <strong><?= $returnsE('Returns & exchanges'); ?></strong>
+                        <p><?= $returnsE('Accepted for complete products with accessories, manuals, packaging, and no physical damage. Opened items may need inspection before approval.'); ?></p>
                     </div>
                     <div>
-                        <strong>Refunds</strong>
-                        <p>Issued to the original payment method after service approval and product inspection. COD refunds may require bank or wallet details.</p>
+                        <strong><?= $returnsE('Refunds'); ?></strong>
+                        <p><?= $returnsE('Issued to the original payment method after service approval and product inspection. COD refunds may require bank or wallet details.'); ?></p>
                     </div>
                     <div>
-                        <strong>Warranty & repairs</strong>
-                        <p>We validate serial numbers, symptoms, purchase date, and manufacturer coverage before routing to repair, replacement, or brand service.</p>
+                        <strong><?= $returnsE('Warranty & repairs'); ?></strong>
+                        <p><?= $returnsE('We validate serial numbers, symptoms, purchase date, and manufacturer coverage before routing to repair, replacement, or brand service.'); ?></p>
                     </div>
                     <div>
-                        <strong>Damaged or missing items</strong>
-                        <p>Report within 24 hours of delivery. Keep all packaging and send photos of the parcel, labels, and product condition.</p>
+                        <strong><?= $returnsE('Damaged or missing items'); ?></strong>
+                        <p><?= $returnsE('Report within 24 hours of delivery. Keep all packaging and send photos of the parcel, labels, and product condition.'); ?></p>
                     </div>
                 </div>
             </article>
 
             <article class="timeline-panel">
                 <span class="eyebrow">Flow</span>
-                <h2>Service Timeline</h2>
+                <h2><?= $returnsE('Service Timeline'); ?></h2>
                 <ol class="service-timeline">
-                    <li><strong>Submit ticket</strong><span>Order number, product, issue type, and preferred resolution.</span></li>
-                    <li><strong>Eligibility check</strong><span>We verify order, payment, delivery status, return window, and warranty path.</span></li>
-                    <li><strong>Return intake</strong><span>Drop-off or courier instructions are sent after approval.</span></li>
-                    <li><strong>Inspection</strong><span>Technicians check completeness, damage, serials, and fault symptoms.</span></li>
-                    <li><strong>Resolution</strong><span>Refund, replacement, store credit, repair, or diagnostic report.</span></li>
+                    <li><strong><?= $returnsE('Submit ticket'); ?></strong><span><?= $returnsE('Order number, product, issue type, and preferred resolution.'); ?></span></li>
+                    <li><strong><?= $returnsE('Eligibility check'); ?></strong><span><?= $returnsE('We verify order, payment, delivery status, return window, and warranty path.'); ?></span></li>
+                    <li><strong><?= $returnsE('Return intake'); ?></strong><span><?= $returnsE('Drop-off or courier instructions are sent after approval.'); ?></span></li>
+                    <li><strong><?= $returnsE('Inspection'); ?></strong><span><?= $returnsE('Technicians check completeness, damage, serials, and fault symptoms.'); ?></span></li>
+                    <li><strong><?= $returnsE('Resolution'); ?></strong><span><?= $returnsE('Refund, replacement, store credit, repair, or diagnostic report.'); ?></span></li>
                 </ol>
             </article>
         </section>
@@ -135,10 +145,10 @@ require_once 'config.php';
         <section class="request-section" id="service-request">
             <div class="request-copy">
                 <span class="eyebrow">RMA Form</span>
-                <h2>Start an After-Sales Request</h2>
-                <p>Use the same email as your order. If you are signed in, the ticket will also attach to your account. Add the product serial number for warranty or repair cases when available.</p>
+                <h2><?= $returnsE('Start an After-Sales Request'); ?></h2>
+                <p><?= $returnsE('Use the same email as your order. If you are signed in, the ticket will also attach to your account. Add the product serial number for warranty or repair cases when available.'); ?></p>
                 <div class="support-card">
-                    <strong>Need help now?</strong>
+                    <strong><?= $returnsE('Need help now?'); ?></strong>
                     <a href="tel:+212618821949"><i class="fas fa-phone"></i> +212 618821949</a>
                     <a href="mailto:support@marocpc.com"><i class="fas fa-envelope"></i> support@marocpc.com</a>
                 </div>
@@ -146,155 +156,113 @@ require_once 'config.php';
 
             <form class="after-form" id="afterSalesForm">
                 <div class="form-row">
-                    <label>Order number
-                        <input type="number" name="order_id" min="1" placeholder="Example: 1004" required>
+                    <label><?= $returnsE('Order number'); ?>
+                        <input type="number" name="order_id" min="1" placeholder="<?= $returnsE('Example: 1004'); ?>" required>
                     </label>
-                    <label>Full name
-                        <input type="text" name="customer_name" placeholder="Your name" required>
+                    <label><?= $returnsE('Full name'); ?>
+                        <input type="text" name="customer_name" placeholder="<?= $returnsE('Your name'); ?>" required>
                     </label>
                 </div>
                 <div class="form-row">
-                    <label>Email used on order
-                        <input type="email" name="email" placeholder="you@example.com" required>
+                    <label><?= $returnsE('Email used on order'); ?>
+                        <input type="email" name="email" placeholder="<?= $returnsE('you@example.com'); ?>" required>
                     </label>
                     <label>Phone
                         <input type="tel" name="phone" placeholder="+212 ...">
                     </label>
                 </div>
                 <div class="form-row">
-                    <label>Request type
+                    <label><?= $returnsE('Request type'); ?>
                         <select name="request_type" required>
-                            <option value="">Choose...</option>
-                            <option value="return">Return</option>
-                            <option value="refund">Refund</option>
-                            <option value="exchange">Exchange</option>
-                            <option value="warranty">Warranty claim</option>
-                            <option value="repair">Repair / diagnostic</option>
-                            <option value="missing">Missing item</option>
-                            <option value="damaged">Damaged on arrival</option>
+                            <option value=""><?= $returnsE('Choose...'); ?></option>
+                            <option value="return"><?= $returnsE('Return'); ?></option>
+                            <option value="refund"><?= $returnsE('Refund'); ?></option>
+                            <option value="exchange"><?= $returnsE('Exchange'); ?></option>
+                            <option value="warranty"><?= $returnsE('Warranty claim'); ?></option>
+                            <option value="missing"><?= $returnsE('Missing item'); ?></option>
+                            <option value="damaged"><?= $returnsE('Damaged on arrival'); ?></option>
                         </select>
                     </label>
-                    <label>Preferred resolution
+                    <label><?= $returnsE('Preferred resolution'); ?>
                         <select name="preferred_resolution" required>
-                            <option value="">Choose...</option>
-                            <option value="refund">Refund</option>
-                            <option value="replacement">Replacement</option>
-                            <option value="store_credit">Store credit</option>
-                            <option value="repair">Repair</option>
-                            <option value="diagnostic">Diagnostic report</option>
+                            <option value=""><?= $returnsE('Choose...'); ?></option>
+                            <option value="refund"><?= $returnsE('Refund'); ?></option>
+                            <option value="replacement"><?= $returnsE('Replacement'); ?></option>
+                            <option value="store_credit"><?= $returnsE('Store credit'); ?></option>
                         </select>
                     </label>
                 </div>
-                <label>Product concerned
-                    <input type="text" name="product_name" placeholder="Example: NVIDIA RTX 4080 Super" required>
+                <label><?= $returnsE('Product concerned'); ?>
+                    <input type="text" name="product_name" placeholder="<?= $returnsE('Example: NVIDIA RTX 4080 Super'); ?>" required>
                 </label>
                 <div class="form-row">
-                    <label>Product condition
+                    <label><?= $returnsE('Product condition'); ?>
                         <select name="product_condition" required>
-                            <option value="">Choose...</option>
-                            <option value="sealed">Sealed / unopened</option>
-                            <option value="opened_unused">Opened but unused</option>
-                            <option value="used">Used / installed</option>
-                            <option value="defective">Defective</option>
-                            <option value="damaged_package">Damaged packaging</option>
-                            <option value="missing_item">Missing item/accessory</option>
+                            <option value=""><?= $returnsE('Choose...'); ?></option>
+                            <option value="sealed"><?= $returnsE('Sealed / unopened'); ?></option>
+                            <option value="opened_unused"><?= $returnsE('Opened but unused'); ?></option>
+                            <option value="used"><?= $returnsE('Used / installed'); ?></option>
+                            <option value="defective"><?= $returnsE('Defective'); ?></option>
+                            <option value="damaged_package"><?= $returnsE('Damaged packaging'); ?></option>
+                            <option value="missing_item"><?= $returnsE('Missing item/accessory'); ?></option>
                         </select>
                     </label>
-                    <label>Serial number
-                        <input type="text" name="serial_number" placeholder="Optional, recommended for warranty">
+                    <label><?= $returnsE('Serial number'); ?>
+                        <input type="text" name="serial_number" placeholder="<?= $returnsE('Optional, recommended for warranty'); ?>">
                     </label>
                 </div>
                 <label class="checkbox-line">
                     <input type="checkbox" name="package_opened" value="1">
-                    <span>The retail package has been opened.</span>
+                    <span><?= $returnsE('The retail package has been opened.'); ?></span>
                 </label>
-                <label>Describe the issue
-                    <textarea name="reason" rows="6" minlength="20" placeholder="Tell us what happened, when you noticed it, and what resolution you expect." required></textarea>
+                <label><?= $returnsE('Product / Damage Photo (Required for damaged items)'); ?>
+                    <input type="file" name="rma_image" accept="image/jpeg,image/png,image/webp">
+                </label>
+                <label><?= $returnsE('Describe the issue'); ?>
+                    <textarea name="reason" rows="6" minlength="20" placeholder="<?= $returnsE('Tell us what happened, when you noticed it, and what resolution you expect.'); ?>" required></textarea>
                 </label>
                 <button class="btn btn-primary after-submit" type="submit">
-                    <i class="fas fa-paper-plane"></i> Submit Service Ticket
+                    <i class="fas fa-paper-plane"></i> <?= $returnsE('Submit Service Ticket'); ?>
                 </button>
                 <div class="after-form-result" id="afterSalesResult" role="status" aria-live="polite"></div>
             </form>
         </section>
 
         <section class="fine-print">
-            <h2>Important Conditions</h2>
+            <h2><?= $returnsE('Important Conditions'); ?></h2>
             <ul>
-                <li>Data on storage devices should be backed up before any return, repair, or warranty intake.</li>
-                <li>Physical damage, missing accessories, liquid damage, burned components, or modified firmware can affect eligibility.</li>
-                <li>Refund approval depends on inspection result, payment status, and return completeness.</li>
-                <li>Manufacturer warranty timelines vary by brand and product category.</li>
+                <li><?= $returnsE('Data on storage devices should be backed up before any return, repair, or warranty intake.'); ?></li>
+                <li><?= $returnsE('Physical damage, missing accessories, liquid damage, burned components, or modified firmware can affect eligibility.'); ?></li>
+                <li><?= $returnsE('Refund approval depends on inspection result, payment status, and return completeness.'); ?></li>
+                <li><?= $returnsE('Manufacturer warranty timelines vary by brand and product category.'); ?></li>
             </ul>
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-column">
-                    <a href="index.html" class="footer-logo">
-                        <i class="fas fa-microchip"></i>
-                        <span>MarocPC</span>
-                    </a>
-                    <p>Your trusted source for premium computer hardware. Building dreams, one component at a time.</p>
-                </div>
-                <div class="footer-column">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="products.html">Products</a></li>
-                        <li><a href="builder.php">Builder</a></li>
-                        <li><a href="index.html#deals">Deals</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h4>Customer Service</h4>
-                    <ul>
-                        <li><a href="account.php?tab=orders">Track Order</a></li>
-                        <li><a href="returns-refunds.php">Returns & Refunds</a></li>
-                        <li><a href="returns-refunds.php#service-request">Open RMA Ticket</a></li>
-                        <li><a href="mailto:support@marocpc.com">Support Email</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h4>Contact Us</h4>
-                    <ul class="contact-info">
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Boulevard Zerktouni, Maarif</li>
-                        <li><i class="fas fa-phone"></i> <a href="tel:+212618821949">+212 618821949</a></li>
-                        <li><i class="fas fa-envelope"></i> <a href="mailto:support@marocpc.com">support@marocpc.com</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Maroc PC. All rights reserved.</p>
-                <div class="footer-links">
-                    <a href="privacy-policy.php">Privacy Policy</a>
-                    <a href="terms-of-service.php">Terms of Service</a>
-                    <a href="cookie-policy.php">Cookie Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <?php
+require_once __DIR__ . '/includes/store-footer.php';
+storeFooter();
+?>
 
     <div id="roleModal" class="role-modal-overlay" style="display:none;">
         <div class="role-modal">
-            <p class="role-modal-title">Continue as</p>
-            <p class="role-modal-subtitle">Choose your access level to proceed.</p>
+            <p class="role-modal-title">Sign In</p>
+            <p class="role-modal-subtitle">Select your account type to continue to the login page.</p>
             <button class="role-btn" onclick="selectRole('user')">
-                <span class="role-icon user-icon">U</span>
-                <div><strong>Continue as user</strong><small>Standard access</small></div>
+                <span class="role-icon user-icon"><i class="fas fa-user"></i></span>
+                <div><strong>Customer Account</strong><small>Track orders, wishlists &amp; purchases</small></div>
             </button>
             <button class="role-btn" onclick="selectRole('administrator')">
-                <span class="role-icon admin-icon">A</span>
-                <div><strong>Continue as administrator</strong><small>Full access</small></div>
+                <span class="role-icon admin-icon"><i class="fas fa-shield-alt"></i></span>
+                <div><strong>Admin Portal</strong><small>Inventory, orders &amp; site management</small></div>
             </button>
+            <div class="role-modal-divider">or</div>
             <button class="role-cancel" onclick="closeRoleModal()">Cancel</button>
         </div>
     </div>
 
-    <script src="assets/js/cart.js"></script>
-    <script src="assets/js/translate.js"></script>
+    <script src="assets/js/cart.js?v=notify-toast-2"></script>
+    <?= i18n_language_switcher_assets() ?>
     <script src="assets/js/theme.js"></script>
     <script src="assets/js/auth-nav.js"></script>
     <script src="assets/js/after-sales.js"></script>

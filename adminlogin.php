@@ -4,8 +4,7 @@ require_once __DIR__ . '/includes/i18n.php';
 i18n_start_page_translation();
 
 $requestMethod = $_SERVER["REQUEST_METHOD"] ?? "GET";
-const ADMIN_LOGIN_FAILED_MESSAGE = "Invalid administrator credentials. Check your information and try again.";
-const ADMIN_LOGIN_LOCK_MESSAGE = "Too many administrator attempts. Try again in a few minutes.";
+// ADMIN_LOGIN_FAILED_MESSAGE and ADMIN_LOGIN_LOCK_MESSAGE are now resolved via i18n_t() directly at usage points
 const ADMIN_MAX_FAILED_ATTEMPTS = 3;
 const ADMIN_LOCK_MINUTES = 15;
 
@@ -34,13 +33,13 @@ $adminSetupNeeded = adminCountAdmins($pdo) === 0;
 
 if ($requestMethod === "POST") {
     if (!verifyCsrf($_POST[CSRF_TOKEN_NAME] ?? null)) {
-        $errors["general"] = "Invalid session, please try again.";
+        $errors["general"] = i18n_t('auth.admin_invalid_session', [], 'Invalid session, please try again.');
     }
 
     if (empty($errors) && defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== '') {
         $cfToken = $_POST['cf-turnstile-response'] ?? '';
         if (!verifyTurnstile($cfToken)) {
-            $errors["general"] = "CAPTCHA verification failed. Please try again.";
+            $errors["general"] = i18n_t('auth.admin_captcha_failed', [], 'CAPTCHA verification failed. Please try again.');
         }
     }
 
@@ -48,11 +47,11 @@ if ($requestMethod === "POST") {
     $pass_raw = trim($_POST["pass"]  ?? "");
 
     if (empty($errors) && (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))) {
-        $errors["email"] = "Invalid email address.";
+        $errors["email"] = i18n_t('auth.admin_invalid_email', [], 'Invalid email address.');
     }
 
     if (empty($errors) && empty($pass_raw)) {
-        $errors["pass"] = "Password is required.";
+        $errors["pass"] = i18n_t('auth.admin_password_required', [], 'Password is required.');
     }
 
     if (empty($errors)) {
@@ -64,9 +63,9 @@ if ($requestMethod === "POST") {
             $lockedUntil = null;
         }
         if ($lockedUntil !== null && $lockedUntil > new DateTime()) {
-            $errors["general"] = ADMIN_LOGIN_LOCK_MESSAGE;
+            $errors["general"] = i18n_t('auth.too_many_admin_attempts', [], 'Too many administrator attempts. Try again in a few minutes.');
         } elseif (adminCountAdmins($pdo) === 0) {
-            $errors["general"] = 'No administrator configured. Run from command line: php create-admin.php admin@example.com password "Display Name"';
+            $errors["general"] = i18n_t('auth.cli_admin_create', [], 'No admin account found. Create one via CLI:') . ' <code>php create-admin.php admin@example.com password "Display Name"</code>';
         } else {
             $stmt = $pdo->prepare('SELECT id, password_hash, name FROM admin_users WHERE email = ? LIMIT 1');
             $stmt->execute([strtolower(trim($email))]);
@@ -74,7 +73,7 @@ if ($requestMethod === "POST") {
             $hash = is_array($admin) ? (string) ($admin['password_hash'] ?? '') : '';
             if (!is_array($admin) || $hash === '' || !password_verify($pass_raw, $hash)) {
                 registerAdminFailedLogin($pdo, $attemptKey, $email);
-                $errors["general"] = ADMIN_LOGIN_FAILED_MESSAGE;
+                $errors["general"] = i18n_t('auth.invalid_admin_credentials', [], 'Invalid administrator credentials. Check your information and try again.');
             } else {
                 clearAdminLoginAttempts($pdo, $attemptKey);
                 session_regenerate_id(true);
@@ -169,9 +168,10 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal — Maroc PC</title>
+    <title><?= htmlspecialchars(i18n_t('auth.admin_portal_title', [], 'Admin Portal — Maroc PC'), ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
     <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
@@ -302,14 +302,14 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
     </style>
 	<link rel="stylesheet" href="assets/css/light-mode-industrial.css">
 </head>
-<body>
+<body class="auth-page auth-balanced auth-login">
 
     <!-- ACCESS DENIED glitch overlay -->
     <div class="glitch-overlay" id="glitchOverlay">
         <div class="scanlines"></div>
         <div class="glitch-shield">🛡️</div>
-        <div class="glitch-text" data-text="ACCESS DENIED">ACCESS DENIED</div>
-        <p class="glitch-sub">// unauthorized credentials</p>
+        <div class="glitch-text" data-text="<?= htmlspecialchars(i18n_t('auth.access_denied', [], 'ACCESS DENIED'), ENT_QUOTES, 'UTF-8') ?>"><?php i18n_e('auth.access_denied', [], 'ACCESS DENIED'); ?></div>
+        <p class="glitch-sub"><?php i18n_e('auth.unauthorized_credentials', [], '// unauthorized credentials'); ?></p>
     </div>
 
     <a href="<?= htmlspecialchars(i18n_url('index.php'), ENT_QUOTES, 'UTF-8') ?>" class="back-link">← <?php i18n_e('auth.back_to_store', [], 'Back to Store'); ?></a>
@@ -326,8 +326,8 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
         <div class="hero-side">
             <img src="admin_bg.png" alt="Admin Dashboard Background">
             <div class="hero-overlay" style="background: rgba(0,0,0,0.8); z-index: 10;">
-                <h2 style="color: var(--cyan);">Admin Portal</h2>
-                <p>Restricted access. System control, analytics, and catalog management.</p>
+                <h2 style="color: var(--cyan);"><?php i18n_e('auth.admin_portal', [], 'Admin Portal'); ?></h2>
+                <p><?php i18n_e('auth.admin_restricted_hint', [], 'Restricted access. System control, analytics, and catalog management.'); ?></p>
             </div>
         </div>
 
@@ -336,7 +336,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
             <?php if ($adminSetupNeeded): ?>
                 <div class="alert-error" role="alert" style="margin-bottom:16px;">
                     <span aria-hidden="true">⚠</span>
-                    <span>No admin account found. Create one via CLI: <code style="font-size:0.85em;">php create-admin.php email@example.com password "Name"</code></span>
+                    <span><?php i18n_e('auth.cli_admin_create', [], 'No admin account found. Create one via CLI:'); ?> <code style="font-size:0.85em;">php create-admin.php email@example.com password "Name"</code></span>
                 </div>
             <?php endif; ?>
 
@@ -349,25 +349,25 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
 
             <form name="adminlogin" method="post" action="adminlogin.php" novalidate <?= $success ? 'style="display:none"' : '' ?>>
                 <?= csrfField() ?>
-                <h3 id="myH3">Administrator Mode</h3>
-                <p class="subtitle">Highly secure connection required.</p>
+                <h3 id="myH3"><?php i18n_e('auth.administrator_mode', [], 'Administrator Mode'); ?></h3>
+                <p class="subtitle"><?php i18n_e('auth.admin_login_subtitle', [], 'Highly secure connection required.'); ?></p>
 
                 <!-- ── Email ──────────────────────────────────── -->
                 <div class="<?= grp('email', $errors) ?>">
-                    <label for="login-email">Admin Email</label>
+                    <label for="login-email"><?php i18n_e('auth.admin_email_label', [], 'Admin Email'); ?></label>
                     <input type="email" name="email" id="login-email" class="hh"
                            placeholder="admin@marocpc.com" value="<?= htmlspecialchars($email) ?>" required>
-                    <span class="error-msg" id="err-login-email"><?= $errors["email"] ?? "Please enter a valid email" ?></span>
+                    <span class="error-msg" id="err-login-email"><?= $errors["email"] ?? i18n_t('auth.please_enter_valid_email', [], 'Please enter a valid email') ?></span>
                 </div>
 
                 <!-- ── Mot de passe ───────────────────────────── -->
                 <div class="<?= grp('pass', $errors) ?>">
-                    <label for="login-pass">Master Password</label>
+                    <label for="login-pass"><?php i18n_e('auth.master_password_label', [], 'Master Password'); ?></label>
                     <div class="password-wrap">
                         <input type="password" name="pass" id="login-pass" class="hh" placeholder="••••••••" required>
-                        <button type="button" class="toggle-pass" id="loginTogglePass" aria-label="Show password">👁</button>
+                        <button type="button" class="toggle-pass" id="loginTogglePass" aria-label="<?php i18n_e('auth.show_password', [], 'Show password'); ?>">👁</button>
                     </div>
-                    <span class="error-msg" id="err-login-pass"><?= $errors["pass"] ?? "Password is required" ?></span>
+                    <span class="error-msg" id="err-login-pass"><?= $errors["pass"] ?? i18n_t('auth.admin_password_required_hint', [], 'Password is required') ?></span>
                 </div>
 
                 <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
@@ -382,7 +382,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
                 <?php endif; ?>
 
                 <div class="form-actions">
-                    <button type="submit" class="Bou" id="loginBtn" style="background: var(--cyan); color: #000;">System Access</button>
+                    <button type="submit" class="Bou" id="loginBtn" style="background: var(--cyan); color: #000;"><?php i18n_e('auth.system_access_btn', [], 'System Access'); ?></button>
                 </div>
             </form>
         </div>
@@ -465,7 +465,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
             
             const errorDiv = document.getElementById('turnstileError');
             if (errorDiv) {
-                errorDiv.textContent = '🛡️ Security verification failed. Refresh and try again.';
+                errorDiv.textContent = '<?= htmlspecialchars(i18n_t('auth.admin_captcha_failed_msg', [], '🛡️ Security verification failed. Refresh and try again.'), ENT_QUOTES, 'UTF-8') ?>';
                 errorDiv.style.display = 'block';
             }
             
@@ -485,8 +485,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
             turnstileToken = null;
             
             const errorDiv = document.getElementById('turnstileError');
-            if (errorDiv) {
-                errorDiv.textContent = '⏰ Security check expired. Widget will refresh automatically.';
+            if (errorDiv) {                    errorDiv.textContent = '<?= htmlspecialchars(i18n_t('auth.admin_captcha_expired', [], '⏰ Security check expired. Widget will refresh automatically.'), ENT_QUOTES, 'UTF-8') ?>';
                 errorDiv.style.display = 'block';
                 setTimeout(() => errorDiv.style.display = 'none', 3000);
             }
@@ -508,7 +507,7 @@ function clearAdminLoginAttempts(PDO $pdo, string $attemptKey): void
                         
                         const errorDiv = document.getElementById('turnstileError');
                         if (errorDiv) {
-                            errorDiv.textContent = '🛡️ Complete security verification to access admin portal.';
+                            errorDiv.textContent = '<?= htmlspecialchars(i18n_t('auth.admin_captcha_missing', [], '🛡️ Complete security verification to access admin portal.'), ENT_QUOTES, 'UTF-8') ?>';
                             errorDiv.style.display = 'block';
                         }
                         

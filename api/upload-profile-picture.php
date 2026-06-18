@@ -29,6 +29,48 @@ function ensureProfileImageColumn(PDO $pdo): void
     }
 }
 
+$action = (string) ($_POST['action'] ?? '');
+$clientId = (int) $_SESSION['client_id'];
+$defaultProfileImage = 'Images/profile/default-avatar.svg';
+
+if ($action === 'remove') {
+    try {
+        $pdo = db();
+        ensureProfileImageColumn($pdo);
+
+        $stmt = $pdo->prepare('SELECT profile_image FROM Client WHERE id_client = ?');
+        $stmt->execute([$clientId]);
+        $currentImage = trim((string) $stmt->fetchColumn());
+
+        $stmt = $pdo->prepare('UPDATE Client SET profile_image = NULL WHERE id_client = ?');
+        $stmt->execute([$clientId]);
+
+        $profileDir = realpath(dirname(__DIR__) . '/Images/profile');
+        $imagePath = $currentImage !== '' && !preg_match('#^(https?:)?//#i', $currentImage)
+            ? realpath(dirname(__DIR__) . '/' . ltrim(str_replace('\\', '/', $currentImage), '/'))
+            : false;
+        if (
+            $profileDir &&
+            $imagePath &&
+            is_file($imagePath) &&
+            str_starts_with($imagePath, $profileDir . DIRECTORY_SEPARATOR) &&
+            basename($imagePath) !== basename($defaultProfileImage)
+        ) {
+            @unlink($imagePath);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'image' => $defaultProfileImage,
+            'message' => 'Profile picture removed.',
+        ]);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => DEV_MODE ? $e->getMessage() : 'Could not remove profile picture.']);
+    }
+    exit;
+}
+
 if (empty($_FILES['profile_picture']) || !is_uploaded_file($_FILES['profile_picture']['tmp_name'])) {
     http_response_code(422);
     echo json_encode(['error' => 'Choose an image first.']);
@@ -54,7 +96,6 @@ if (!isset($allowed[$mime])) {
     exit;
 }
 
-$clientId = (int) $_SESSION['client_id'];
 $targetDir = dirname(__DIR__) . '/Images/profile';
 if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true)) {
     http_response_code(500);

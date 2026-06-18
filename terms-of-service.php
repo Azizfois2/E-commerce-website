@@ -25,7 +25,7 @@ renderSupportPage([
             'title' => 'Products, Pricing, and Stock',
             'items' => [
                 'Product images, specifications, ratings, stock, discounts, and compatibility notes are provided for shopping guidance.',
-                'Prices are shown in MAD and may change before an order is placed.',
+                'Prices are shown in DH and may change before an order is placed.',
                 'Stock is reserved when an order is placed and may be restored if an order is cancelled or deleted according to store rules.',
                 'If a product is incorrectly priced or unavailable because of a technical error, Maroc PC may correct the order before fulfillment.',
             ],

@@ -30,7 +30,8 @@ function getDetailedWishlist($pdo, $clientId) {
 
 if ($method === 'GET') {
     if (!$clientId) {
-        echo json_encode(['success' => true, 'wishlist' => []]);
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Must be logged in']);
         exit;
     }
     
@@ -45,25 +46,13 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     if (!$clientId) {
+        http_response_code(401);
         echo json_encode(['error' => 'Must be logged in']);
         exit;
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? '';
-
-    if ($action === 'sync') {
-        $localWishlist = $input['localWishlist'] ?? [];
-        if (is_array($localWishlist)) {
-            $stmt = $pdo->prepare("INSERT IGNORE INTO wishlist (client_id, product_id) VALUES (?, ?)");
-            foreach ($localWishlist as $pid) {
-                $pid = (int)$pid;
-                if ($pid > 0) $stmt->execute([$clientId, $pid]);
-            }
-        }
-        echo json_encode(['success' => true, 'wishlist' => getUserWishlist($pdo, $clientId)]);
-        exit;
-    }
 
     if ($action === 'toggle') {
         $productId = (int)($input['product_id'] ?? 0);

@@ -123,12 +123,12 @@ adminPageStart($editing ? 'Edit Laptop' : 'Add Laptop', 'laptops');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">CRUD Laptop</span>
-        <h1><?= $editing ? 'Edit Laptop' : 'Add Laptop' ?></h1>
-        <p class="section-copy">Map outcome traits, physical metrics, battery, and pricing for this laptop.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('CRUD Laptop')) ?></span>
+        <h1><?= adminH(adminPhrase($editing ? 'Edit Laptop' : 'Add Laptop')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Map outcome traits, physical metrics, battery, and pricing for this laptop.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="admin-laptops.php">Back to Laptops</a>
+        <a class="button button-light" href="admin-laptops.php"><?= adminH(adminPhrase('Back to Laptops')) ?></a>
     </div>
 </section>
 
@@ -142,112 +142,112 @@ adminPageStart($editing ? 'Edit Laptop' : 'Add Laptop', 'laptops');
         <input type="hidden" name="id" value="<?= (int) ($laptop['id'] ?? 0) ?>">
 
         <label>
-            Laptop name
+            <?= adminH(adminPhrase('Laptop name')) ?>
             <input type="text" name="name" value="<?= adminH($laptop['name'] ?? '') ?>" required>
         </label>
         <label>
-            Brand
+            <?= adminH(adminPhrase('Brand')) ?>
             <input type="text" name="brand" value="<?= adminH($laptop['brand'] ?? '') ?>" required>
         </label>
         
         <label>
-            Usage Category
+            <?= adminH(adminPhrase('Usage Category')) ?>
             <select name="usage_category" required>
-                <option value="gaming" <?= ($laptop['usage_category'] ?? '') === 'gaming' ? 'selected' : '' ?>>Gaming</option>
-                <option value="business" <?= ($laptop['usage_category'] ?? '') === 'business' ? 'selected' : '' ?>>Business</option>
-                <option value="student" <?= ($laptop['usage_category'] ?? '') === 'student' ? 'selected' : '' ?>>Student</option>
-                <option value="creative" <?= ($laptop['usage_category'] ?? '') === 'creative' ? 'selected' : '' ?>>Creative</option>
+                <option value="gaming" <?= ($laptop['usage_category'] ?? '') === 'gaming' ? 'selected' : '' ?>><?= adminH(adminPhrase('Gaming')) ?></option>
+                <option value="business" <?= ($laptop['usage_category'] ?? '') === 'business' ? 'selected' : '' ?>><?= adminH(adminPhrase('Business')) ?></option>
+                <option value="student" <?= ($laptop['usage_category'] ?? '') === 'student' ? 'selected' : '' ?>><?= adminH(adminPhrase('Student')) ?></option>
+                <option value="creative" <?= ($laptop['usage_category'] ?? '') === 'creative' ? 'selected' : '' ?>><?= adminH(adminPhrase('Creative')) ?></option>
             </select>
         </label>
 
         <label>
-            Portability Tier
+            <?= adminH(adminPhrase('Portability Tier')) ?>
             <select name="portability_tier" required>
-                <option value="ultralight" <?= ($laptop['portability_tier'] ?? '') === 'ultralight' ? 'selected' : '' ?>>Ultralight (&lt; 1.5kg)</option>
-                <option value="standard" <?= ($laptop['portability_tier'] ?? '') === 'standard' ? 'selected' : '' ?>>Standard (1.5kg - 2.2kg)</option>
-                <option value="desktop_replacement" <?= ($laptop['portability_tier'] ?? '') === 'desktop_replacement' ? 'selected' : '' ?>>Desktop Replacement</option>
+                <option value="ultralight" <?= ($laptop['portability_tier'] ?? '') === 'ultralight' ? 'selected' : '' ?>><?= adminH(adminPhrase('Ultralight (< 1.5kg)')) ?></option>
+                <option value="standard" <?= ($laptop['portability_tier'] ?? '') === 'standard' ? 'selected' : '' ?>><?= adminH(adminPhrase('Standard (1.5kg - 2.2kg)')) ?></option>
+                <option value="desktop_replacement" <?= ($laptop['portability_tier'] ?? '') === 'desktop_replacement' ? 'selected' : '' ?>><?= adminH(adminPhrase('Desktop Replacement')) ?></option>
             </select>
         </label>
 
         <label>
-            Screen Size (Inches)
+            <?= adminH(adminPhrase('Screen Size (Inches)')) ?>
             <input type="number" step="0.1" name="screen_size" value="<?= adminH($laptop['screen_size'] ?? '15.6') ?>" required>
         </label>
 
         <label>
-            Screen Quality
+            <?= adminH(adminPhrase('Screen Quality')) ?>
             <select name="screen_quality" required>
-                <option value="standard" <?= ($laptop['screen_quality'] ?? '') === 'standard' ? 'selected' : '' ?>>Standard IPS / LCD</option>
-                <option value="high_refresh" <?= ($laptop['screen_quality'] ?? '') === 'high_refresh' ? 'selected' : '' ?>>High Refresh Rate</option>
-                <option value="oled" <?= ($laptop['screen_quality'] ?? '') === 'oled' ? 'selected' : '' ?>>OLED Premium Display</option>
+                <option value="standard" <?= ($laptop['screen_quality'] ?? '') === 'standard' ? 'selected' : '' ?>><?= adminH(adminPhrase('Standard IPS / LCD')) ?></option>
+                <option value="high_refresh" <?= ($laptop['screen_quality'] ?? '') === 'high_refresh' ? 'selected' : '' ?>><?= adminH(adminPhrase('High Refresh Rate')) ?></option>
+                <option value="oled" <?= ($laptop['screen_quality'] ?? '') === 'oled' ? 'selected' : '' ?>><?= adminH(adminPhrase('OLED Premium Display')) ?></option>
             </select>
         </label>
 
         <label>
-            GPU Tier
+            <?= adminH(adminPhrase('GPU Tier')) ?>
             <select name="gpu_tier" required>
-                <option value="integrated" <?= ($laptop['gpu_tier'] ?? '') === 'integrated' ? 'selected' : '' ?>>Integrated Graphics</option>
-                <option value="dedicated" <?= ($laptop['gpu_tier'] ?? '') === 'dedicated' ? 'selected' : '' ?>>Dedicated Graphics (RTX / Radeon)</option>
+                <option value="integrated" <?= ($laptop['gpu_tier'] ?? '') === 'integrated' ? 'selected' : '' ?>><?= adminH(adminPhrase('Integrated Graphics')) ?></option>
+                <option value="dedicated" <?= ($laptop['gpu_tier'] ?? '') === 'dedicated' ? 'selected' : '' ?>><?= adminH(adminPhrase('Dedicated Graphics (RTX / Radeon)')) ?></option>
             </select>
         </label>
 
         <label>
-            Battery (Watt-hours)
+            <?= adminH(adminPhrase('Battery (Watt-hours)')) ?>
             <input type="number" name="battery_wh" value="<?= adminH($laptop['battery_wh'] ?? '60') ?>" required>
         </label>
 
         <label>
-            Weight (Kilograms)
+            <?= adminH(adminPhrase('Weight (Kilograms)')) ?>
             <input type="number" step="0.01" name="weight_kg" value="<?= adminH($laptop['weight_kg'] ?? '1.60') ?>" required>
         </label>
 
         <label>
-            Image path
-            <input type="text" name="image" id="imagePathInput" value="<?= adminH($laptop['image'] ?? 'images/products/generic-laptop.png') ?>" placeholder="images/products/item.png">
+            <?= adminH(adminPhrase('Image path')) ?>
+            <input type="text" name="image" id="imagePathInput" value="<?= adminH($laptop['image'] ?? 'images/products/generic-laptop.png') ?>" placeholder="<?= adminH(adminPhrase('images/products/item.png')) ?>">
         </label>
         <label style="display: block;">
-            Upload / replace image
+            <?= adminH(adminPhrase('Upload / replace image')) ?>
             <label class="custom-file-upload" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed rgba(0, 245, 212, 0.25); border-radius: 12px; padding: 20px; background: rgba(20, 22, 28, 0.5); cursor: pointer; transition: all 0.2s ease; margin-top: 6px; text-align: center;">
                 <i class="fas fa-image" style="font-size: 1.8rem; color: var(--cyan); margin-bottom: 6px;"></i>
-                <span style="font-weight: 700; color: var(--text); font-size: 0.85rem;" id="imageUploadNameDisplay">Select Laptop Image</span>
-                <span style="font-size: 0.7rem; color: var(--muted); margin-top: 2px;">PNG, JPG, WEBP, SVG</span>
-                <input type="file" name="laptop_image" id="laptopImageUpload" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display: none;" onchange="document.getElementById('imageUploadNameDisplay').textContent = this.files[0] ? this.files[0].name : 'Select Laptop Image'">
+                <span style="font-weight: 700; color: var(--text); font-size: 0.85rem;" id="imageUploadNameDisplay"><?= adminH(adminPhrase('Select Laptop Image')) ?></span>
+                <span style="font-size: 0.7rem; color: var(--muted); margin-top: 2px;"><?= adminH(adminPhrase('PNG, JPG, WEBP, SVG')) ?></span>
+                <input type="file" name="laptop_image" id="laptopImageUpload" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display: none;" onchange="document.getElementById('imageUploadNameDisplay').textContent = this.files[0] ? this.files[0].name : <?= i18n_script_json(adminPhrase('Select Laptop Image')) ?>">
             </label>
         </label>
         <div class="image-manager full-span">
             <div class="image-preview-box">
-                <img id="laptopImagePreview" src="<?= adminH($laptop['image'] ?? 'images/products/generic-laptop.png') ?>" alt="Laptop preview" onerror="this.src='images/products/generic-laptop.png'">
+                <img id="laptopImagePreview" src="<?= adminH($laptop['image'] ?? 'images/products/generic-laptop.png') ?>" alt="<?= adminH(adminPhrase('Laptop preview')) ?>" onerror="this.src='images/products/generic-laptop.png'">
             </div>
             <div>
-                <strong>Laptop image manager</strong>
-                <small>Upload a laptop photo or use a placeholder path. This updates database and laptop_data.js.</small>
+                <strong><?= adminH(adminPhrase('Laptop image manager')) ?></strong>
+                <small><?= adminH(adminPhrase('Upload a laptop photo or use a placeholder path. This updates database and laptop_data.js.')) ?></small>
             </div>
         </div>
         <label>
-            Price (MAD)
+            <?= adminH(adminPhrase('Price (DH)')) ?>
             <input type="number" step="0.01" min="0" name="price" value="<?= adminH($laptop['price'] ?? '') ?>" required>
         </label>
         <label>
-            Old price (MAD)
+            <?= adminH(adminPhrase('Old price (DH)')) ?>
             <input type="number" step="0.01" min="0" name="old_price" value="<?= adminH($laptop['old_price'] ?? '') ?>">
         </label>
         <label>
-            Stock quantity
+            <?= adminH(adminPhrase('Stock quantity')) ?>
             <input type="number" min="0" name="stock_quantity" value="<?= adminH($laptop['stock_quantity'] ?? 10) ?>">
         </label>
         <label>
-            Reorder level
+            <?= adminH(adminPhrase('Reorder level')) ?>
             <input type="number" min="0" name="reorder_level" value="<?= adminH($laptop['reorder_level'] ?? 2) ?>">
         </label>
         <div class="check-row full-span">
-            <label><input type="checkbox" name="in_stock" <?= !$laptop || !empty($laptop['in_stock']) ? 'checked' : '' ?>> In stock</label>
+            <label><input type="checkbox" name="in_stock" <?= !$laptop || !empty($laptop['in_stock']) ? 'checked' : '' ?>> <?= adminH(adminPhrase('In stock')) ?></label>
         </div>
         <label class="full-span">
-            Specs JSON
+            <?= adminH(adminPhrase('Specs JSON')) ?>
             <textarea name="specs" rows="8"><?= adminH($specsValue) ?></textarea>
         </label>
         <div class="full-span form-actions">
-            <button class="button button-primary" type="submit"><?= $editing ? 'Save Changes' : 'Create Laptop' ?></button>
+            <button class="button button-primary" type="submit"><?= adminH(adminPhrase($editing ? 'Save Changes' : 'Create Laptop')) ?></button>
         </div>
     </form>
 </section>

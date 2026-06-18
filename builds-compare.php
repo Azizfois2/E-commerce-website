@@ -1,8 +1,10 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/includes/i18n.php';
+i18n_start_page_translation();
 
 if (empty($_SESSION['client_id'])) {
-    header('Location: login.php?next=builds-compare.php');
+    header('Location: ' . i18n_url('login.php?next=builds-compare.php'));
     exit();
 }
 
@@ -26,7 +28,7 @@ foreach ($builds as &$build) {
 unset($build);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +36,7 @@ unset($build);
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/auth-nav.css">
     <link rel="stylesheet" href="assets/css/light-mode-industrial.css">
+    <?= i18n_preference_assets() ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
     <style>
@@ -225,26 +228,26 @@ unset($build);
         <div class="compare-inner">
             <div class="compare-head">
                 <div>
-                    <span class="compare-kicker"><i class="fas fa-code-compare"></i> Build Diff View</span>
-                    <h1>Compare Saved Builds</h1>
-                    <p>Select two or three saved builds and inspect the exact price, wattage, component, and balance differences.</p>
+                    <span class="compare-kicker"><i class="fas fa-code-compare"></i> <?= i18n_t('builds_compare.Build Diff View') ?></span>
+                    <h1><?= i18n_t('builds_compare.Compare Saved Builds') ?></h1>
+                    <p><?= i18n_t('builds_compare.compare_intro') ?></p>
                 </div>
                 <div class="compare-actions">
-                    <a class="compare-btn" href="builder.php"><i class="fas fa-screwdriver-wrench"></i> Builder</a>
-                    <a class="compare-btn primary" href="account.php?tab=builds"><i class="fas fa-folder-open"></i> Saved Builds</a>
+                    <a class="compare-btn" href="builder.php"><i class="fas fa-screwdriver-wrench"></i> <?= i18n_t('builds_compare.Builder') ?></a>
+                    <a class="compare-btn primary" href="account.php?tab=builds"><i class="fas fa-folder-open"></i> <?= i18n_t('builds_compare.Saved Builds') ?></a>
                 </div>
             </div>
 
             <?php if (count($builds) < 2): ?>
                 <div class="empty-state">
-                    <strong>Save at least two builds to unlock comparison.</strong>
-                    <p>Create alternatives in the builder, save them, then come back here to compare price and performance tradeoffs.</p>
+                    <strong><?= i18n_t('builds_compare.empty_need_two_builds') ?></strong>
+                    <p><?= i18n_t('builds_compare.empty_create_alternatives') ?></p>
                 </div>
             <?php else: ?>
                 <div class="compare-picker">
-                    <label><span>Build A</span><select id="buildA"></select></label>
-                    <label><span>Build B</span><select id="buildB"></select></label>
-                    <label><span>Build C optional</span><select id="buildC"></select></label>
+                    <label><span><?= i18n_t('builds_compare.Build A') ?></span><select id="buildA"></select></label>
+                    <label><span><?= i18n_t('builds_compare.Build B') ?></span><select id="buildB"></select></label>
+                    <label><span><?= i18n_t('builds_compare.Build C optional') ?></span><select id="buildC"></select></label>
                 </div>
                 <div class="compare-readout" id="compareReadout"></div>
                 <div class="compare-table-wrap">
@@ -259,9 +262,41 @@ unset($build);
 
     <script>
         const savedBuilds = <?= json_encode($builds, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+        
+        // Translations for JavaScript
+        const i18nStrings = {
+            'None': <?= json_encode(i18n_t('builds_compare.None')) ?>,
+            'Not selected': <?= json_encode(i18n_t('builds_compare.Not selected')) ?>,
+            'Saved Build': <?= json_encode(i18n_t('builds_compare.Saved Build')) ?>,
+            'general': <?= json_encode(i18n_t('builds_compare.general')) ?>,
+            'Feature': <?= json_encode(i18n_t('builds_compare.Feature')) ?>,
+            'Total Price': <?= json_encode(i18n_t('builds_compare.Total Price')) ?>,
+            'Estimated Wattage': <?= json_encode(i18n_t('builds_compare.Estimated Wattage')) ?>,
+            'Performance Tier': <?= json_encode(i18n_t('builds_compare.Performance Tier')) ?>,
+            'Balance Score': <?= json_encode(i18n_t('builds_compare.Balance Score')) ?>,
+            'Estimated FPS 1080p': <?= json_encode(i18n_t('builds_compare.Estimated FPS 1080p')) ?>,
+            'CPU': <?= json_encode(i18n_t('builds_compare.CPU')) ?>,
+            'GPU': <?= json_encode(i18n_t('builds_compare.GPU')) ?>,
+            'Motherboard': <?= json_encode(i18n_t('builds_compare.Motherboard')) ?>,
+            'RAM': <?= json_encode(i18n_t('builds_compare.RAM')) ?>,
+            'Storage': <?= json_encode(i18n_t('builds_compare.Storage')) ?>,
+            'Cooling': <?= json_encode(i18n_t('builds_compare.Cooling')) ?>,
+            'PSU': <?= json_encode(i18n_t('builds_compare.PSU')) ?>,
+            'is the lowest-cost option.': <?= json_encode(i18n_t('builds_compare.lowest_cost_option_suffix')) ?>,
+            'has the highest balance score.': <?= json_encode(i18n_t('builds_compare.highest_balance_score_suffix')) ?>,
+            'Price spread:': <?= json_encode(i18n_t('builds_compare.Price spread:')) ?>,
+            'Extreme': <?= json_encode(i18n_t('builds_compare.Extreme')) ?>,
+            'High': <?= json_encode(i18n_t('builds_compare.High')) ?>,
+            'Balanced': <?= json_encode(i18n_t('builds_compare.Balanced')) ?>,
+            'Budget': <?= json_encode(i18n_t('builds_compare.Budget')) ?>
+        };
+        
+        function t(key) {
+            return i18nStrings[key] || key;
+        }
 
         function formatMAD(value) {
-            return Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD';
+            return Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
         }
 
         function componentFor(build, key) {
@@ -286,10 +321,10 @@ unset($build);
 
         function tierFor(build) {
             const price = Number(build.total_price || 0);
-            if (price >= 22000) return 'Extreme';
-            if (price >= 14000) return 'High';
-            if (price >= 8000) return 'Balanced';
-            return 'Budget';
+            if (price >= 22000) return t('Extreme');
+            if (price >= 14000) return t('High');
+            if (price >= 8000) return t('Balanced');
+            return t('Budget');
         }
 
         function selectBuilds() {
@@ -300,14 +335,14 @@ unset($build);
         }
 
         function optionLabel(build) {
-            return `${build.build_name || 'Saved Build'} (${formatMAD(build.total_price)})`;
+            return `${build.build_name || t('Saved Build')} (${formatMAD(build.total_price)})`;
         }
 
         function initSelectors() {
             const options = savedBuilds.map(build => `<option value="${build.id}">${optionLabel(build)}</option>`).join('');
             document.getElementById('buildA').innerHTML = options;
             document.getElementById('buildB').innerHTML = options;
-            document.getElementById('buildC').innerHTML = '<option value="">None</option>' + options;
+            document.getElementById('buildC').innerHTML = `<option value="">${t('None')}</option>` + options;
             if (savedBuilds[1]) document.getElementById('buildB').value = savedBuilds[1].id;
             ['buildA', 'buildB', 'buildC'].forEach(id => document.getElementById(id)?.addEventListener('change', renderCompare));
         }
@@ -318,7 +353,7 @@ unset($build);
 
         function renderComponent(build, key) {
             const item = componentFor(build, key);
-            if (!item) return '<td class="component-cell"><small>Not selected</small></td>';
+            if (!item) return `<td class="component-cell"><small>${t('Not selected')}</small></td>`;
             return `<td class="component-cell"><strong>${item.name}</strong><small>${item.brand || ''} ${item.price ? ' · ' + formatMAD(item.price) : ''}</small></td>`;
         }
 
@@ -329,7 +364,7 @@ unset($build);
             const readout = document.getElementById('compareReadout');
             if (!head || !body || !readout) return;
 
-            head.innerHTML = `<tr><th>Feature</th>${builds.map(build => `<th>${build.build_name || 'Saved Build'}<br><small>${build.use_case || 'general'} · ${build.share_code}</small></th>`).join('')}</tr>`;
+            head.innerHTML = `<tr><th>${t('Feature')}</th>${builds.map(build => `<th>${build.build_name || t('Saved Build')}<br><small>${build.use_case || t('general')} · ${build.share_code}</small></th>`).join('')}</tr>`;
 
             const prices = builds.map(build => Number(build.total_price || 0));
             const bestPrice = Math.min(...prices);
@@ -339,27 +374,27 @@ unset($build);
             const bestFps = Math.max(...fpsProxy);
 
             body.innerHTML = [
-                row('Total Price', builds, build => `<td class="${Number(build.total_price) === bestPrice ? 'metric-good' : 'metric-warn'}">${formatMAD(build.total_price)}</td>`),
-                row('Estimated Wattage', builds, build => `<td>${build.total_wattage || 0}W</td>`),
-                row('Performance Tier', builds, build => `<td>${tierFor(build)}</td>`),
-                row('Balance Score', builds, build => `<td class="${buildScore(build) === bestScore ? 'metric-good' : ''}">${buildScore(build)}/100</td>`),
-                row('Estimated FPS 1080p', builds, build => {
+                row(t('Total Price'), builds, build => `<td class="${Number(build.total_price) === bestPrice ? 'metric-good' : 'metric-warn'}">${formatMAD(build.total_price)}</td>`),
+                row(t('Estimated Wattage'), builds, build => `<td>${build.total_wattage || 0}W</td>`),
+                row(t('Performance Tier'), builds, build => `<td>${tierFor(build)}</td>`),
+                row(t('Balance Score'), builds, build => `<td class="${buildScore(build) === bestScore ? 'metric-good' : ''}">${buildScore(build)}/100</td>`),
+                row(t('Estimated FPS 1080p'), builds, build => {
                     const fps = Math.round(buildScore(build) * 1.65);
                     return `<td class="${fps === bestFps ? 'metric-good' : ''}">${fps} FPS</td>`;
                 }),
-                row('CPU', builds, build => renderComponent(build, 'cpu')),
-                row('GPU', builds, build => renderComponent(build, 'gpu')),
-                row('Motherboard', builds, build => renderComponent(build, 'motherboard')),
-                row('RAM', builds, build => renderComponent(build, 'ram')),
-                row('Storage', builds, build => renderComponent(build, 'storage')),
-                row('Cooling', builds, build => renderComponent(build, 'cooling')),
-                row('PSU', builds, build => renderComponent(build, 'psu'))
+                row(t('CPU'), builds, build => renderComponent(build, 'cpu')),
+                row(t('GPU'), builds, build => renderComponent(build, 'gpu')),
+                row(t('Motherboard'), builds, build => renderComponent(build, 'motherboard')),
+                row(t('RAM'), builds, build => renderComponent(build, 'ram')),
+                row(t('Storage'), builds, build => renderComponent(build, 'storage')),
+                row(t('Cooling'), builds, build => renderComponent(build, 'cooling')),
+                row(t('PSU'), builds, build => renderComponent(build, 'psu'))
             ].join('');
 
             const cheapest = builds[prices.indexOf(bestPrice)];
             const strongest = builds[scores.indexOf(bestScore)];
             const delta = Math.max(...prices) - bestPrice;
-            readout.innerHTML = `<strong>${cheapest.build_name}</strong> is the lowest-cost option. <strong>${strongest.build_name}</strong> has the highest balance score. Price spread: <strong>${formatMAD(delta)}</strong>.`;
+            readout.innerHTML = `<strong>${cheapest.build_name}</strong> ${t('is the lowest-cost option.')} <strong>${strongest.build_name}</strong> ${t('has the highest balance score.')} ${t('Price spread:')} <strong>${formatMAD(delta)}</strong>.`;
         }
 
         if (savedBuilds.length >= 2) {

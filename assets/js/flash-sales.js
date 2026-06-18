@@ -10,13 +10,8 @@
     'use strict';
 
     const FLASH_API = 'api/flash-sales.php';
-
-    function formatMAD(value) {
-        return Number(value).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }) + ' MAD';
-    }
+    let countdownTimer = null;
+    window._flashSalesLoaded = true;
 
     function pad(n) {
         return String(n).padStart(2, '0');
@@ -31,6 +26,16 @@
         setTimeout(() => el.classList.remove('flip-animate'), 400);
     }
 
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+
     /**
      * Start a real countdown timer to a specific end date
      */
@@ -41,6 +46,8 @@
         const sEl = document.getElementById('seconds');
 
         if (!dEl || !hEl || !mEl || !sEl) return;
+        if (!(endDate instanceof Date) || Number.isNaN(endDate.getTime())) return;
+        if (countdownTimer) clearInterval(countdownTimer);
 
         function update() {
             const now = new Date();
@@ -57,22 +64,38 @@
             if (sEl) { sEl.textContent = pad(s); animateFlip(sEl.parentElement); }
 
             if (diff <= 0) {
-                clearInterval(timer);
+                clearInterval(countdownTimer);
+                countdownTimer = null;
                 const badge = document.querySelector('.deals-badge');
                 if (badge) badge.textContent = 'Sale Ended';
             }
         }
 
         update();
-        const timer = setInterval(update, 1000);
-        return timer;
+        countdownTimer = setInterval(update, 1000);
+        return countdownTimer;
+    }
+
+    function startFallbackCountdown() {
+        const saved = Number(localStorage.getItem('marocpc_fallback_deal_deadline') || 0);
+        let deadline = new Date(saved);
+
+        if (!saved || Number.isNaN(deadline.getTime()) || deadline <= new Date()) {
+            deadline = new Date();
+            deadline.setDate(deadline.getDate() + 2);
+            deadline.setHours(deadline.getHours() + 18);
+            deadline.setMinutes(deadline.getMinutes() + 45);
+            localStorage.setItem('marocpc_fallback_deal_deadline', String(deadline.getTime()));
+        }
+
+        startCountdown(deadline);
     }
 
     /**
      * Render flash sale product cards in the deals section
      */
     function renderFlashSaleCards(sales) {
-        const dealsSection = document.getElementById('deals');
+        const dealsSection = document.querySelector('.flash-deals-section');
         if (!dealsSection || sales.length === 0) return;
 
         // Find or create the flash products container
@@ -81,13 +104,12 @@
             container = document.createElement('div');
             container.id = 'flashSaleProducts';
             container.className = 'flash-sale-grid';
-            // Insert after the timer
-            const timer = dealsSection.querySelector('.deals-timer');
-            const shopBtn = dealsSection.querySelector('a.btn');
-            if (shopBtn) {
-                dealsSection.insertBefore(container, shopBtn);
-            } else if (timer) {
-                timer.after(container);
+            container.style.marginTop = '40px';
+            
+            // Insert after the flash-deals-container
+            const mainContainer = dealsSection.querySelector('.flash-deals-container');
+            if (mainContainer) {
+                mainContainer.after(container);
             } else {
                 dealsSection.appendChild(container);
             }
@@ -96,16 +118,16 @@
         container.innerHTML = sales.slice(0, 4).map(sale => {
             const remaining = sale.remaining;
             const stockWarning = remaining !== null && remaining <= 10
-                ? `<div class="flash-stock-warning"><i class="fas fa-fire"></i> Only ${remaining} left at this price!</div>`
+                ? `<div class="flash-stock-warning"><i class="fas fa-fire"></i> ${window.__marocPcI18n?.flashOnlyLeft?.replace('{count}', remaining) || `Only ${remaining} left at this price!`}</div>`
                 : '';
 
             const inStock = parseInt(sale.stock_quantity) > 0;
             const actionBtn = inStock
                 ? `<button class="flash-sale-btn" data-product-id="${sale.product_id}" data-price="${sale.sale_price}" data-name="${sale.product_name}" data-image="${sale.product_image}">
-                    <i class="fas fa-bolt"></i> Grab Deal
+                    <i class="fas fa-bolt"></i> ${window.__marocPcI18n?.grabDeal || 'Grab Deal'}
                    </button>`
                 : `<button class="flash-sale-btn notify-restock-btn" style="background: var(--page-bg-2); color: var(--text); border-color: var(--border);" data-product-id="${sale.product_id}" data-name="${sale.product_name}">
-                    <i class="fas fa-bell"></i> Notify Me
+                    <i class="fas fa-bell"></i> ${window.__marocPcI18n?.notifyMe || 'Notify Me'}
                    </button>`;
 
             return `
@@ -115,11 +137,12 @@
                         <span class="flash-sale-badge">-${sale.discount_pct}%</span>
                     </div>
                     <div class="flash-sale-info">
-                        <h4>${sale.product_name}</h4>
+                        <h4>${escapeHtml(sale.product_name)}</h4>
                         <div class="flash-sale-prices">
                             <span class="flash-sale-price">${formatMAD(sale.sale_price)}</span>
                             <span class="flash-sale-old">${formatMAD(sale.original_price)}</span>
                         </div>
+                        ${sale.event_note ? `<p class="flash-event-note">${escapeHtml(sale.event_note)}</p>` : ''}
                         ${stockWarning}
                         ${actionBtn}
                     </div>
@@ -138,45 +161,17 @@
                         image: btn.dataset.image,
                         quantity: 1
                     });
-                    btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+                    btn.innerHTML = '<i class="fas fa-check"></i> ' + (window.__marocPcI18n?.added || 'Added!');
                     btn.classList.add('added');
                     setTimeout(() => {
-                        btn.innerHTML = '<i class="fas fa-bolt"></i> Grab Deal';
+                        btn.innerHTML = '<i class="fas fa-bolt"></i> ' + (window.__marocPcI18n?.grabDeal || 'Grab Deal');
                         btn.classList.remove('added');
                     }, 2000);
                 }
             });
         });
 
-        // Bind notify me buttons
-        container.querySelectorAll('.notify-restock-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.productId;
-                const name = btn.dataset.name;
-                const email = prompt(`Notify me when "${name}" is back in stock:\n\nPlease enter your email address:`);
-                if (email && email.trim() !== '') {
-                    fetch('api/restock-notify.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ product_id: id, email: email.trim() })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            if (typeof showToast !== 'undefined') showToast(data.message);
-                            else alert(data.message);
-                        } else {
-                            if (typeof showToast !== 'undefined') showToast(data.error || 'Failed to subscribe', 'error');
-                            else alert(data.error || 'Failed to subscribe');
-                        }
-                    })
-                    .catch(() => {
-                        if (typeof showToast !== 'undefined') showToast('Network error', 'error');
-                        else alert('Network error');
-                    });
-                }
-            });
-        });
+        // Restock notifications are handled globally by cart.js as a toast form.
     }
 
     /**
@@ -187,20 +182,46 @@
 
         const nearestSale = sales[0]; // Already sorted by ends_at ASC
         const maxDiscount = Math.max(...sales.map(s => parseInt(s.discount_pct)));
+        const eventName = nearestSale.event_name || '';
+        const eventBadge = nearestSale.event_badge || '';
 
-        const titleEl = document.getElementById('titre');
+        // Update title
+        const titleEl = document.querySelector('.flash-title');
         if (titleEl) {
-            titleEl.textContent = `Up to ${maxDiscount}% Off — Flash Sale!`;
+            titleEl.innerHTML = eventName
+                ? `${escapeHtml(eventName)}<br><span class="highlight-gradient">Up to ${maxDiscount}% Off</span>`
+                : `Up to <span class="highlight-gradient">${maxDiscount}% Off</span><br>on Selected Items`;
         }
 
-        const badge = document.querySelector('.deals-badge');
+        // Update badge
+        const badge = document.querySelector('.flash-badge');
         if (badge) {
-            badge.innerHTML = `<i class="fas fa-bolt"></i> Flash Sale Live`;
+            badge.innerHTML = `<i class="fas fa-bolt"></i> ${escapeHtml(eventBadge || 'Flash Sale Live')}`;
         }
 
-        const badgeLarge = document.querySelector('.deal-badge-large');
-        if (badgeLarge) {
-            badgeLarge.textContent = `-${maxDiscount}%`;
+        // Update large discount badge
+        const badgePercent = document.querySelector('.badge-percent');
+        if (badgePercent) {
+            badgePercent.textContent = maxDiscount;
+        }
+
+        // Update stats
+        const statsContainer = document.querySelector('.flash-stats');
+        if (statsContainer) {
+            const itemCount = sales.length;
+            const limitedItems = sales.filter(s => s.remaining !== null).length;
+            statsContainer.innerHTML = `
+                <div class="flash-stat">
+                    <i class="fas fa-fire"></i>
+                    <span><strong>${itemCount}</strong> items on sale</span>
+                </div>
+                ${limitedItems ? `
+                    <div class="flash-stat">
+                        <i class="fas fa-box-open"></i>
+                        <span><strong>${limitedItems}</strong> quantity-limited deals</span>
+                    </div>
+                ` : ''}
+            `;
         }
 
         // Start real countdown to the nearest ending sale
@@ -209,7 +230,7 @@
     }
 
     /**
-     * Mark product cards on products.html with flash sale badges
+     * Mark product cards on products.php with flash sale badges
      */
     function markProductCards(sales) {
         if (typeof ProductsPage === 'undefined') return;
@@ -225,17 +246,16 @@
      * Initialize flash sales system
      */
     async function init() {
+        startFallbackCountdown();
+
         try {
             const res = await fetch(FLASH_API);
             const data = await res.json();
 
             if (!data.success || !data.sales || data.sales.length === 0) {
-                // No active flash sales — use the default fake countdown
                 return;
             }
 
-            // Stop the fallback timer from index.html
-            window._flashSalesLoaded = true;
             if (window._fallbackTimer) {
                 clearInterval(window._fallbackTimer);
             }
@@ -258,5 +278,5 @@
     }
 
     // Expose for external use
-    window.FlashSales = { init };
+    window.FlashSales = { init, startCountdown, startFallbackCountdown };
 })();

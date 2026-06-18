@@ -343,6 +343,28 @@ a {
   color: var(--text);
 }
 
+/* RTL: Flip breadcrumb arrows */
+[dir="rtl"] .breadcrumb-nav i.fa-chevron-right::before {
+  content: "\f053"; /* fa-chevron-left */
+}
+
+/* RTL: Flip all navigation arrows */
+[dir="rtl"] i.fa-chevron-right::before {
+  content: "\f053"; /* fa-chevron-left */
+}
+
+[dir="rtl"] i.fa-chevron-left::before {
+  content: "\f054"; /* fa-chevron-right */
+}
+
+[dir="rtl"] i.fa-arrow-right::before {
+  content: "\f060"; /* fa-arrow-left */
+}
+
+[dir="rtl"] i.fa-arrow-left::before {
+  content: "\f061"; /* fa-arrow-right */
+}
+
 /* ============================================
    PRODUCTS PAGE LAYOUT
    ============================================ */
@@ -375,6 +397,26 @@ a {
   padding: 24px;
   position: sticky;
   top: 90px;
+  /* independently scrollable */
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.filters-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.filters-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.filters-sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+.filters-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan);
 }
 
 .filter-header {
@@ -1492,6 +1534,7 @@ a {
     left: 0;
     width: 300px;
     height: 100vh;
+    max-height: 100vh;   /* override desktop max-height */
     z-index: 2001;
     transform: translateX(-100%);
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);

@@ -5,6 +5,7 @@
  * URL format: verify-email.php?token=XXXXX&email=user@example.com
  */
 require_once 'config.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $token = $_GET['token'] ?? '';
 $email = $_GET['email'] ?? '';
@@ -12,7 +13,7 @@ $error = '';
 $success = false;
 
 if (empty($token) || empty($email)) {
-    $error = 'Invalid verification link.';
+    $error = i18n_t('auth.verify_invalid_link', [], 'Invalid verification link.');
 } else {
     $pdo = db();
 
@@ -25,7 +26,7 @@ if (empty($token) || empty($email)) {
     $record = $stmt->fetch();
 
     if (!$record) {
-        $error = 'This verification link is invalid or has expired.';
+        $error = i18n_t('auth.verify_link_expired', [], 'This verification link is invalid or has expired.');
     } else {
         // Mark token as used
         $stmt = $pdo->prepare("UPDATE email_verifications SET used = 1 WHERE id = ?");
@@ -40,11 +41,11 @@ if (empty($token) || empty($email)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification — Maroc PC</title>
+    <title><?= i18n_t('auth.verify_email_title_page', [], 'Email Verification — Maroc PC') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -121,33 +122,35 @@ if (empty($token) || empty($email)) {
     </style>
 </head>
 <body>
+    <?= i18n_language_switcher('nav-translate', 'position:fixed;top:1.5rem;right:1.5rem;') ?>
     <div class="verify-container">
         <div class="verify-card">
             <?php if ($success): ?>
                 <div class="verify-icon success">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <h2>Email Verified!</h2>
-                <p>Your email has been successfully verified. You can now log in to your account and start shopping!</p>
+                <h2><?php i18n_e('auth.email_verified_title'); ?></h2>
+                <p><?php i18n_e('auth.email_verified_body'); ?></p>
                 <a href="login.php" class="verify-btn">
-                    <i class="fas fa-sign-in-alt"></i> Log In Now
+                    <i class="fas fa-sign-in-alt"></i> <?php i18n_e('auth.login_now'); ?>
                 </a>
             <?php else: ?>
                 <div class="verify-icon error">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
-                <h2>Verification Failed</h2>
+                <h2><?php i18n_e('auth.verification_failed_title'); ?></h2>
                 <p><?= htmlspecialchars($error) ?></p>
                 <a href="signup.php" class="verify-btn secondary">
-                    <i class="fas fa-user-plus"></i> Create Account
+                    <i class="fas fa-user-plus"></i> <?php i18n_e('auth.create_account'); ?>
                 </a>
-                <a href="index.html" class="verify-btn secondary" style="margin-top:12px;">
-                    <i class="fas fa-home"></i> Go Home
+                <a href="<?= htmlspecialchars(i18n_url('index.php'), ENT_QUOTES, 'UTF-8') ?>" class="verify-btn secondary" style="margin-top:12px;">
+                    <i class="fas fa-home"></i> <?php i18n_e('nav.home'); ?>
                 </a>
             <?php endif; ?>
         </div>
     </div>
 
     <script src="assets/js/theme.js" defer></script>
+    <?= i18n_language_switcher_assets() ?>
 </body>
 </html>

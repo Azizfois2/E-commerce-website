@@ -50,10 +50,21 @@ function featureEnsureTables(PDO $pdo): void
         estimated_value DECIMAL(10,2) DEFAULT NULL,
         contact_email VARCHAR(255) DEFAULT NULL,
         contact_phone VARCHAR(32) DEFAULT NULL,
+        product_image VARCHAR(500) DEFAULT NULL,
         status ENUM('new','quoted','accepted','declined') NOT NULL DEFAULT 'new',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
+    try {
+        $pdo->query("SELECT product_image FROM trade_in_requests LIMIT 1");
+    } catch (PDOException $e) {
+        try {
+            $pdo->exec("ALTER TABLE trade_in_requests ADD COLUMN product_image VARCHAR(500) DEFAULT NULL AFTER contact_phone");
+        } catch (PDOException $ex) {
+            // Fallback for DB engines without AFTER clause
+            $pdo->exec("ALTER TABLE trade_in_requests ADD COLUMN product_image VARCHAR(500) DEFAULT NULL");
+        }
+    }
     $pdo->exec("
       CREATE TABLE IF NOT EXISTS bank_transfer_receipts (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -73,6 +84,19 @@ function featureEnsureTables(PDO $pdo): void
         client_id INT NOT NULL,
         code VARCHAR(32) NOT NULL UNIQUE,
         bonus_points INT NOT NULL DEFAULT 500,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $pdo->exec("
+      CREATE TABLE IF NOT EXISTS repair_service_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_id INT DEFAULT NULL,
+        device_type VARCHAR(80) NOT NULL,
+        device_name VARCHAR(255) NOT NULL,
+        issue_description TEXT NOT NULL,
+        contact_email VARCHAR(255) DEFAULT NULL,
+        contact_phone VARCHAR(32) DEFAULT NULL,
+        status ENUM('new','quoting','in-progress','repaired','declined') NOT NULL DEFAULT 'new',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
@@ -223,14 +247,57 @@ try {
         $type = featureTrim($input['hardware_type'] ?? '', 80);
         $name = featureTrim($input['hardware_name'] ?? '', 255);
         $condition = featureTrim($input['condition_grade'] ?? '', 40);
+        $contactEmail = featureTrim($input['contact_email'] ?? '', 255);
+        $contactPhone = featureTrim($input['contact_phone'] ?? '', 32);
+
         if ($type === '' || $name === '' || $condition === '') {
             jsonResponse(false, 'Hardware type, name, and condition are required.');
         }
+        if ($contactEmail === '' || $contactPhone === '') {
+            jsonResponse(false, 'Contact email and phone number are required.');
+        }
+
+        // File upload handling and validation
+        if (empty($_FILES['product_image']) || $_FILES['product_image']['error'] !== UPLOAD_ERR_OK) {
+            jsonResponse(false, 'Product image is required.');
+        }
+        $file = $_FILES['product_image'];
+        if ($file['size'] > 5 * 1024 * 1024) {
+            jsonResponse(false, 'Image size must be 5MB or less.');
+        }
+        $tmpPath = $file['tmp_name'];
+        if (!is_uploaded_file($tmpPath)) {
+            jsonResponse(false, 'Uploaded file is invalid.');
+        }
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $tmpPath);
+        finfo_close($finfo);
+
+        $allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!in_array(strtolower($mime), $allowed)) {
+            jsonResponse(false, 'Invalid image format. Allowed formats: JPG, PNG, WebP.');
+        }
+
+        $ext = 'jpg';
+        if ($mime === 'image/png') $ext = 'png';
+        elseif ($mime === 'image/webp') $ext = 'webp';
+
+        $filename = bin2hex(random_bytes(16)) . '.' . $ext;
+        $uploadDir = dirname(__DIR__) . '/Images/trade_in/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        $targetPath = $uploadDir . $filename;
+        if (!move_uploaded_file($tmpPath, $targetPath)) {
+            jsonResponse(false, 'Failed to save product image.');
+        }
+        $dbPath = 'Images/trade_in/' . $filename;
+
         $estimate = featureEstimateTradeIn($type, $condition, $name);
         $stmt = $pdo->prepare("
             INSERT INTO trade_in_requests
-              (client_id, hardware_type, hardware_name, condition_grade, estimated_value, contact_email, contact_phone)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+              (client_id, hardware_type, hardware_name, condition_grade, estimated_value, contact_email, contact_phone, product_image)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $clientId,
@@ -238,8 +305,9 @@ try {
             $name,
             $condition,
             $estimate,
-            featureTrim($input['contact_email'] ?? '', 255) ?: null,
-            featureTrim($input['contact_phone'] ?? '', 32) ?: null,
+            $contactEmail,
+            $contactPhone,
+            $dbPath
         ]);
         jsonResponse(true, 'Trade-in estimate saved for review.', ['estimated_value' => $estimate]);
     }
@@ -264,6 +332,36 @@ try {
             featureTrim($input['receipt_path'] ?? '', 500) ?: null,
         ]);
         jsonResponse(true, 'Transfer receipt logged for admin verification.');
+    }
+
+    if ($action === 'repair_service') {
+        $deviceType = featureTrim($input['device_type'] ?? '', 80);
+        $deviceName = featureTrim($input['device_name'] ?? '', 255);
+        $issueDescription = featureTrim($input['issue_description'] ?? '', 1200);
+        $contactEmail = featureTrim($input['contact_email'] ?? '', 255);
+        $contactPhone = featureTrim($input['contact_phone'] ?? '', 32);
+
+        if ($deviceType === '' || $deviceName === '' || $issueDescription === '') {
+            jsonResponse(false, 'Device type, name, and issue description are required.');
+        }
+        if ($contactEmail === '' || $contactPhone === '') {
+            jsonResponse(false, 'Contact email and phone number are required.');
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO repair_service_requests
+              (client_id, device_type, device_name, issue_description, contact_email, contact_phone)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $clientId,
+            $deviceType,
+            $deviceName,
+            $issueDescription,
+            $contactEmail,
+            $contactPhone
+        ]);
+        jsonResponse(true, 'Repair request submitted. Our team will contact you shortly.');
     }
 
     jsonResponse(false, 'Unknown feature request action.');

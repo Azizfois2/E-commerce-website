@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/includes/i18n.php';
+
 function ensurePasswordResetTable(PDO $pdo): void
 {
     $pdo->exec("
@@ -43,7 +45,7 @@ function validatePasswordResetToken(PDO $pdo, string $token): array
     ensurePasswordResetTable($pdo);
 
     if (!ctype_xdigit($token) || strlen($token) !== 64) {
-        return ['valid' => false, 'error' => 'Invalid or malformed reset link.'];
+        return ['valid' => false, 'error' => i18n_t('auth.reset_invalid_link', [], 'Invalid or malformed reset link.')];
     }
 
     $hash = hash('sha256', $token);
@@ -57,15 +59,15 @@ function validatePasswordResetToken(PDO $pdo, string $token): array
     $row = $stmt->fetch();
 
     if (!$row) {
-        return ['valid' => false, 'error' => 'This reset link is invalid.'];
+        return ['valid' => false, 'error' => i18n_t('auth.reset_invalid_link', [], 'This reset link is invalid.')];
     }
 
     if ((int) $row['used'] === 1) {
-        return ['valid' => false, 'error' => 'This reset link has already been used.'];
+        return ['valid' => false, 'error' => i18n_t('auth.reset_already_used', [], 'This reset link has already been used.')];
     }
 
     if (strtotime((string) $row['expires_at']) < time()) {
-        return ['valid' => false, 'error' => 'This reset link has expired. Please request a new one.'];
+        return ['valid' => false, 'error' => i18n_t('auth.reset_expired', [], 'This reset link has expired. Please request a new one.')];
     }
 
     return [

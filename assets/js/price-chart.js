@@ -18,6 +18,22 @@ const PriceChart = (() => {
 
     const PADDING = { top: 30, right: 20, bottom: 40, left: 70 };
 
+    function chartText(key, fallback) {
+        return window.__marocPcI18n?.[key] || fallback;
+    }
+
+    function chartTemplate(key, fallback, params = {}) {
+        let value = chartText(key, fallback);
+        Object.entries(params).forEach(([name, replacement]) => {
+            value = value.replaceAll(`{${name}}`, replacement);
+        });
+        return value;
+    }
+
+    function chartLocale() {
+        return window.__marocPcLocale || document.documentElement.lang || 'en';
+    }
+
     function create(containerId, productId, days = 90) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -25,7 +41,7 @@ const PriceChart = (() => {
         container.innerHTML = `
             <div class="price-chart-wrapper">
                 <div class="price-chart-header">
-                    <h4><i class="fas fa-chart-line"></i> Price History</h4>
+                    <h4><i class="fas fa-chart-line"></i> ${chartText('priceHistory', 'Price History')}</h4>
                     <div class="price-chart-range">
                         <button class="pcr-btn" data-days="30">30D</button>
                         <button class="pcr-btn active" data-days="90">90D</button>
@@ -38,7 +54,7 @@ const PriceChart = (() => {
                     <canvas id="${containerId}-canvas"></canvas>
                     <div class="price-chart-tooltip" id="${containerId}-tooltip"></div>
                 </div>
-                <p class="price-chart-note">Price in MAD · Updated daily</p>
+                <p class="price-chart-note">${chartText('priceChartNote', 'Price in DH - Updated daily')}</p>
             </div>
         `;
 
@@ -74,7 +90,7 @@ const PriceChart = (() => {
 
     function showEmpty(containerId) {
         const statsEl = document.getElementById(`${containerId}-stats`);
-        if (statsEl) statsEl.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;">No price history available yet.</p>';
+        if (statsEl) statsEl.innerHTML = `<p style="color:var(--muted);text-align:center;padding:20px;">${chartText('noPriceHistory', 'No price history available yet.')}</p>`;
     }
 
     function renderStats(containerId, stats) {
@@ -87,24 +103,24 @@ const PriceChart = (() => {
 
         el.innerHTML = `
             <div class="pcs-item">
-                <span class="pcs-label">Current</span>
+                <span class="pcs-label">${chartText('current', 'Current')}</span>
                 <span class="pcs-value">${formatMAD(stats.current)}</span>
             </div>
             <div class="pcs-item pcs-lowest">
-                <span class="pcs-label">Lowest</span>
+                <span class="pcs-label">${chartText('lowest', 'Lowest')}</span>
                 <span class="pcs-value">${formatMAD(stats.lowest)}</span>
             </div>
             <div class="pcs-item pcs-highest">
-                <span class="pcs-label">Highest</span>
+                <span class="pcs-label">${chartText('highest', 'Highest')}</span>
                 <span class="pcs-value">${formatMAD(stats.highest)}</span>
             </div>
             <div class="pcs-item">
-                <span class="pcs-label">Average</span>
+                <span class="pcs-label">${chartText('average', 'Average')}</span>
                 <span class="pcs-value">${formatMAD(stats.average)}</span>
             </div>
             ${isAtLowest
-                ? '<div class="pcs-badge pcs-good"><i class="fas fa-arrow-down"></i> At lowest price!</div>'
-                : `<div class="pcs-badge pcs-neutral"><i class="fas fa-arrow-up"></i> ${pctAbove}% above lowest</div>`
+                ? `<div class="pcs-badge pcs-good"><i class="fas fa-arrow-down"></i> ${chartText('atLowestPrice', 'At lowest price!')}</div>`
+                : `<div class="pcs-badge pcs-neutral"><i class="fas fa-arrow-up"></i> ${chartTemplate('aboveLowestPrice', '{percent}% above lowest', { percent: pctAbove })}</div>`
             }
         `;
     }
@@ -169,7 +185,7 @@ const PriceChart = (() => {
             const d = new Date(dates[i]);
             ctx.fillStyle = CHART_COLORS.text;
             ctx.font = '10px JetBrains Mono, monospace';
-            ctx.fillText(d.toLocaleDateString('en', { month: 'short', day: 'numeric' }), x, h - 8);
+            ctx.fillText(d.toLocaleDateString(chartLocale(), { month: 'short', day: 'numeric' }), x, h - 8);
         }
 
         // Fill area under line
@@ -214,7 +230,7 @@ const PriceChart = (() => {
             ctx.fillStyle = CHART_COLORS.avg;
             ctx.font = '10px JetBrains Mono, monospace';
             ctx.textAlign = 'left';
-            ctx.fillText('AVG', w - PADDING.right + 4, avgY + 3);
+            ctx.fillText(chartText('averageShort', 'AVG'), w - PADDING.right + 4, avgY + 3);
         }
 
         // Dots at endpoints
@@ -271,7 +287,7 @@ const PriceChart = (() => {
             const d = new Date(dates[clamped]);
             tooltip.innerHTML = `
                 <strong>${formatMAD(prices[clamped])}</strong>
-                <span>${d.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                <span>${d.toLocaleDateString(chartLocale(), { year: 'numeric', month: 'short', day: 'numeric' })}</span>
             `;
             tooltip.style.opacity = '1';
             tooltip.style.left = Math.min(px, w - 140) + 'px';
@@ -282,10 +298,6 @@ const PriceChart = (() => {
             tooltip.style.opacity = '0';
             renderChart(containerId, history, stats);
         };
-    }
-
-    function formatMAD(n) {
-        return Number(n).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD';
     }
     function formatMADShort(n) {
         if (n >= 1000) return (n / 1000).toFixed(1) + 'K';

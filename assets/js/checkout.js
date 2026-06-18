@@ -71,14 +71,17 @@
     let biometricAuthorized = false;
 
     // ── Helpers ───────────────────────────────────────────────
+    function t(key, fallback = '') {
+        return window.__i18n?.checkout?.[key] || fallback;
+    }
+
     function getCartItems() {
         if (typeof Cart !== 'undefined' && Array.isArray(Cart.items)) return Cart.items;
         try { return JSON.parse(localStorage.getItem('cart') || '[]'); } catch { return []; }
     }
 
-    function formatMoney(v) {
-        return Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD';
-    }
+    // formatMAD is now provided globally by currency.js
+
 
     function generateTxnId() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -185,7 +188,7 @@
             const subtotal = getCartItems().reduce((s, i) => s + (i.price * i.quantity), 0);
             if (!code) {
                 if (els.checkoutPromoMessage) {
-                    els.checkoutPromoMessage.textContent = 'Enter a promo code.';
+                    els.checkoutPromoMessage.textContent = t('enter_promo', 'Enter a promo code.');
                     els.checkoutPromoMessage.style.color = 'var(--red)';
                 }
                 return;
@@ -201,7 +204,7 @@
                 if (!res.ok || !data.success) throw new Error(data.error || 'Invalid promo code');
                 activePromo = data;
                 if (els.checkoutPromoMessage) {
-                    els.checkoutPromoMessage.textContent = `Applied: ${data.label}`;
+                    els.checkoutPromoMessage.textContent = `${t('applied', 'Applied:')} ${data.label}`;
                     els.checkoutPromoMessage.style.color = 'var(--green)';
                 }
             } catch (e) {
@@ -256,7 +259,7 @@
 
     function renderItems(items) {
         if (!els.orderItems) return;
-        if (!items.length) { els.orderItems.innerHTML = '<p class="text-center">Your cart is empty.</p>'; return; }
+        if (!items.length) { els.orderItems.innerHTML = `<p class="text-center">${t('cart_empty', 'Your cart is empty.')}</p>`; return; }
         els.orderItems.innerHTML = items.map(i => `
             <div class="order-item">
                 <div class="order-item-main">
@@ -396,7 +399,7 @@
     function renderTotals(items) {
         const t = computeTotals(items);
         if (els.orderSubtotal) els.orderSubtotal.textContent = formatMoney(t.subtotal);
-        if (els.orderShipping) els.orderShipping.textContent = t.subtotal > 0 ? (t.shipping === 0 ? 'FREE' : formatMoney(t.shipping)) : '0.00 MAD';
+        if (els.orderShipping) els.orderShipping.textContent = t.subtotal > 0 ? (t.shipping === 0 ? 'FREE' : formatMoney(t.shipping)) : formatMoney(0);
         if (els.orderTax) els.orderTax.textContent = formatMoney(t.tax);
 
         if (els.orderDiscountRow) {
@@ -543,8 +546,8 @@
     // ── Payment Processing Overlay ───────────────────────────
     function showProcessing(amount) {
         els.processingAmount.textContent = formatMoney(amount);
-        els.processingTitle.textContent = 'Processing Payment';
-        els.processingSubtitle.textContent = 'Please do not close this window';
+        els.processingTitle.textContent = t('processing_payment', 'Processing Payment');
+        els.processingSubtitle.textContent = t('please_do_not_close', 'Please do not close this window');
         [els.stepVerify, els.stepAuth, els.stepConfirm].forEach(s => {
             s.className = 'processing-step';
         });
@@ -567,7 +570,7 @@
         await sleep(800);
         stepEl.classList.remove('active');
         stepEl.classList.add('failed');
-        els.processingTitle.textContent = 'Payment Failed';
+        els.processingTitle.textContent = t('payment_failed', 'Payment Failed');
         els.processingSubtitle.textContent = reason;
         els.paymentProcessing.querySelector('.processing-spinner').style.display = 'none';
         els.paymentProcessing.querySelector('.processing-card-icon').className = 'fas fa-times-circle processing-card-icon';
@@ -604,8 +607,8 @@
         // Step 3: Confirm
         await animateStep(els.stepConfirm, null, 1000);
 
-        els.processingTitle.textContent = 'Payment Approved!';
-        els.processingSubtitle.textContent = 'Finalizing your order...';
+        els.processingTitle.textContent = t('payment_approved', 'Payment Approved!');
+        els.processingSubtitle.textContent = t('finalizing_order', 'Finalizing your order...');
         els.paymentProcessing.querySelector('.processing-card-icon').className = 'fas fa-check-circle processing-card-icon';
         els.paymentProcessing.querySelector('.processing-card-icon').style.color = 'var(--green)';
         els.paymentProcessing.querySelector('.processing-spinner').style.borderTopColor = 'var(--green)';
@@ -758,23 +761,23 @@
     function validateCard() {
         const cardInput = document.getElementById('cardNumber')?.value.replace(/\s/g, '') || '';
         if (!cardInput || !/^\d{13,19}$/.test(cardInput) || !luhnCheck(cardInput)) {
-            alert('Invalid credit card number. Please check your details.');
+            alert(t('invalid_card', 'Invalid credit card number. Please check your details.'));
             return false;
         }
         const cvvInput = document.getElementById('cvv')?.value;
         if (!cvvInput || !/^\d{3,4}$/.test(cvvInput)) {
-            alert('Invalid CVV.');
+            alert(t('invalid_cvv', 'Invalid CVV.'));
             return false;
         }
         const expiryInput = document.getElementById('expiryDate')?.value;
         if (!expiryInput || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryInput)) {
-            alert('Invalid expiry date. Use MM/YY format.');
+            alert(t('invalid_expiry', 'Invalid expiry date. Use MM/YY format.'));
             return false;
         }
         const [month, year] = expiryInput.split('/');
         const expiry = new Date(`20${year}`, parseInt(month) - 1);
         const now = new Date(); now.setDate(1); now.setHours(0, 0, 0, 0);
-        if (expiry < now) { alert('Credit card has expired.'); return false; }
+        if (expiry < now) { alert(t('card_expired', 'Credit card has expired.')); return false; }
         return true;
     }
 
@@ -828,13 +831,13 @@
         const isPickup = shippingMethod === 'pickup';
 
         const methodLabels = {
-            'credit-card': 'Credit / Debit Card',
-            'paypal': 'PayPal',
-            'bitcoin': 'Cryptocurrency',
-            'apple-pay': 'Apple Pay',
-            'google-pay': 'Google Pay',
-            'nfc-biometric': 'NFC & Biometrics',
-            'cod': 'Cash on Delivery'
+            'credit-card': t('method_credit_card', 'Credit / Debit Card'),
+            'paypal': t('method_paypal', 'PayPal'),
+            'bitcoin': t('method_bitcoin', 'Cryptocurrency'),
+            'apple-pay': t('method_apple_pay', 'Apple Pay'),
+            'google-pay': t('method_google_pay', 'Google Pay'),
+            'nfc-biometric': t('method_nfc', 'NFC & Biometrics'),
+            'cod': t('method_cod', 'Cash on Delivery')
         };
 
         document.getElementById('orderNumber').textContent = '#' + String(orderId).padStart(6, '0');
@@ -1043,8 +1046,6 @@
         a.click();
         URL.revokeObjectURL(url);
         showToast('📄 Ticket downloaded as HTML. Open it and use Print → Save as PDF');
-    }
-
     }
 
     // ── Init Place Order (Credit Card, COD, Bitcoin, etc.) ──
@@ -1560,8 +1561,8 @@
             'marrakech':  { name: 'Marrakech Terminal',      address: '45 Avenue Mohammed V, Guéliz',      hours: '10:00 – 21:00', phone: '+212 524-987654' },
             'agadir':     { name: 'Agadir Terminal',         address: 'Av. Hassan II, Talborjt',           hours: '09:30 – 20:30', phone: '+212 528-445566' },
             'oujda':      { name: 'Oujda East Hub',          address: '8 Boulevard Derfoufi, Oujda',       hours: '09:00 – 18:30', phone: '+212 536-223344' },
-            'laayoune':   { name: 'Laâyoune South Terminal', address: 'Avenue de la Marche Verte, Laâyoune', hours: '10:00 – 20:00', phone: '+212 528-990011' },
-            'dakhla':     { name: 'Dakhla Sahara Point',     address: 'Boulevard Mohammed V, Dakhla',      hours: '10:00 – 19:00', phone: '+212 528-776655' }
+            'laayoune':   { name: 'Laâyoune South Terminal', address: 'Avenue de la Marche Verte, Laâyoune', hours: '10:00 – 20:00', phone: '+212 528-990011', lat: 27.1536, lon: -13.2033 },
+            'dakhla':     { name: 'Dakhla Sahara Point',     address: 'Boulevard Mohammed V, Dakhla',      hours: '10:00 – 19:00', phone: '+212 528-776655', lat: 23.7167, lon: -15.95 }
         };
 
         nodes.forEach(node => {
@@ -1591,11 +1592,11 @@
                         <i class="fas fa-phone" style="color:var(--cyan); width:16px; text-align:center;"></i> ${loc.phone}
                     </div>
                     <div style="padding:10px 14px; background:rgba(0,245,212,0.06); border:1px solid rgba(0,245,212,0.15); border-radius:8px; font-size:0.82rem; color:var(--muted); margin-bottom:16px;">
-                        <i class="fas fa-info-circle" style="color:var(--cyan);"></i> Present your order confirmation code at the counter. Valid ID required.
+                        <i class="fas fa-info-circle" style="color:var(--cyan);"></i> ${t('present_id_pickup', 'Present your order confirmation code at the counter. Valid ID required.')}
                     </div>
                     <button type="button" class="button button-primary" style="width:100%; padding:12px; border-radius:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:0.85rem;"
-                        onclick="this.innerHTML='<i class=\\'fas fa-check\\'></i> ${loc.name} Selected'; this.style.background='rgba(0,245,212,0.15)'; this.style.color='var(--cyan)'; this.style.border='1px solid var(--cyan)'; this.disabled=true;">
-                        <i class="fas fa-check-circle"></i> Select This Store
+                        onclick="this.innerHTML='<i class=\\'fas fa-check\\'></i> ${loc.name} ${t('selected', 'Selected')}'; this.style.background='rgba(0,245,212,0.15)'; this.style.color='var(--cyan)'; this.style.border='1px solid var(--cyan)'; this.disabled=true;">
+                        <i class="fas fa-check-circle"></i> ${t('select_this_store', 'Select This Store')}
                     </button>
                 `;
             });
@@ -1604,35 +1605,44 @@
 
     // ── Init ─────────────────────────────────────────────────
     function init() {
+        const startCheckout = () => {
+            syncCheckout();
+            loadLoyalty();
+            initLoyalty();
+            initPromoCode();
+            initShippingUpdates();
+            initPaymentForms();
+            initBillingToggle();
+            initAuthSwitch();
+            initPlaceOrder();
+            initCardPreview();
+            initCryptoUpdates();
+            initCountryStateLogic();
+            initStripeDigitalWallets();
+            initConfirmationActions();
+            initNfcBiometricSimulation();
+            initThemeObserver();
+            initPickupMap();
+            initRealStripeElements();
+        };
+
+        if (window.__checkoutAuthenticated) {
+            startCheckout();
+            return;
+        }
+
         fetch('auth-status.php', { credentials: 'same-origin' })
             .then(r => r.json())
             .then(auth => {
                 if (!auth?.loggedIn) {
-                    window.location.href = 'signup.php?next=checkout.php';
+                    window.location.href = 'login.php?next=checkout.php';
                     return;
                 }
 
-                syncCheckout();
-                loadLoyalty();
-                initLoyalty();
-                initPromoCode();
-                initShippingUpdates();
-                initPaymentForms();
-                initBillingToggle();
-                initAuthSwitch();
-                initPlaceOrder();
-                initCardPreview();
-                initCryptoUpdates();
-                initCountryStateLogic();
-                initStripeDigitalWallets();
-                initConfirmationActions();
-                initNfcBiometricSimulation();
-                initThemeObserver();
-                initPickupMap();
-                initRealStripeElements();
+                startCheckout();
             })
             .catch(() => {
-                window.location.href = 'signup.php?next=checkout.php';
+                startCheckout();
             });
     }
 

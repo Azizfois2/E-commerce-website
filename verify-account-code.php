@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $email = $_SESSION['verify_account_email'] ?? '';
 $method = $_SESSION['verify_account_method'] ?? 'sms';
@@ -16,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = trim($_POST['code'] ?? '');
     
     if (empty($code)) {
-        $error = 'Veuillez entrer le code à 6 chiffres.';
+        $error = i18n_t('auth.verify_code_required', [], 'Please enter the 6-digit code.');
     } else {
         $pdo = db();
         $stmt = $pdo->prepare("
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $record = $stmt->fetch();
 
         if (!$record || !password_verify($code, $record['token_hash'])) {
-            $error = 'Le code est invalide ou a expiré.';
+            $error = i18n_t('auth.verify_code_invalid', [], 'The code is invalid or has expired.');
         } else {
             // Mark token as used
             $stmt = $pdo->prepare("UPDATE email_verifications SET used = 1 WHERE id = ?");
@@ -53,11 +54,11 @@ $phone = $client ? htmlspecialchars($client['telephone']) : '';
 
 ?>
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vérification Téléphone — Maroc PC</title>
+    <title><?= i18n_t('auth.verify_code_title', [], 'Verification — Maroc PC') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -157,16 +158,17 @@ $phone = $client ? htmlspecialchars($client['telephone']) : '';
     </style>
 </head>
 <body>
+    <?= i18n_language_switcher('nav-translate', 'position:fixed;top:1.5rem;right:1.5rem;') ?>
     <div class="verify-container">
         <div class="verify-card">
             <?php if ($success): ?>
                 <div class="verify-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <h2>Compte Vérifié !</h2>
-                <p>Votre numéro de téléphone a été validé avec succès. Vous pouvez maintenant vous connecter.</p>
+                <h2><?php i18n_e('auth.account_verified_title'); ?></h2>
+                <p><?php i18n_e('auth.account_verified_body'); ?></p>
                 <a href="login.php" class="verify-btn">
-                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                    <i class="fas fa-sign-in-alt"></i> <?php i18n_e('auth.login_now'); ?>
                 </a>
             <?php else: ?>
                 <div class="verify-icon" style="color: #00f5d4;">
@@ -176,8 +178,9 @@ $phone = $client ? htmlspecialchars($client['telephone']) : '';
                         <i class="fas fa-comment-sms"></i>
                     <?php endif; ?>
                 </div>
-                <h2>Vérification par <?= $method === 'whatsapp' ? 'WhatsApp' : 'SMS' ?></h2>
-                <p>Entrez le code à 6 chiffres que nous venons d'envoyer par <?= $method === 'whatsapp' ? 'WhatsApp' : 'SMS' ?> au <strong><?= $phone ?></strong>.</p>
+                <?php $methodLabel = $method === 'whatsapp' ? i18n_t('auth.provider_whatsapp', [], 'WhatsApp') : i18n_t('auth.provider_sms', [], 'SMS'); ?>
+                <h2><?php i18n_e('auth.verify_by_method', ['method' => $methodLabel]); ?></h2>
+                <p><?php i18n_e('auth.account_code_body', ['method' => $methodLabel, 'phone' => $phone]); ?></p>
                 
                 <?php if (defined('DEV_MODE') && DEV_MODE): ?>
                     <?php if ($method === 'whatsapp' && !empty($_SESSION['two_factor_login']['whatsapp_debug_code'])): ?>
@@ -201,11 +204,12 @@ $phone = $client ? htmlspecialchars($client['telephone']) : '';
 
                 <form method="POST" action="verify-account-code.php">
                     <input type="text" name="code" class="code-input" maxlength="6" pattern="\d{6}" placeholder="000000" required autocomplete="one-time-code" autofocus>
-                    <button type="submit" class="verify-btn">Valider le compte</button>
+                    <button type="submit" class="verify-btn"><?php i18n_e('auth.validate_account'); ?></button>
                 </form>
             <?php endif; ?>
         </div>
     </div>
     <script src="assets/js/theme.js" defer></script>
+    <?= i18n_language_switcher_assets() ?>
 </body>
 </html>

@@ -25,15 +25,17 @@
         submit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
         const formData = new FormData(form);
-        const payload = Object.fromEntries(formData.entries());
-        payload.package_opened = formData.has('package_opened');
+        if (!formData.has('package_opened')) {
+            formData.append('package_opened', '0');
+        } else {
+            formData.set('package_opened', '1');
+        }
 
         try {
             const response = await fetch('api/after-sales-request.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
-                body: JSON.stringify(payload),
+                body: formData,
             });
             const data = await response.json();
 

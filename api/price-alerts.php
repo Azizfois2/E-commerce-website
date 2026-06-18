@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/bootstrap.php';
+require_once dirname(__DIR__) . '/admin-helpers.php';
 require_once SRC_PATH . DIRECTORY_SEPARATOR . 'Services' . DIRECTORY_SEPARATOR . 'price-alerts.php';
 
 header('Content-Type: application/json');
@@ -12,8 +13,7 @@ ensurePriceAlertsTable($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (($_GET['action'] ?? '') === 'process') {
         if (empty($_SESSION['admin_id']) && !DEV_MODE) {
-            http_response_code(403);
-            jsonResponse(false, 'Admin access required.');
+            adminRequireJsonAuth();
         }
         $result = processDuePriceAlerts($pdo);
         jsonResponse(true, 'Price alerts processed.', $result);

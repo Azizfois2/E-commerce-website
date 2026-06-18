@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/two-factor-helpers.php';
 
 if (DISCORD_CLIENT_ID === '' || DISCORD_CLIENT_SECRET === '') {
     header('Location: login.php?error=discord_auth_failed');
@@ -7,7 +8,7 @@ if (DISCORD_CLIENT_ID === '' || DISCORD_CLIENT_SECRET === '') {
 }
 
 if (isset($_SESSION["client_id"])) {
-    header("Location: index.html");
+    header("Location: index.php");
     exit();
 }
 
@@ -19,7 +20,8 @@ if (isset($_GET['code'])) {
         if (!$state || !$expectedState || !hash_equals($expectedState, $state)) {
             throw new Exception('Invalid Discord OAuth state');
         }
-        unset($_SESSION['discord_oauth_state']);
+        $next = safeRedirectTarget($_SESSION['discord_oauth_next'] ?? null);
+        unset($_SESSION['discord_oauth_state'], $_SESSION['discord_oauth_next']);
 
         // 1. Exchange code for access token
         $ch = curl_init();
@@ -66,6 +68,7 @@ if (isset($_GET['code'])) {
         $name = $profile['global_name'] ?? $profile['username'] ?? 'Discord User';
 
         $pdo = db();
+        twoFactorEnsureColumns($pdo);
         
         // Check if user exists by discord_id
         $stmt = $pdo->prepare("SELECT * FROM Client WHERE discord_id = ?");
@@ -99,6 +102,10 @@ if (isset($_GET['code'])) {
             }
         }
         
+        if (!empty($user['two_factor_enabled'])) {
+            twoFactorStartLoginChallenge($user, $next, false, null);
+        }
+
         // Log in the user
         session_regenerate_id(true);
         $_SESSION["client_id"] = $user["id_client"];
@@ -109,7 +116,7 @@ if (isset($_GET['code'])) {
             applyLoginSessionLifetime(false);
         }
         
-        header("Location: index.html");
+        header("Location: $next");
         exit();
         
     } catch (Exception $e) {
@@ -120,4 +127,14 @@ if (isset($_GET['code'])) {
 } else {
     header("Location: discord-login.php");
     exit();
+}
+
+function safeRedirectTarget(?string $target, string $fallback = 'index.php'): string
+{
+    $target = trim((string) $target);
+    if ($target === '') return $fallback;
+    if (preg_match('#^(https?://|//|javascript:)#i', $target) || strpos($target, '..') !== false || strpbrk($target, "\r\n") !== false) {
+        return $fallback;
+    }
+    return $target;
 }

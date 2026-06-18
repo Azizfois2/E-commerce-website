@@ -1,5 +1,7 @@
 <?php
 require_once 'bootstrap.php';
+require_once __DIR__ . '/includes/i18n.php';
+i18n_start_page_translation();
 $pdo = db();
 
 // Fetch active deals
@@ -33,7 +35,7 @@ foreach ($deals as &$deal) {
 unset($deal);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,6 +44,7 @@ unset($deal);
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <?= i18n_preference_assets() ?>
     <script src="assets/js/cart.js"></script>
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
     <style>
@@ -372,8 +375,8 @@ unset($deal);
                         <h3 class="deal-title" title="<?= h($deal['product_name']) ?>"><?= h($deal['product_name']) ?></h3>
                         
                         <div class="deal-prices">
-                            <span class="sale-price"><?= number_format($deal['sale_price'], 2) ?> MAD</span>
-                            <span class="orig-price"><?= number_format($deal['original_price'], 2) ?> MAD</span>
+                            <span class="sale-price"><?= number_format($deal['sale_price'], 2) ?> DH</span>
+                            <span class="orig-price"><?= number_format($deal['original_price'], 2) ?> DH</span>
                         </div>
 
                         <?php if ($deal['max_quantity']): ?>

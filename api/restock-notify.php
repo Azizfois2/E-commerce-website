@@ -12,7 +12,8 @@ if ($method === 'POST') {
     $clientId = $_SESSION['client_id'] ?? null;
 
     if (!$productId || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['error' => 'Invalid product or email address']);
+        http_response_code(422);
+        echo json_encode(['success' => false, 'code' => 'invalid_restock_request']);
         exit;
     }
 
@@ -21,16 +22,17 @@ if ($method === 'POST') {
         $stmt = $pdo->prepare("SELECT id FROM restock_notifications WHERE product_id = ? AND email = ? AND notified = 0");
         $stmt->execute([$productId, $email]);
         if ($stmt->fetch()) {
-            echo json_encode(['success' => true, 'message' => 'You are already subscribed to notifications for this product.']);
+            echo json_encode(['success' => true, 'code' => 'already_subscribed']);
             exit;
         }
 
         $stmt = $pdo->prepare("INSERT INTO restock_notifications (product_id, email, client_id) VALUES (?, ?, ?)");
         $stmt->execute([$productId, $email, $clientId]);
 
-        echo json_encode(['success' => true, 'message' => 'You will be notified when this item is back in stock!']);
+        echo json_encode(['success' => true, 'code' => 'restock_saved']);
     } catch (Exception $e) {
-        echo json_encode(['error' => 'Database error']);
+        http_response_code(500);
+        echo json_encode(['success' => false, 'code' => 'restock_database_error']);
     }
     exit;
 }

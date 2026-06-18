@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'mailer.php';
 require_once 'two-factor-helpers.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 if (!empty($_SESSION['client_id'])) {
     header('Location: account.php');
@@ -237,7 +238,7 @@ function h($value): string
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -332,26 +333,27 @@ function h($value): string
     </style>
 </head>
 <body>
-    <a href="login.php" class="back-link">Retour a la connexion</a>
+    <?= i18n_language_switcher('nav-translate', 'position:fixed;top:1.5rem;right:1.5rem;') ?>
+    <a href="login.php" class="back-link"><?php i18n_e('auth.back_to_login'); ?></a>
 
     <main class="two-factor-panel">
         <div class="two-factor-icon"><i class="fas fa-shield-halved"></i></div>
-        <h1>Verification en deux etapes</h1>
+        <h1><?php i18n_e('auth.two_step_title'); ?></h1>
         <?php if ($method === 'authenticator'): ?>
-            <p>Entrez le code a 6 chiffres depuis votre application Authenticator.</p>
+            <p><?php i18n_e('auth.authenticator_code_body'); ?></p>
         <?php elseif ($method === 'whatsapp'): ?>
-            <p>Entrez le code a 6 chiffres envoye par WhatsApp a <strong><?= h($maskedPhone ?: 'votre telephone') ?></strong>.</p>
+            <p><?php i18n_e('auth.whatsapp_code_body', ['phone' => $maskedPhone ?: i18n_t('nav.account')]); ?></p>
             <?php if (DEV_MODE && !empty($_SESSION['two_factor_login']['whatsapp_debug_code'])): ?>
                 <div class="alert-success">Local dev WhatsApp code: <?= h($_SESSION['two_factor_login']['whatsapp_debug_code']) ?></div>
             <?php endif; ?>
         <?php else: ?>
-            <p>Entrez le code a 6 chiffres envoye a <strong><?= h($maskedEmail) ?></strong>.</p>
+            <p><?php i18n_e('auth.email_code_body', ['email' => $maskedEmail]); ?></p>
         <?php endif; ?>
 
         <?php if (!empty($errors['general'])): ?>
             <div class="alert-error"><?= h($errors['general']) ?></div>
         <?php elseif ($success): ?>
-            <div class="alert-success">Nouveau code envoye. Verifiez <?= $method === 'whatsapp' ? 'WhatsApp' : 'votre boite mail' ?>.</div>
+            <div class="alert-success"><?php i18n_e('auth.new_code_sent', ['method' => $method === 'whatsapp' ? 'WhatsApp' : i18n_t('auth.email_inbox')]); ?></div>
         <?php endif; ?>
 
         <?php if (!empty($errors['code'])): ?>
@@ -362,25 +364,25 @@ function h($value): string
             <?= csrfField() ?>
             <input type="hidden" name="action" value="verify">
             <div class="form-group">
-                <label for="code">Code de verification / secours</label>
+                <label for="code"><?php i18n_e('auth.verification_code_label'); ?></label>
                 <input class="hh code-input" type="text" id="code" name="code" maxlength="8" placeholder="123456 ou A3F2B1C9" autocomplete="one-time-code" autofocus style="text-transform: uppercase;">
                 <small style="display:block; color:var(--muted); margin-top:6px; font-size:0.8rem; text-align:center;">Entrez le code à 6 chiffres ou un code de secours à 8 caractères.</small>
             </div>
-            <button type="submit" class="Bou" style="width:100%;">Verifier et continuer</button>
+            <button type="submit" class="Bou" style="width:100%;"><?php i18n_e('auth.verify_continue'); ?></button>
         </form>
 
         <div class="two-factor-actions">
             <form method="post" action="verify-2fa.php">
                 <?= csrfField() ?>
                 <input type="hidden" name="action" value="resend">
-                <button type="submit" class="link-button" <?= $method === 'authenticator' ? 'disabled' : '' ?>>Renvoyer le code</button>
+                <button type="submit" class="link-button" <?= $method === 'authenticator' ? 'disabled' : '' ?>><?php i18n_e('auth.resend_code'); ?></button>
             </form>
             <?php if ($method !== 'email'): ?>
                 <form method="post" action="verify-2fa.php">
                     <?= csrfField() ?>
                     <input type="hidden" name="action" value="switch_channel">
                     <input type="hidden" name="method" value="email">
-                    <button type="submit" class="link-button">Utiliser email</button>
+                    <button type="submit" class="link-button"><?php i18n_e('auth.use_email'); ?></button>
                 </form>
             <?php endif; ?>
             <?php if ($method !== 'whatsapp' && $maskedPhone !== ''): ?>
@@ -388,15 +390,16 @@ function h($value): string
                     <?= csrfField() ?>
                     <input type="hidden" name="action" value="switch_channel">
                     <input type="hidden" name="method" value="whatsapp">
-                    <button type="submit" class="link-button">Utiliser WhatsApp</button>
+                    <button type="submit" class="link-button"><?php i18n_e('auth.use_whatsapp'); ?></button>
                 </form>
             <?php endif; ?>
             <form method="post" action="verify-2fa.php">
                 <?= csrfField() ?>
                 <input type="hidden" name="action" value="cancel">
-                <button type="submit" class="link-button">Annuler</button>
+                <button type="submit" class="link-button"><?php i18n_e('auth.cancel'); ?></button>
             </form>
         </div>
     </main>
+    <?= i18n_language_switcher_assets() ?>
 </body>
 </html>

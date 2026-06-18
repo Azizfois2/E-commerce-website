@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/two-factor-helpers.php';
 
 if (FB_APP_ID === '' || FB_APP_SECRET === '') {
     header('Location: login.php?error=fb_auth_failed');
     exit();
 }
 
-function safeRedirectTarget(?string $target, string $fallback = 'index.html'): string
+function safeRedirectTarget(?string $target, string $fallback = 'index.php'): string
 {
     $target = trim((string) $target);
     if ($target === '') return $fallback;
@@ -17,7 +18,7 @@ function safeRedirectTarget(?string $target, string $fallback = 'index.html'): s
 }
 
 if (isset($_SESSION["client_id"])) {
-    header("Location: index.html");
+    header("Location: index.php");
     exit();
 }
 
@@ -34,7 +35,8 @@ if (isset($_GET['code'])) {
         if (!$state || !$expectedState || !hash_equals($expectedState, $state)) {
             throw new Exception('Invalid Facebook OAuth state');
         }
-        unset($_SESSION['fb_oauth_state']);
+        $next = safeRedirectTarget($_SESSION['fb_oauth_next'] ?? null);
+        unset($_SESSION['fb_oauth_state'], $_SESSION['fb_oauth_next']);
 
         // 1. Exchange code for access token
         $tokenUrl = "https://graph.facebook.com/v25.0/oauth/access_token?" . http_build_query([
@@ -79,6 +81,7 @@ if (isset($_GET['code'])) {
         $name = $profile['name'] ?? 'Facebook User';
 
         $pdo = db();
+        twoFactorEnsureColumns($pdo);
         
         // Check if user exists by facebook_id
         $stmt = $pdo->prepare("SELECT * FROM Client WHERE facebook_id = ?");
@@ -112,6 +115,10 @@ if (isset($_GET['code'])) {
             }
         }
         
+        if (!empty($user['two_factor_enabled'])) {
+            twoFactorStartLoginChallenge($user, $next, false, null);
+        }
+
         // Log in the user
         session_regenerate_id(true);
         $_SESSION["client_id"] = $user["id_client"];
@@ -123,7 +130,7 @@ if (isset($_GET['code'])) {
             applyLoginSessionLifetime(false);
         }
         
-        header("Location: index.html");
+        header("Location: $next");
         exit();
         
     } catch (Exception $e) {

@@ -74,64 +74,64 @@ adminPageStart('Coupons', 'coupons');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">Promotion Control</span>
-        <h1>Coupons</h1>
-        <p class="section-copy">Create promo codes with percent, fixed amount, free shipping, expiration, usage limits, and minimum cart values.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Promotion Control')) ?></span>
+        <h1><?= adminH(adminPhrase('Coupons')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Create promo codes with percent, fixed amount, free shipping, expiration, usage limits, and minimum cart values.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-marketing.php">Marketing</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-marketing.php"><?= adminH(adminPhrase('Marketing')) ?></a>
     </div>
 </section>
 
 <?php if (isset($_GET['saved'])): ?>
-    <div class="admin-alert success">Coupon saved.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Coupon saved.')) ?></div>
 <?php elseif (isset($_GET['deleted'])): ?>
-    <div class="admin-alert success">Coupon deleted.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Coupon deleted.')) ?></div>
 <?php elseif (isset($_GET['updated'])): ?>
-    <div class="admin-alert success">Coupon status updated.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Coupon status updated.')) ?></div>
 <?php endif; ?>
 <?php if ($error): ?><div class="admin-alert error"><?= adminH($error) ?></div><?php endif; ?>
 
 <section class="table-card">
-    <div class="card-head"><h2>Create Coupon</h2></div>
+    <div class="card-head"><h2><?= adminH(adminPhrase('Create Coupon')) ?></h2></div>
     <form method="post" class="filter-bar coupon-form">
         <?= csrfField() ?>
         <input type="hidden" name="action" value="save">
-        <label class="coupon-code">Code <input name="code" placeholder="WELCOME10" required></label>
+        <label class="coupon-code"><?= adminH(adminPhrase('Code')) ?> <input name="code" placeholder="WELCOME10" required></label>
         <label class="coupon-type">Type
             <select name="discount_type">
-                <option value="percent">Percent</option>
-                <option value="fixed">Fixed MAD</option>
-                <option value="shipping">Free shipping</option>
+                <option value="percent"><?= adminH(adminPhrase('Percent')) ?></option>
+                <option value="fixed"><?= adminH(adminPhrase('Fixed ' . (i18n_current_locale() === 'ar' ? 'د.م.' : 'DH'))) ?></option>
+                <option value="shipping"><?= adminH(adminPhrase('Free shipping')) ?></option>
             </select>
         </label>
-        <label class="coupon-value">Value <input type="number" step="0.01" min="0" name="discount_value" placeholder="10"></label>
-        <label class="coupon-min">Minimum cart <input type="number" step="0.01" min="0" name="min_cart" value="0"></label>
-        <label class="coupon-limit">Usage limit <input type="number" min="1" name="usage_limit" placeholder="Unlimited"></label>
-        <label class="coupon-start">Starts <input type="datetime-local" name="starts_at"></label>
-        <label class="coupon-expires">Expires <input type="datetime-local" name="expires_at"></label>
-        <button class="button button-primary coupon-submit" type="submit">Save Coupon</button>
+        <label class="coupon-value"><?= adminH(adminPhrase('Value')) ?> <input type="number" step="0.01" min="0" name="discount_value" placeholder="10"></label>
+        <label class="coupon-min"><?= adminH(adminPhrase('Minimum cart')) ?> <input type="number" step="0.01" min="0" name="min_cart" value="0"></label>
+        <label class="coupon-limit"><?= adminH(adminPhrase('Usage limit')) ?> <input type="number" min="1" name="usage_limit" placeholder="<?= adminH(adminPhrase('Unlimited')) ?>"></label>
+        <label class="coupon-start"><?= adminH(adminPhrase('Starts')) ?> <input type="datetime-local" name="starts_at"></label>
+        <label class="coupon-expires"><?= adminH(adminPhrase('Expires')) ?> <input type="datetime-local" name="expires_at"></label>
+        <button class="button button-primary coupon-submit" type="submit"><?= adminH(adminPhrase('Save Coupon')) ?></button>
     </form>
 </section>
 
 <section class="table-card">
-    <div class="card-head"><h2>Active Promo Codes</h2></div>
+    <div class="card-head"><h2><?= adminH(adminPhrase('Active Promo Codes')) ?></h2></div>
     <table>
         <thead>
             <tr>
-                <th>Code</th>
-                <th>Discount</th>
-                <th>Minimum</th>
-                <th>Usage</th>
-                <th>Window</th>
-                <th>Status</th>
+                <th><?= adminH(adminPhrase('Code')) ?></th>
+                <th><?= adminH(adminPhrase('Discount')) ?></th>
+                <th><?= adminH(adminPhrase('Minimum')) ?></th>
+                <th><?= adminH(adminPhrase('Usage')) ?></th>
+                <th><?= adminH(adminPhrase('Window')) ?></th>
+                <th><?= adminH(adminPhrase('Status')) ?></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             <?php if ($coupons === []): ?>
-                <tr><td colspan="7">No coupons yet.</td></tr>
+                <tr><td colspan="7"><?= adminH(adminPhrase('No coupons yet.')) ?></td></tr>
             <?php endif; ?>
             <?php foreach ($coupons as $coupon): ?>
                 <tr>
@@ -148,8 +148,8 @@ adminPageStart('Coupons', 'coupons');
                         <form method="post">
                             <?= csrfField() ?>
                             <input type="hidden" name="id" value="<?= (int) $coupon['id'] ?>">
-                            <button class="button button-light button-small" name="action" value="toggle" type="submit">Toggle</button>
-                            <button class="button button-danger button-small" name="action" value="delete" type="submit" onclick="return confirm('Delete this coupon?')">Delete</button>
+                            <button class="button button-light button-small" name="action" value="toggle" type="submit"><?= adminH(adminPhrase('Toggle')) ?></button>
+                            <button class="button button-danger button-small" name="action" value="delete" type="submit" onclick="return confirm(<?= i18n_script_json(adminPhrase('Delete this coupon?')) ?>)"><?= adminH(adminPhrase('Delete')) ?></button>
                         </form>
                     </td>
                 </tr>

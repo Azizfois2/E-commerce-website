@@ -5,12 +5,7 @@ require_once '../inventory-helpers.php';
 
 header('Content-Type: application/json');
 
-// Admin
-if (empty($_SESSION['admin_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+adminRequireJsonAuth();
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $action = trim((string) ($input['action'] ?? ''));
@@ -25,6 +20,23 @@ if ($orderId <= 0) {
 $pdo = db();
 adminEnsureAdminSuiteTables($pdo);
 inventoryEnsureOrderStockColumn($pdo);
+
+function adminOrderUpdateError(Throwable $e): array
+{
+    error_log('[admin-update-order] ' . $e->getMessage());
+
+    if ($e instanceof RuntimeException) {
+        return [
+            'status' => 409,
+            'body' => ['error' => $e->getMessage()],
+        ];
+    }
+
+    return [
+        'status' => 500,
+        'body' => ['error' => (defined('DEV_MODE') && DEV_MODE) ? $e->getMessage() : 'Database error'],
+    ];
+}
 
 //Supprimer
 if ($action === 'suppress') {
@@ -55,8 +67,9 @@ if ($action === 'suppress') {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error']);
+        $error = adminOrderUpdateError($e);
+        http_response_code($error['status']);
+        echo json_encode($error['body']);
     }
     exit;
 }
@@ -102,8 +115,9 @@ if ($action === 'set_status') {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error']);
+        $error = adminOrderUpdateError($e);
+        http_response_code($error['status']);
+        echo json_encode($error['body']);
     }
     exit;
 }
@@ -148,8 +162,9 @@ if ($action === 'set_assembly_status') {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error']);
+        $error = adminOrderUpdateError($e);
+        http_response_code($error['status']);
+        echo json_encode($error['body']);
     }
     exit;
 }
@@ -176,8 +191,9 @@ if ($action === 'add_note') {
         adminLogActivity($pdo, 'note', 'order', $orderId, "Added note to order #{$orderId}");
         echo json_encode(['success' => true]);
     } catch (Throwable $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error']);
+        $error = adminOrderUpdateError($e);
+        http_response_code($error['status']);
+        echo json_encode($error['body']);
     }
     exit;
 }

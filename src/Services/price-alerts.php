@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 require_once __DIR__ . '/mailer.php';
+require_once __DIR__ . '/evolution-api.php';
 
 function ensurePriceAlertsTable(PDO $pdo): void
 {
@@ -47,41 +48,18 @@ function sendPriceDropWhatsApp(string $phone, string $productName, float $price,
     }
 
     $message = sprintf(
-        "Maroc PC price alert: %s is now %.2f MAD. View it: %s",
+        "Maroc PC price alert: %s is now %.2f DH. View it: %s",
         $productName,
         $price,
         $url
     );
 
-    if (defined('EVOLUTION_API_KEY') && EVOLUTION_API_KEY !== '' && function_exists('curl_init')) {
-        $payload = json_encode([
-            'number' => ltrim($phone, '+'),
-            'text' => $message,
-        ]);
-
-        if ($payload !== false && function_exists('curl_init')) {
-            $apiUrl = rtrim(EVOLUTION_API_URL, '/') . '/message/sendText/' . rawurlencode(EVOLUTION_INSTANCE_NAME);
-            $ch = curl_init($apiUrl);
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_HTTPHEADER => [
-                    'apikey: ' . EVOLUTION_API_KEY,
-                    'Content-Type: application/json',
-                ],
-                CURLOPT_POSTFIELDS => $payload,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 12,
-            ]);
-            $raw = curl_exec($ch);
-            $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $err = curl_error($ch);
-            curl_close($ch);
-
-            if ($status >= 200 && $status < 300) {
-                return true;
-            }
-            error_log('[EVOLUTION PRICE ALERT ERROR] ' . ($err ?: (string) $raw));
+    if (defined('EVOLUTION_API_KEY') && EVOLUTION_API_KEY !== '') {
+        $error = null;
+        if (evolutionSendText($phone, $message, $error)) {
+            return true;
         }
+        error_log('[EVOLUTION PRICE ALERT ERROR] ' . (string) $error);
     }
 
     if (DEV_MODE) {
@@ -105,8 +83,8 @@ function sendPriceDropEmail(string $email, string $name, float $price, float $th
         <div class="highlight">
             <p><strong>' . $safeName . '</strong></p>
             <p style="margin-top:10px;">
-                Current price: <strong>' . number_format($price, 2) . ' MAD</strong><br>
-                Your threshold: ' . number_format($threshold, 2) . ' MAD
+                Current price: <strong>' . number_format($price, 2) . ' DH</strong><br>
+                Your threshold: ' . number_format($threshold, 2) . ' DH
             </p>
         </div>
         <div class="btn-wrap">

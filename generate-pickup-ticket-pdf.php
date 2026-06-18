@@ -182,7 +182,7 @@ class PickupTicketPDF {
                 <h3>ORDER DETAILS</h3>
                 <p><span class="label">Order #:</span> <span class="value">' . htmlspecialchars($this->data['order_id']) . '</span></p>
                 <p><span class="label">Customer:</span> <span class="value">' . htmlspecialchars($this->data['customer_name']) . '</span></p>
-                <p><span class="label">Total:</span> <span class="value">' . htmlspecialchars($this->data['total']) . ' MAD</span></p>
+                <p><span class="label">Total:</span> <span class="value">' . htmlspecialchars($this->data['total']) . ' DH</span></p>
                 <p><span class="label">Date:</span> <span class="value">' . htmlspecialchars($this->data['date']) . '</span></p>
             </div>
             
@@ -207,7 +207,7 @@ class PickupTicketPDF {
         foreach ($this->data['items'] as $item) {
             $html .= '<div class="item">
                 <span class="item-name">' . htmlspecialchars($item['quantity']) . 'x ' . htmlspecialchars($item['name']) . '</span>
-                <span class="item-price">' . htmlspecialchars($item['price']) . ' MAD</span>
+                <span class="item-price">' . htmlspecialchars($item['price']) . ' DH</span>
             </div>';
         }
         

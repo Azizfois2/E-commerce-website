@@ -1,9 +1,9 @@
-const CACHE_NAME = 'maroc-pc-v2';
+const CACHE_NAME = 'maroc-pc-v4';
 const APP_SHELL = [
   './',
-  './index.html',
-  './products.html',
-  './cart.html',
+  './index.php',
+  './products.php',
+  './cart.php',
   './assets/css/styles.css',
   './assets/js/theme.js',
   './assets/js/cart.js',
@@ -38,8 +38,13 @@ self.addEventListener('fetch', (event) => {
 
   if (request.method !== 'GET') return;
 
-  // Bypass cache completely for dynamic PHP APIs and session statuses
-  if (request.url.includes('/api/') || request.url.includes('.php')) {
+  const url = new URL(request.url);
+  const pageName = url.pathname.split('/').pop() || 'index.php';
+  const storefrontPages = new Set(['index.php', 'products.php', 'cart.php']);
+  const isStorefrontPage = storefrontPages.has(pageName);
+
+  // Bypass cache completely for dynamic PHP APIs and session statuses.
+  if (url.pathname.includes('/api/') || (url.pathname.endsWith('.php') && !isStorefrontPage)) {
     event.respondWith(fetch(request));
     return;
   }
@@ -65,7 +70,7 @@ self.addEventListener('fetch', (event) => {
           return caches.match(request).then((cached) => {
             if (cached) return cached;
             if (request.mode === 'navigate') {
-              return caches.match('./index.html');
+              return caches.match('./index.php');
             }
             throw new Error('Offline and no cached response available.');
           });

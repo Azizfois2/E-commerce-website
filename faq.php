@@ -18,7 +18,7 @@ renderSupportPage([
                 ['q' => 'How do I track my order?', 'a' => 'Sign in, open My Account, then select My Orders. You can see order status, items, and history there.'],
                 ['q' => 'Can I cancel an order?', 'a' => 'You can request cancellation before dispatch. If stock has been reserved, cancellation restores stock automatically when the order is cancelled.'],
                 ['q' => 'Why is my order pending?', 'a' => 'Pending can mean payment confirmation, COD confirmation, stock check, or address review is still in progress.'],
-                ['q' => 'Do prices include everything?', 'a' => 'Product prices are shown in MAD. Shipping, COD fees, discounts, loyalty points, and service fees are calculated at checkout.'],
+                ['q' => 'Do prices include everything?', 'a' => 'Product prices are shown in DH. Shipping, COD fees, discounts, loyalty points, and service fees are calculated at checkout.'],
             ],
         ],
         [

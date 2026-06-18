@@ -8,17 +8,13 @@
  * POST { action: "create_po", supplier_id: 1, total_cost: 5000, expected_delivery: "2026-12-01" }
  */
 require_once dirname(__DIR__) . '/bootstrap.php';
+require_once dirname(__DIR__) . '/admin-helpers.php';
 header('Content-Type: application/json');
 
 $pdo = db();
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Ensure admin access
-if (empty($_SESSION['admin_id'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+adminRequireJsonAuth();
 
 if ($method === 'GET') {
     $action = $_GET['action'] ?? 'suppliers';

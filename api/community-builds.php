@@ -125,7 +125,7 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     if (!$clientId) {
         http_response_code(401);
-        echo json_encode(['error' => 'Must be logged in to participate in the community']);
+        echo json_encode(['error' => i18n_t('community.must_login', [], 'Must be logged in to participate in the community')]);
         exit;
     }
 

@@ -3,6 +3,11 @@
     Require all denied
 </FilesMatch>
 
+RewriteEngine On
+RewriteRule ^index\.html$ /Test/index.php [R=301,L]
+RewriteRule ^products\.html$ /Test/products.php [R=301,L]
+RewriteRule ^cart\.html$ /Test/cart.php [R=301,L]
+
 # Block all dotfiles: .env, .gitignore, .git, and similar.
 <FilesMatch "^\.">
     Require all denied

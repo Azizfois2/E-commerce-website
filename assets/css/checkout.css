@@ -661,7 +661,7 @@ body::after {
   text-align: center;
 }
 
-.payment-method-content input[type="radio"] {
+.payment-method-option input[type="radio"] {
   display: none;
 }
 
@@ -669,6 +669,11 @@ body::after {
   font-size: 1.5rem;
   color: var(--text);
   transition: color 0.2s var(--ease);
+}
+
+.payment-method-option.active .payment-method-content span,
+.payment-method-option:has(input:checked) .payment-method-content span {
+  color: #FFFFFF !important;
 }
 
 .payment-method-option.active .payment-method-content i,

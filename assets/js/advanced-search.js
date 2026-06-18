@@ -83,7 +83,7 @@
         const fallback = 'this.onerror=null;this.src=\'cpu-product.png\';';
         
         return `
-        <a href="products.html?id=${product.id}" class="search-result-item" data-index="${index}" style="
+        <a href="products.php?product=${product.id}" class="search-result-item" data-index="${index}" style="
           display: flex;
           align-items: center;
           gap: 15px;
@@ -113,7 +113,7 @@
             font-weight: 700;
             font-size: 0.85rem;
             white-space: nowrap;
-          ">${product.price.toLocaleString()} MAD</span>
+          ">${window.formatMAD ? window.formatMAD(product.price) : product.price.toLocaleString() + ' DH'}</span>
         </a>
       `}).join('');
 

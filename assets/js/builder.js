@@ -3,6 +3,110 @@
  * Step-by-step wizard with compatibility engine & wattage calculator
  */
 const PCBuilder = (() => {
+    const lookupBuilderPhrase = (key) => {
+        if (!key) return undefined;
+        const phraseMap = window.__marocPcPhraseMap;
+        const i18n = window.__marocPcI18n;
+        if (phraseMap?.[key]) return phraseMap[key];
+        if (i18n?.[key]) return i18n[key];
+        if (key.endsWith('.')) {
+            const trimmed = key.slice(0, -1);
+            if (phraseMap?.[trimmed]) return phraseMap[trimmed];
+            if (i18n?.[trimmed]) return i18n[trimmed];
+        }
+        return undefined;
+    };
+    const builderText = (key, fallback) => lookupBuilderPhrase(key) ?? fallback ?? key;
+    const builderTemplate = (key, fallback, params = {}) => {
+        let value = builderText(key, fallback);
+        Object.entries(params).forEach(([name, replacement]) => {
+            value = value.replaceAll(`{${name}}`, replacement);
+        });
+        return value;
+    };
+    const builderLabel = label => builderText(label, label);
+    const translateSpec = (text) => {
+        let str = String(text || '');
+        if (window.__marocPcPhraseMap) {
+            ['threads', 'thread', 'GHz', 'MHz', 'MB', 'GB', 'TB', 'W'].forEach(unit => {
+                const translated = window.__marocPcPhraseMap[unit];
+                if (translated) {
+                    str = str.replace(new RegExp(`\\b${unit}\\b`, 'g'), translated);
+                }
+            });
+            const wTranslated = window.__marocPcPhraseMap['W'];
+            if (wTranslated) {
+                str = str.replace(/(\d)W\b/g, `$1 ${wTranslated}`);
+            }
+        }
+        return str;
+    };
+    const translateBuilderValue = value => {
+        if (!value || typeof value !== 'string') return value;
+        const trimmed = value.trim();
+        const map = window.__marocPcPhraseMap || {};
+        if (trimmed && map[trimmed] && map[trimmed] !== trimmed) {
+            return value.replace(trimmed, map[trimmed]);
+        }
+        return value;
+    };
+    const translateBuilderAttributes = element => {
+        if (!Object.keys(window.__marocPcPhraseMap || {}).length || !element?.matches || element.closest('.notranslate,[translate="no"]')) return;
+        ['placeholder', 'title', 'aria-label', 'data-ai-prompt'].forEach(attribute => {
+            if (!element.hasAttribute(attribute)) return;
+            const current = element.getAttribute(attribute);
+            const translated = translateBuilderValue(current);
+            if (translated !== current) element.setAttribute(attribute, translated);
+        });
+    };
+    const shouldSkipTranslation = node => {
+        const parent = node.parentElement;
+        return !parent
+            || parent.closest('.notranslate,[translate="no"],.cc-name,.cc-brand,.cc-spec-tag,.cb-card-title,.cb-card-desc,.cb-card-author,.cb-card-date,input,textarea,select,option,script,style');
+    };
+    const translateBuilderCopy = root => {
+        if (!window.__marocPcPhraseMap || !root) return;
+        const scope = root.nodeType === Node.TEXT_NODE ? root.parentElement : root;
+        if (!scope || scope.closest?.('.notranslate,[translate="no"]')) return;
+
+        if (root.nodeType === Node.TEXT_NODE) {
+            if (shouldSkipTranslation(root) || !root.nodeValue.trim()) return;
+            const translated = translateBuilderValue(root.nodeValue);
+            if (translated !== root.nodeValue) root.nodeValue = translated;
+            return;
+        }
+
+        if (root.nodeType === Node.ELEMENT_NODE) {
+            translateBuilderAttributes(root);
+            root.querySelectorAll('[placeholder],[title],[aria-label],[data-ai-prompt]').forEach(translateBuilderAttributes);
+        }
+
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                return shouldSkipTranslation(node) || !node.nodeValue.trim()
+                    ? NodeFilter.FILTER_REJECT
+                    : NodeFilter.FILTER_ACCEPT;
+            }
+        });
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(node => translateBuilderCopy(node));
+    };
+    const initBuilderPhraseObserver = () => {
+        if (!window.__marocPcPhraseMap || document.body.dataset.builderI18nReady === '1') return;
+        document.body.dataset.builderI18nReady = '1';
+        translateBuilderCopy(document.body);
+        new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) {
+                        translateBuilderCopy(node);
+                    }
+                });
+            });
+        }).observe(document.body, { childList: true, subtree: true });
+    };
+
     // ── Component Steps ──────────────────────────────────────
     const STEPS = [
         { key: 'cpu', label: 'CPU', icon: 'fa-microchip', category: 'cpu' },
@@ -13,11 +117,315 @@ const PCBuilder = (() => {
         { key: 'psu', label: 'PSU', icon: 'fa-bolt', category: 'psu' },
         { key: 'cooling', label: 'Cooling', icon: 'fa-fan', category: 'cooling' },
         { key: 'monitor', label: 'Monitor', icon: 'fa-display', category: 'monitor' },
-        { key: 'accessories', label: 'Accessories', icon: 'fa-keyboard', category: 'accessories' },
+        { key: 'accessories', label: 'Accessories', icon: 'fa-toolbox', category: 'accessories', optional: true },
+        { key: 'keyboard', label: 'Keyboard', icon: 'fa-keyboard', category: 'keyboard', optional: true },
+        { key: 'mouse', label: 'Mouse', icon: 'fa-computer-mouse', category: 'mouse', optional: true },
     ];
 
+    // ── PC Case Slot Layout Map ────────────────────────────────
+    // Mimics a front-view ATX case interior. Each slot is positioned
+    // via CSS grid-row / grid-column inline styles.
+    const CASE_SLOT_LAYOUT = {
+        cooling:     { row: 1, col: '1 / 3', size: 'sm', zone: 'TOP'     },
+        cpu:         { row: 2, col: '1 / 2', size: 'md', zone: 'CPU'     },
+        ram:         { row: 2, col: '2 / 3', size: 'md', zone: 'DIMM'    },
+        motherboard: { row: 3, col: '1 / 3', size: 'lg', zone: 'ATX'     },
+        gpu:         { row: 4, col: '1 / 3', size: 'lg', zone: 'PCIE'    },
+        storage:     { row: 5, col: '1 / 2', size: 'sm', zone: 'BAY'     },
+        monitor:     { row: 5, col: '2 / 3', size: 'sm', zone: 'IO'      },
+        psu:         { row: 6, col: '1 / 3', size: 'md', zone: 'SHROUD'  },
+        accessories: { row: 7, col: '1 / 3', size: 'sm', zone: 'EXTERN'  },
+        keyboard:    { row: 8, col: '1 / 3', size: 'sm', zone: 'EXTERN'  },
+        mouse:       { row: 9, col: '1 / 3', size: 'sm', zone: 'EXTERN'  }
+    };
+
+    // ── Component SVG Illustrations ────────────────────────────
+    // Technical hardware illustrations: schematic style, not flat, not photorealistic.
+    // All use currentColor so they inherit theme colors via CSS.
+    function getComponentSVG(key) {
+        const svgs = {
+            cpu: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- CPU die: top-down with IHS and pin grid -->
+                <rect x="8" y="8" width="64" height="64" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="18" y="18" width="44" height="44" rx="2" stroke="currentColor" stroke-width="2"/>
+                <rect x="24" y="24" width="32" height="32" rx="1" fill="currentColor" opacity="0.12"/>
+                <text x="40" y="43" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="currentColor">CPU</text>
+                <!-- Pin rows -->
+                <g stroke="currentColor" stroke-width="0.8" opacity="0.5">
+                    <line x1="12" y1="14" x2="12" y2="66"/><line x1="16" y1="14" x2="16" y2="66"/>
+                    <line x1="68" y1="14" x2="68" y2="66"/><line x1="64" y1="14" x2="64" y2="66"/>
+                    <line x1="14" y1="12" x2="66" y2="12"/><line x1="14" y1="16" x2="66" y2="16"/>
+                    <line x1="14" y1="68" x2="66" y2="68"/><line x1="14" y1="64" x2="66" y2="64"/>
+                </g>
+                <!-- Corner notch -->
+                <circle cx="14" cy="14" r="2" fill="currentColor" opacity="0.3"/>
+            </svg>`,
+
+            ram: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- DDR5 RAM stick: heat spreader + edge contacts -->
+                <rect x="6" y="22" width="68" height="36" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M6 28h68" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <path d="M6 52h68" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <!-- Heat spreader fins -->
+                <g stroke="currentColor" stroke-width="0.6" opacity="0.35">
+                    <line x1="12" y1="28" x2="12" y2="52"/><line x1="20" y1="28" x2="20" y2="52"/>
+                    <line x1="28" y1="28" x2="28" y2="52"/><line x1="36" y1="28" x2="36" y2="52"/>
+                    <line x1="44" y1="28" x2="44" y2="52"/><line x1="52" y1="28" x2="52" y2="52"/>
+                    <line x1="60" y1="28" x2="60" y2="52"/><line x1="68" y1="28" x2="68" y2="52"/>
+                </g>
+                <!-- Label -->
+                <text x="40" y="44" text-anchor="middle" font-family="monospace" font-size="6" font-weight="700" fill="currentColor">DDR5</text>
+                <!-- Edge contacts (gold fingers) -->
+                <g fill="currentColor" opacity="0.4">
+                    <rect x="8" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="14" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="20" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="26" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="32" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="38" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="44" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="50" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="56" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="62" y="58" width="4" height="8" rx="0.5"/>
+                    <rect x="68" y="58" width="4" height="8" rx="0.5"/>
+                </g>
+                <!-- Key notch -->
+                <rect x="34" y="58" width="12" height="8" fill="var(--page-bg, #040c0a)"/>
+            </svg>`,
+
+            gpu: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- GPU: top-down with dual fans + shroud -->
+                <rect x="4" y="16" width="72" height="48" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <!-- Shroud outline -->
+                <path d="M4 20h72M4 60h72" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <!-- Fan 1 -->
+                <circle cx="24" cy="40" r="14" stroke="currentColor" stroke-width="1.2"/>
+                <circle cx="24" cy="40" r="4" fill="currentColor" opacity="0.25"/>
+                <g stroke="currentColor" stroke-width="0.8" opacity="0.5">
+                    <path d="M24 26 Q28 33 24 40 Q20 33 24 26Z"/>
+                    <path d="M38 40 Q31 44 24 40 Q31 36 38 40Z"/>
+                    <path d="M24 54 Q20 47 24 40 Q28 47 24 54Z"/>
+                    <path d="M10 40 Q17 36 24 40 Q17 44 10 40Z"/>
+                </g>
+                <!-- Fan 2 -->
+                <circle cx="56" cy="40" r="14" stroke="currentColor" stroke-width="1.2"/>
+                <circle cx="56" cy="40" r="4" fill="currentColor" opacity="0.25"/>
+                <g stroke="currentColor" stroke-width="0.8" opacity="0.5">
+                    <path d="M56 26 Q60 33 56 40 Q52 33 56 26Z"/>
+                    <path d="M70 40 Q63 44 56 40 Q63 36 70 40Z"/>
+                    <path d="M56 54 Q52 47 56 40 Q60 47 56 54Z"/>
+                    <path d="M42 40 Q49 36 56 40 Q49 44 42 40Z"/>
+                </g>
+                <!-- Heat pipes -->
+                <g stroke="currentColor" stroke-width="1" opacity="0.3">
+                    <path d="M16 62 L16 66 M24 62 L24 66 M32 62 L32 66"/>
+                    <path d="M48 62 L48 66 M56 62 L56 66 M64 62 L64 66"/>
+                </g>
+            </svg>`,
+
+            storage: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- NVMe M.2 SSD stick -->
+                <rect x="8" y="28" width="64" height="24" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <!-- Controller chip -->
+                <rect x="14" y="32" width="16" height="16" rx="1" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+                <text x="22" y="42" text-anchor="middle" font-family="monospace" font-size="5" fill="currentColor" opacity="0.7">CTRL</text>
+                <!-- NAND chips -->
+                <rect x="34" y="33" width="10" height="14" rx="0.5" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <rect x="48" y="33" width="10" height="14" rx="0.5" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <rect x="62" y="33" width="8" height="14" rx="0.5" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <!-- M.2 connector notch -->
+                <rect x="8" y="28" width="6" height="24" fill="currentColor" opacity="0.15"/>
+                <path d="M8 40 L14 40" stroke="currentColor" stroke-width="0.8"/>
+                <!-- Label -->
+                <text x="52" y="46" text-anchor="middle" font-family="monospace" font-size="5" font-weight="700" fill="currentColor" opacity="0.6">NVMe</text>
+            </svg>`,
+
+            motherboard: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- ATX Motherboard PCB -->
+                <rect x="6" y="6" width="68" height="68" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <!-- CPU socket -->
+                <rect x="14" y="12" width="22" height="22" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <text x="25" y="26" text-anchor="middle" font-family="monospace" font-size="5" fill="currentColor" opacity="0.7">CPU</text>
+                <!-- RAM slots -->
+                <g stroke="currentColor" stroke-width="0.8" opacity="0.5">
+                    <rect x="42" y="10" width="3" height="28" rx="0.5"/>
+                    <rect x="47" y="10" width="3" height="28" rx="0.5"/>
+                    <rect x="52" y="10" width="3" height="28" rx="0.5"/>
+                    <rect x="57" y="10" width="3" height="28" rx="0.5"/>
+                </g>
+                <!-- PCIe slots -->
+                <rect x="10" y="40" width="44" height="4" rx="0.5" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+                <rect x="10" y="48" width="44" height="4" rx="0.5" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+                <rect x="10" y="56" width="30" height="4" rx="0.5" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+                <!-- Chipset heatsink -->
+                <rect x="56" y="44" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                <g stroke="currentColor" stroke-width="0.5" opacity="0.3">
+                    <line x1="58" y1="46" x2="68" y2="46"/><line x1="58" y1="49" x2="68" y2="49"/>
+                    <line x1="58" y1="52" x2="68" y2="52"/><line x1="58" y1="55" x2="68" y2="55"/>
+                </g>
+                <!-- I/O shield area -->
+                <g fill="currentColor" opacity="0.2">
+                    <rect x="8" y="8" width="4" height="8" rx="0.5"/>
+                    <rect x="8" y="18" width="4" height="6" rx="0.5"/>
+                    <rect x="8" y="26" width="4" height="6" rx="0.5"/>
+                </g>
+                <!-- SATA ports -->
+                <g stroke="currentColor" stroke-width="0.8" opacity="0.4">
+                    <rect x="62" y="62" width="8" height="3" rx="0.5"/>
+                    <rect x="62" y="67" width="8" height="3" rx="0.5"/>
+                </g>
+            </svg>`,
+
+            psu: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- PSU: box with intake fan + cables -->
+                <rect x="8" y="14" width="64" height="52" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <!-- Fan grille (honeycomb pattern) -->
+                <circle cx="40" cy="40" r="18" stroke="currentColor" stroke-width="1"/>
+                <circle cx="40" cy="40" r="12" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+                <circle cx="40" cy="40" r="6" stroke="currentColor" stroke-width="0.6" opacity="0.3"/>
+                <g stroke="currentColor" stroke-width="0.5" opacity="0.3">
+                    <line x1="22" y1="40" x2="58" y2="40"/>
+                    <line x1="40" y1="22" x2="40" y2="58"/>
+                    <line x1="27" y1="27" x2="53" y2="53"/>
+                    <line x1="53" y1="27" x2="27" y2="53"/>
+                </g>
+                <!-- Power switch -->
+                <rect x="60" y="18" width="8" height="5" rx="1" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <line x1="64" y1="19" x2="64" y2="22" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <!-- Label -->
+                <text x="40" y="44" text-anchor="middle" font-family="monospace" font-size="6" font-weight="700" fill="currentColor" opacity="0.6">PSU</text>
+                <!-- Cable outputs -->
+                <g fill="currentColor" opacity="0.25">
+                    <rect x="12" y="66" width="6" height="3" rx="0.5"/>
+                    <rect x="22" y="66" width="6" height="3" rx="0.5"/>
+                    <rect x="32" y="66" width="6" height="3" rx="0.5"/>
+                    <rect x="42" y="66" width="6" height="3" rx="0.5"/>
+                    <rect x="52" y="66" width="6" height="3" rx="0.5"/>
+                    <rect x="62" y="66" width="6" height="3" rx="0.5"/>
+                </g>
+            </svg>`,
+
+            cooling: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- CPU Cooler: fan top-view with blades -->
+                <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="40" cy="40" r="28" stroke="currentColor" stroke-width="0.8" opacity="0.3"/>
+                <!-- Fan hub -->
+                <circle cx="40" cy="40" r="8" fill="currentColor" opacity="0.2"/>
+                <circle cx="40" cy="40" r="4" stroke="currentColor" stroke-width="1"/>
+                <!-- Fan blades -->
+                <g stroke="currentColor" stroke-width="1.2" fill="currentColor" opacity="0.15">
+                    <path d="M40 12 Q50 26 40 40 Q30 26 40 12Z"/>
+                    <path d="M68 40 Q54 50 40 40 Q54 30 68 40Z"/>
+                    <path d="M40 68 Q30 54 40 40 Q50 54 40 68Z"/>
+                    <path d="M12 40 Q26 30 40 40 Q26 50 12 40Z"/>
+                    <path d="M57 18 Q56 34 40 40 Q38 24 57 18Z"/>
+                    <path d="M62 57 Q46 56 40 40 Q56 38 62 57Z"/>
+                    <path d="M23 62 Q24 46 40 40 Q42 56 23 62Z"/>
+                    <path d="M18 23 Q34 24 40 40 Q24 42 18 23Z"/>
+                </g>
+                <!-- Mounting screws -->
+                <circle cx="14" cy="14" r="2" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <circle cx="66" cy="14" r="2" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <circle cx="14" cy="66" r="2" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <circle cx="66" cy="66" r="2" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+            </svg>`,
+
+            monitor: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Monitor: front view with bezel + stand -->
+                <!-- Screen bezel -->
+                <rect x="6" y="10" width="68" height="44" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <!-- Screen area -->
+                <rect x="10" y="14" width="60" height="36" rx="1" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <!-- Screen reflection -->
+                <path d="M12 16 L40 16 L12 30Z" fill="currentColor" opacity="0.06"/>
+                <!-- Stand neck -->
+                <rect x="34" y="54" width="12" height="10" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+                <!-- Stand base -->
+                <path d="M22 64 L58 64 L54 70 L26 70Z" stroke="currentColor" stroke-width="1.2" fill="currentColor" opacity="0.1"/>
+                <!-- Power LED -->
+                <circle cx="40" cy="52" r="1.5" fill="currentColor" opacity="0.4"/>
+                <!-- Brand label -->
+                <text x="40" y="36" text-anchor="middle" font-family="monospace" font-size="5" fill="currentColor" opacity="0.3">DISPLAY</text>
+            </svg>`,
+
+            keyboard: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Keyboard: top-down layout -->
+                <rect x="4" y="24" width="72" height="32" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <!-- Key rows -->
+                <g stroke="currentColor" stroke-width="0.6" opacity="0.5">
+                    <!-- Top row (function keys) -->
+                    <rect x="8" y="28" width="4" height="4" rx="0.5"/><rect x="14" y="28" width="4" height="4" rx="0.5"/>
+                    <rect x="20" y="28" width="4" height="4" rx="0.5"/><rect x="26" y="28" width="4" height="4" rx="0.5"/>
+                    <rect x="32" y="28" width="4" height="4" rx="0.5"/><rect x="38" y="28" width="4" height="4" rx="0.5"/>
+                    <rect x="44" y="28" width="4" height="4" rx="0.5"/><rect x="50" y="28" width="4" height="4" rx="0.5"/>
+                    <rect x="56" y="28" width="4" height="4" rx="0.5"/><rect x="62" y="28" width="4" height="4" rx="0.5"/>
+                    <rect x="68" y="28" width="4" height="4" rx="0.5"/>
+                    <!-- Number row -->
+                    <rect x="8" y="34" width="4" height="4" rx="0.5"/><rect x="14" y="34" width="4" height="4" rx="0.5"/>
+                    <rect x="20" y="34" width="4" height="4" rx="0.5"/><rect x="26" y="34" width="4" height="4" rx="0.5"/>
+                    <rect x="32" y="34" width="4" height="4" rx="0.5"/><rect x="38" y="34" width="4" height="4" rx="0.5"/>
+                    <rect x="44" y="34" width="4" height="4" rx="0.5"/><rect x="50" y="34" width="4" height="4" rx="0.5"/>
+                    <rect x="56" y="34" width="4" height="4" rx="0.5"/><rect x="62" y="34" width="4" height="4" rx="0.5"/>
+                    <rect x="68" y="34" width="4" height="4" rx="0.5"/>
+                    <!-- QWERTY row -->
+                    <rect x="10" y="40" width="4" height="4" rx="0.5"/><rect x="16" y="40" width="4" height="4" rx="0.5"/>
+                    <rect x="22" y="40" width="4" height="4" rx="0.5"/><rect x="28" y="40" width="4" height="4" rx="0.5"/>
+                    <rect x="34" y="40" width="4" height="4" rx="0.5"/><rect x="40" y="40" width="4" height="4" rx="0.5"/>
+                    <rect x="46" y="40" width="4" height="4" rx="0.5"/><rect x="52" y="40" width="4" height="4" rx="0.5"/>
+                    <rect x="58" y="40" width="4" height="4" rx="0.5"/><rect x="64" y="40" width="4" height="4" rx="0.5"/>
+                    <!-- Space bar row -->
+                    <rect x="8" y="46" width="6" height="4" rx="0.5"/>
+                    <rect x="20" y="46" width="28" height="4" rx="0.5"/>
+                    <rect x="54" y="46" width="6" height="4" rx="0.5"/>
+                    <rect x="62" y="46" width="6" height="4" rx="0.5"/>
+                </g>
+                <!-- Wrist rest hint -->
+                <path d="M6 56 L74 56" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+            </svg>`,
+
+            mouse: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Mouse: side profile view -->
+                <path d="M16 44 Q16 20 40 16 Q64 20 64 44 Q64 60 52 64 L28 64 Q16 60 16 44Z" stroke="currentColor" stroke-width="1.5"/>
+                <!-- Left button -->
+                <path d="M20 44 Q20 28 40 24 L40 44Z" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <!-- Right button -->
+                <path d="M60 44 Q60 28 40 24 L40 44Z" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                <!-- Scroll wheel -->
+                <ellipse cx="40" cy="32" rx="3" ry="5" stroke="currentColor" stroke-width="1"/>
+                <line x1="40" y1="28" x2="40" y2="36" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+                <!-- DPI button -->
+                <circle cx="40" cy="42" r="2" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <!-- Side buttons -->
+                <rect x="18" y="38" width="4" height="8" rx="1" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                <!-- Cable -->
+                <path d="M40 16 Q40 10 44 8" stroke="currentColor" stroke-width="1" opacity="0.4" fill="none"/>
+                <!-- Logo area -->
+                <circle cx="40" cy="52" r="4" stroke="currentColor" stroke-width="0.6" opacity="0.3"/>
+                <!-- Base pad -->
+                <path d="M22 64 L58 64" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
+            </svg>`,
+
+            accessories: `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Accessories: generic toolbox/peripherals -->
+                <rect x="10" y="20" width="60" height="40" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10 30 L70 30" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                <rect x="20" y="14" width="40" height="6" rx="1" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                <!-- Tools inside -->
+                <g stroke="currentColor" stroke-width="1" opacity="0.5">
+                    <line x1="24" y1="38" x2="24" y2="52"/>
+                    <circle cx="24" cy="36" r="3"/>
+                    <rect x="34" y="36" width="3" height="18" rx="0.5"/>
+                    <rect x="42" y="36" width="3" height="18" rx="0.5"/>
+                    <path d="M52 36 L56 36 L56 54 L52 54Z"/>
+                </g>
+                <text x="40" y="58" text-anchor="middle" font-family="monospace" font-size="5" fill="currentColor" opacity="0.4">TOOLS</text>
+            </svg>`
+        };
+        return svgs[key] || svgs.accessories;
+    }
+
     const DEFAULT_WATTAGE = {
-        cpu: 125, motherboard: 50, gpu: 300, ram: 10, storage: 10, psu: 0, cooling: 15, monitor: 0, accessories: 0,
+        cpu: 125, motherboard: 50, gpu: 300, ram: 10, storage: 10, psu: 0, cooling: 15, monitor: 0, accessories: 0, keyboard: 2, mouse: 2,
     };
 
     const BUILD_SERVICES = {
@@ -28,41 +436,48 @@ const PCBuilder = (() => {
         bazzite: { id: 'service-bazzite', name: 'Bazzite + Proton++ Install', price: 249, icon: 'fa-linux' },
     };
 
-    let PRESETS = []; /* ORIGINAL CODE:
-    const PRESETS = [
+    let PRESETS = [
         { 
             key: 'esports', 
             label: 'Base Build', 
+            labelKey: 'Base Build',
             useCase: 'gaming', 
             budget: 12500, 
+            descKey: 'base_build_desc',
             description: 'A solid entry level setup featuring an AMD or Intel processor, ideal for everyday computing tasks, light multitasking, and casual gaming.',
             image: 'https://images.unsplash.com/photo-1587202376732-8309058b70b4?q=80&w=400&auto=format&fit=crop'
         },
         { 
             key: 'aaa1440', 
             label: 'Advanced Build', 
+            labelKey: 'Advanced Build',
             useCase: 'gaming', 
             budget: 18000, 
+            descKey: 'advanced_build_desc',
             description: 'A versatile mid range build powered by high-performance components, designed for seamless multitasking, gaming at higher settings, and content creation.',
             image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=400&auto=format&fit=crop'
         },
         { 
             key: 'creator', 
             label: 'Power Build', 
+            labelKey: 'Power Build',
             useCase: 'editing', 
             budget: 26000, 
+            descKey: 'power_build_desc',
             description: 'A high performance system optimized for demanding workloads like 4K gaming, video editing, and advanced simulations, offering top-tier speed and efficiency.',
             image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=400&auto=format&fit=crop'
         },
         { 
             key: 'legacy', 
             label: 'Legacy Enthusiast', 
+            labelKey: 'Legacy Enthusiast',
             useCase: 'legacy', 
             budget: 4200, 
+            descKey: 'legacy_build_desc',
             description: 'A specialized build using used server-grade components and legacy X99 architecture. Recommended for enthusiasts comfortable with tinkering.',
             image: 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?q=80&w=400&auto=format&fit=crop'
         }
-    ]; */
+    ];
 
     const FINDER_GAMES = [
         { id: 'cyberpunk', name: 'Cyberpunk 2077', icon: 'fa-robot', demand: 1.12, image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg' },
@@ -80,6 +495,10 @@ const PCBuilder = (() => {
         { id: 'fc25', name: 'EA SPORTS FC 25', icon: 'fa-futbol', demand: 0.70, image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2669320/header.jpg' },
         { id: 'minecraft', name: 'Minecraft', icon: 'fa-cube', demand: 0.40, image: 'https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png' },
         { id: 'rocketleague', name: 'Rocket League', icon: 'fa-car-burst', demand: 0.50, image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/252950/header.jpg' },
+        { id: 'pragmata', name: 'PRAGMATA', icon: 'fa-user-astronaut', demand: 1.08, image: '', note: 'Capcom sci-fi action adventure' },
+        { id: 're4', name: 'Resident Evil 4', icon: 'fa-skull-crossbones', demand: 0.82, image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/header.jpg' },
+        { id: 'persona5', name: 'Persona 5 Royal', icon: 'fa-masks-theater', demand: 0.45, image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1687950/header.jpg' },
+        { id: 'efootball', name: 'eFootball 2025', icon: 'fa-futbol', demand: 0.68, image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1665460/header.jpg' },
     ];
 
     const FINDER_RECOMMENDATION = {
@@ -88,6 +507,28 @@ const PCBuilder = (() => {
         baseBudget: 9800,
         minBudget: 8000,
         maxBudget: 32000,
+    };
+
+    const GAME_ART_FALLBACKS = {
+        cyberpunk: ['#101826', '#00f5d4', '#7c4dff'],
+        rdr2: ['#20120d', '#ff6b00', '#8f1d1d'],
+        warzone: ['#101614', '#7ee081', '#2a4038'],
+        wukong: ['#1a120d', '#f4b860', '#7c2d12'],
+        bg3: ['#181128', '#c084fc', '#f97316'],
+        starfield: ['#0b1420', '#8ecae6', '#e5e7eb'],
+        valorant: ['#201017', '#ff4655', '#00f5d4'],
+        forza5: ['#111827', '#22d3ee', '#f59e0b'],
+        fortnite: ['#111232', '#7c4dff', '#00f5d4'],
+        gta5: ['#132018', '#22c55e', '#f97316'],
+        helldivers2: ['#151515', '#facc15', '#ef4444'],
+        eldenring: ['#1b1710', '#d4af37', '#8b5a2b'],
+        fc25: ['#102018', '#00f5d4', '#ffffff'],
+        minecraft: ['#10200f', '#4ade80', '#8b5a2b'],
+        rocketleague: ['#101728', '#38bdf8', '#f97316'],
+        pragmata: ['#08111f', '#00f5d4', '#c7d2fe'],
+        re4: ['#1c1714', '#a3a3a3', '#dc2626'],
+        persona5: ['#1a0508', '#ef233c', '#f8fafc'],
+        efootball: ['#0f1b12', '#00f5d4', '#facc15'],
     };
 
     // ── State ────────────────────────────────────────────────
@@ -112,6 +553,15 @@ const PCBuilder = (() => {
         resolution: '1440p',
         targetFps: 120,
         budget: 18000,
+    };
+
+    let activePriceTier = 'all';
+    let lastRenderedStep = null;
+    let wizardState = {
+        currentStep: 1,
+        useCase: 'gaming',
+        budget: 12000,
+        theme: 'performance'
     };
 
     function productImage(product) {
@@ -172,6 +622,12 @@ const PCBuilder = (() => {
             FPSEstimator.init();
             syncFinderEstimator();
         }
+
+        // Load preference from localStorage
+        const savedMode = localStorage.getItem('workspaceMode') || 'focus';
+        setWorkspaceMode(savedMode);
+        initStickyDockObserver();
+        initBuilderPhraseObserver();
     }
 
     // ── Render Wizard Steps ──────────────────────────────────
@@ -185,7 +641,8 @@ const PCBuilder = (() => {
             if (selectedComponents[step.key]) cls += ' completed';
             return `<button class="${cls}" data-step="${i}">
                 <i class="fas ${step.icon}"></i>
-                ${step.label}
+                ${builderText(step.label, step.label)}
+                ${step.optional ? `<small>${builderText('Optional', 'Optional')}</small>` : ''}
             </button>`;
         }).join('');
 
@@ -211,15 +668,15 @@ const PCBuilder = (() => {
                             <img src="${c.image}" alt="${c.label}" onerror="this.src='logo.png'">
                         </div>
                         <div class="preset-content">
-                            <h3>${c.label}</h3>
-                            <p>${c.description}</p>
+                            <h3>${builderText(c.labelKey, c.label)}</h3>
+                            <p>${builderText(c.description, c.description)}</p>
                             <div class="preset-footer">
-                                <span class="preset-budget">${formatMAD(c.budget)} Target</span>
+                                <span class="preset-budget">${builderTemplate('Target: {amount}', 'Target: {amount}', {amount: formatMAD(c.budget)})}</span>
                                 <button class="btn-start-build" 
                                     data-case="${c.key}" 
                                     data-use-case="${c.useCase}" 
                                     data-budget="${c.budget}">
-                                    START WITH ${c.label.toUpperCase()}
+                                    ${builderTemplate('START WITH {label}', 'START WITH {label}', {label: builderText(c.labelKey, c.label)})}
                                 </button>
                             </div>
                         </div>
@@ -243,10 +700,54 @@ const PCBuilder = (() => {
         });
     }
 
+    function renderActivePresetBanner(preset) {
+        const banner = document.getElementById('activePresetBanner');
+        if (!banner) return;
+
+        if (!preset) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        banner.innerHTML = `
+            <div class="apb-content">
+                <div class="apb-left">
+                    <span class="apb-badge"><i class="fas fa-microchip"></i> ${builderText('Preset Loaded', 'Preset Loaded')}</span>
+                    <div class="apb-info">
+                        <h3 class="apb-title">${builderText(preset.labelKey || preset.label, preset.label)}</h3>
+                        <span class="apb-budget-info">${builderTemplate('Target Budget: {amount}', 'Target Budget: {amount}', {amount: formatMAD(preset.budget)})}</span>
+                    </div>
+                </div>
+                <div class="apb-right">
+                    <button class="btn-change-preset" onclick="PCBuilder.showPresetSelector()"><i class="fas fa-sync-alt"></i> ${builderText('Change Preset', 'Change Preset')}</button>
+                </div>
+            </div>
+        `;
+        banner.style.display = 'block';
+    }
+
+    function showPresetSelector() {
+        const workspace = document.getElementById('pcBuilderWorkspace');
+        if (workspace) {
+            workspace.classList.add('show-preset-grid');
+        }
+        document.getElementById('useCaseBar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function applyPreset(selectedKey, btn) {
         activePreset = selectedKey;
         useCase = btn.dataset.useCase || 'general';
         targetBudget = parseInt(btn.dataset.budget, 10) || targetBudget;
+
+        const preset = PRESETS.find(p => p.key === selectedKey);
+        if (preset) {
+            renderActivePresetBanner(preset);
+        }
+        
+        const workspace = document.getElementById('pcBuilderWorkspace');
+        if (workspace) {
+            workspace.classList.remove('show-preset-grid');
+        }
         
         const container = document.getElementById('useCaseBar');
         if (container) {
@@ -256,6 +757,9 @@ const PCBuilder = (() => {
         }
         
         autoBuild(btn.dataset.useCase || useCase, targetBudget);
+
+        // Transition UI to Focus Mode (Review & Customize)
+        setWorkspaceMode('focus');
         
         if (selectedKey === 'legacy') {
             selectedServices['bios'] = BUILD_SERVICES['bios'];
@@ -268,7 +772,7 @@ const PCBuilder = (() => {
             if (stressCb) stressCb.checked = true;
             
             updateSummary();
-            showToast('BIOS Update & Stress Test auto-recommended for legacy hardware.', 'warn');
+            showToast(builderText('BIOS Update & Stress Test auto-recommended for legacy hardware.', 'BIOS Update & Stress Test auto-recommended for legacy hardware.'), 'warn');
         }
         
         // Scroll to wizard steps
@@ -305,7 +809,7 @@ const PCBuilder = (() => {
             if (baseBuildBtn) {
                 applyPreset('esports', baseBuildBtn);
                 setTimeout(() => {
-                    showToast('Welcome to Reliability: Base Build selected with full 2-year warranty.', 'success');
+                    showToast(builderText('Welcome to Reliability: Base Build selected with full 2-year warranty.', 'Welcome to Reliability: Base Build selected with full 2-year warranty.'), 'success');
                 }, 500);
             }
         };
@@ -316,17 +820,29 @@ const PCBuilder = (() => {
         };
     }
 
+    function gameArtFallback(game) {
+        const colors = GAME_ART_FALLBACKS[game.id] || ['#10131f', '#00f5d4', '#7c4dff'];
+        return `radial-gradient(circle at 72% 18%, ${colors[1]}66, transparent 34%), linear-gradient(135deg, ${colors[0]}, ${colors[2]}88)`;
+    }
+
+    function gameArtStyle(game) {
+        const fallback = gameArtFallback(game);
+        const image = String(game.image || '').replace(/['"\\()]/g, '');
+        return image ? `${fallback}, url('${image}')` : fallback;
+    }
+
     function renderGamingFinder() {
         const gamesContainer = document.getElementById('finderGames');
         const budgetInput = document.getElementById('finderBudget');
         if (!gamesContainer || !budgetInput) return;
 
         gamesContainer.innerHTML = FINDER_GAMES.map(game => `
-            <button class="gf-game ${finderState.games.includes(game.id) ? 'active' : ''}" data-game="${game.id}" type="button" style="--game-art:url('${game.image}')">
+            <button class="gf-game ${finderState.games.includes(game.id) ? 'active' : ''}" data-game="${escapeHTML(game.id)}" type="button" aria-pressed="${finderState.games.includes(game.id) ? 'true' : 'false'}" style="--game-art:${gameArtStyle(game)}">
                 <span class="gf-game-shade"></span>
                 <span class="gf-game-content">
                     <i class="fas ${game.icon}"></i>
-                    <span>${game.name}</span>
+                    <span>${escapeHTML(game.name)}</span>
+                    ${game.note ? `<small>${escapeHTML(game.note)}</small>` : ''}
                 </span>
             </button>
         `).join('');
@@ -335,14 +851,19 @@ const PCBuilder = (() => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.game;
                 if (finderState.games.includes(id)) {
+                    if (finderState.games.length === 1) {
+                        showToast(builderText('Keep at least one game selected.', 'Keep at least one game selected.'), 'error');
+                        return;
+                    }
                     finderState.games = finderState.games.filter(gameId => gameId !== id);
                 } else if (finderState.games.length < 4) {
                     finderState.games = [...finderState.games, id];
                 } else {
-                    showToast('Pick up to 4 games.', 'error');
+                    showToast(builderText('Pick up to 4 games.', 'Pick up to 4 games.'), 'error');
                     return;
                 }
                 btn.classList.toggle('active', finderState.games.includes(id));
+                btn.setAttribute('aria-pressed', finderState.games.includes(id) ? 'true' : 'false');
                 syncFinderEstimator();
                 updateFinderPreview();
             });
@@ -400,15 +921,15 @@ const PCBuilder = (() => {
 
     function getFinderTier(recommendedBudget) {
         if (finderState.budget >= recommendedBudget + 3500) {
-            return { label: 'Performance headroom', tone: 'great', icon: 'fa-circle-check' };
+            return { label: builderText('Performance headroom', 'Performance headroom'), tone: 'great', icon: 'fa-circle-check' };
         }
         if (finderState.budget >= recommendedBudget) {
-            return { label: 'Good match', tone: 'good', icon: 'fa-circle-check' };
+            return { label: builderText('Good match', 'Good match'), tone: 'good', icon: 'fa-circle-check' };
         }
         if (finderState.budget >= recommendedBudget * 0.82) {
-            return { label: 'Balanced with settings tweaks', tone: 'warn', icon: 'fa-gauge-high' };
+            return { label: builderText('Balanced with settings tweaks', 'Balanced with settings tweaks'), tone: 'warn', icon: 'fa-gauge-high' };
         }
-        return { label: 'Budget is tight', tone: 'tight', icon: 'fa-triangle-exclamation' };
+        return { label: builderText('Budget is tight', 'Budget is tight'), tone: 'tight', icon: 'fa-triangle-exclamation' };
     }
 
     function getFinderEstimatedFps() {
@@ -453,6 +974,19 @@ const PCBuilder = (() => {
             fortnite: { '1080p': 205, '1440p': 168, '4K': 108 },
             valorant: { '1080p': 310, '1440p': 260, '4K': 185 },
             gta5: { '1080p': 185, '1440p': 165, '4K': 95 },
+            wukong: { '1080p': 104, '1440p': 78, '4K': 46 },
+            bg3: { '1080p': 168, '1440p': 126, '4K': 78 },
+            starfield: { '1080p': 116, '1440p': 84, '4K': 52 },
+            forza5: { '1080p': 172, '1440p': 132, '4K': 84 },
+            helldivers2: { '1080p': 142, '1440p': 106, '4K': 66 },
+            eldenring: { '1080p': 144, '1440p': 112, '4K': 72 },
+            fc25: { '1080p': 210, '1440p': 168, '4K': 112 },
+            minecraft: { '1080p': 260, '1440p': 220, '4K': 150 },
+            rocketleague: { '1080p': 290, '1440p': 240, '4K': 165 },
+            pragmata: { '1080p': 112, '1440p': 82, '4K': 50 },
+            re4: { '1080p': 150, '1440p': 112, '4K': 72 },
+            persona5: { '1080p': 240, '1440p': 200, '4K': 140 },
+            efootball: { '1080p': 220, '1440p': 178, '4K': 118 },
         };
 
         return Object.fromEntries(Object.entries(base).map(([game, values]) => [
@@ -485,35 +1019,35 @@ const PCBuilder = (() => {
 
         const budgetDelta = finderState.budget - recommendedBudget;
         const budgetText = budgetDelta >= 0
-            ? `${formatMAD(budgetDelta)} above target`
-            : `${formatMAD(Math.abs(budgetDelta))} below target`;
+            ? `${formatMAD(budgetDelta)} ${builderText('above target', 'above target')}`
+            : `${formatMAD(Math.abs(budgetDelta))} ${builderText('below target', 'below target')}`;
 
         result.innerHTML = `
             <div class="gf-result-top">
                 <span class="gf-pill ${tier.tone}"><i class="fas ${tier.icon}"></i> ${tier.label}</span>
                 <strong>${formatMAD(recommendedBudget)}</strong>
             </div>
-            <div class="gf-result-title">${selectedGameNames.length ? selectedGameNames.join(' + ') : 'Gaming profile'}</div>
+            <div class="gf-result-title">${selectedGameNames.length ? selectedGameNames.join(' + ') : builderText('Gaming profile', 'Gaming profile')}</div>
             <div class="gf-metrics">
                 <div>
-                    <span>Budget fit</span>
+                    <span>${builderText('Budget fit', 'Budget fit')}</span>
                     <strong>${budgetText}</strong>
                 </div>
                 <div>
-                    <span>FPS estimate</span>
-                    <strong>${fps ? `${fps.average} FPS avg` : 'Build pending'}</strong>
+                    <span>${builderText('FPS estimate', 'FPS estimate')}</span>
+                    <strong>${fps ? `${fps.average} ${builderText('FPS avg', 'FPS avg')}` : builderText('Build pending', 'Build pending')}</strong>
                 </div>
                 <div>
-                    <span>1% style low</span>
-                    <strong>${fps ? `${fps.low} FPS` : 'Select build'}</strong>
+                    <span>${builderText('1% low', '1% low')}</span>
+                    <strong>${fps ? `${fps.low} FPS` : builderText('Select build', 'Select build')}</strong>
                 </div>
             </div>
             <div class="gf-note ${fps && !fps.meetsTarget ? 'warn' : ''}">
                 ${fps
                     ? (fps.meetsTarget
-                        ? `The current build is on pace for ${finderState.resolution} at ${finderState.targetFps} FPS.`
-                        : `The current build may need a stronger GPU or lower settings for ${finderState.targetFps} FPS.`)
-                    : 'Run the finder to auto-select compatible parts from your catalog.'}
+                        ? builderTemplate('The current build is on pace for {resolution} at {fps} FPS.', 'The current build is on pace for {resolution} at {fps} FPS.', { resolution: finderState.resolution, fps: finderState.targetFps })
+                        : builderTemplate('The current build may need a stronger GPU or lower settings for {fps} FPS.', 'The current build may need a stronger GPU or lower settings for {fps} FPS.', { fps: finderState.targetFps }))
+                    : builderText('Run the finder to auto-select compatible parts from your catalog.', 'Run the finder to auto-select compatible parts from your catalog.')}
             </div>
         `;
     }
@@ -534,13 +1068,16 @@ const PCBuilder = (() => {
         const buildBudget = Math.max(finderState.budget, Math.round(recommendedBudget * 0.9 / 500) * 500);
         autoBuild('gaming', Math.min(FINDER_RECOMMENDATION.maxBudget, buildBudget), false);
 
+        // Transition UI to Focus Mode (Review & Customize)
+        setWorkspaceMode('focus');
+
         buildName = `${finderState.resolution} Gaming Build`;
         const nameInput = document.getElementById('buildNameInput');
         if (nameInput) nameInput.value = buildName;
 
         syncFinderEstimator();
         updateFinderPreview();
-        showToast(`Finder matched a ${finderState.resolution} gaming build.`, 'success');
+        showToast(builderTemplate('Finder matched a {resolution} gaming build.', 'Finder matched a {resolution} gaming build.', {resolution: finderState.resolution}), 'success');
 
         // Automatically switch back to PC Builder and open the workspace
         chooseBuilderPath('custom', false);
@@ -559,13 +1096,13 @@ const PCBuilder = (() => {
         };
         renderGamingFinder();
         syncFinderEstimator();
-        showToast('Finder reset.', 'success');
+        showToast(builderText('Finder reset.', 'Finder reset.'), 'success');
     }
 
     function renderBuilderToolPanels() {
-        populateProductSelect('psuCpuSelect', 'cpu', 'Select CPU');
-        populateProductSelect('psuGpuSelect', 'gpu', 'Select GPU');
-        populateProductSelect('memoryMotherboardSelect', 'motherboard', 'Auto / not sure');
+        populateProductSelect('psuCpuSelect', 'cpu', builderText('Select CPU', 'Select CPU'));
+        populateProductSelect('psuGpuSelect', 'gpu', builderText('Select GPU', 'Select GPU'));
+        populateProductSelect('memoryMotherboardSelect', 'motherboard', builderText('Auto / not sure', 'Auto / not sure'));
 
         [
             'psuCpuSelect', 'psuGpuSelect', 'psuMotherboardSelect', 'psuRamSelect',
@@ -667,36 +1204,36 @@ const PCBuilder = (() => {
         let clearanceHtml = '';
         if (clearanceIssues.length > 0) {
             clearanceHtml = `<div class="tool-note" style="color:var(--danger); border-left:3px solid var(--danger); padding-left:10px;">
-                <strong><i class="fas fa-exclamation-triangle"></i> Compatibility Issues Detected:</strong><br>
+                <strong><i class="fas fa-exclamation-triangle"></i> ${builderText('Compatibility Issues Detected:', 'Compatibility Issues Detected:')}</strong><br>
                 ${clearanceIssues.join('<br>')}
             </div>`;
         }
 
         result.innerHTML = `
             <div class="tool-result-top">
-                <span class="gf-pill ${recommended ? 'good' : 'warn'}"><i class="fas fa-bolt"></i> Suggested PSU</span>
-                <strong>${recommended ? `${recommended}W+` : 'Select parts'}</strong>
+                <span class="gf-pill ${recommended ? 'good' : 'warn'}"><i class="fas fa-bolt"></i> ${builderText('Suggested PSU', 'Suggested PSU')}</span>
+                <strong>${recommended ? `${recommended}${window.__marocPcPhraseMap?.['W'] || 'W'}+` : builderText('Select parts', 'Select parts')}</strong>
             </div>
             ${clearanceHtml}
             <div class="tool-meter"><span style="width:${recommended ? Math.min(100, (componentLoad / recommended) * 100) : 0}%"></span></div>
             <div class="tool-metrics">
-                <div><span>Estimated load</span><strong>${componentLoad}W</strong></div>
-                <div><span>12V rail target</span><strong>${amps ? `${amps}A+` : '-'}</strong></div>
-                <div><span>Headroom</span><strong>${Math.round((headroom - 1) * 100)}%</strong></div>
+                <div><span>${builderText('Estimated load', 'Estimated load')}</span><strong>${componentLoad}${window.__marocPcPhraseMap?.['W'] || 'W'}</strong></div>
+                <div><span>${builderText('12V rail target', '12V rail target')}</span><strong>${amps ? `${amps}A+` : '-'}</strong></div>
+                <div><span>${builderText('Headroom', 'Headroom')}</span><strong>${Math.round((headroom - 1) * 100)}%</strong></div>
             </div>
             <div class="tool-suggestions">
-                <h4>Matching PSUs</h4>
+                <h4>${builderText('Matching PSUs', 'Matching PSUs')}</h4>
                 ${matchingPsus.length ? matchingPsus.map(product => `
                     <div class="tool-product-card">
-                        <button class="tool-product" onclick="PCBuilder.applyPsuChoice(${product.id})" title="Select as PSU for current Build">
+                        <button class="tool-product" onclick="PCBuilder.applyPsuChoice(${product.id})" title="${builderText('Select as PSU for current build', 'Select as PSU for current build')}">
                             <img src="${productImage(product)}" alt="${product.name}">
                             <span><strong>${product.name}</strong><em>${formatMAD(product.price)} - ${extractWattage(product, 'psu')}W</em></span>
                         </button>
-                        <button class="tool-product-cart-btn" onclick="PCBuilder.addSingleToCart(${product.id})" title="Add directly to cart" aria-label="Add to cart">
+                        <button class="tool-product-cart-btn" onclick="PCBuilder.addSingleToCart(${product.id})" title="${builderText('addToCart', 'Add to Cart')}" aria-label="${builderText('addToCart', 'Add to Cart')}">
                             <i class="fas fa-shopping-cart"></i>
                         </button>
                     </div>
-                `).join('') : '<p>Select CPU/GPU details to see compatible PSUs.</p>'}
+                `).join('') : `<p>${builderText('Select CPU/GPU details to see compatible PSUs.', 'Select CPU/GPU details to see compatible PSUs.')}</p>`}
             </div>
         `;
     }
@@ -713,7 +1250,7 @@ const PCBuilder = (() => {
         setSelectValue('psuRamSelect', ramWatts);
         setInputValue('psuSsdCount', selectedComponents.storage ? 1 : 0);
         updatePowerSupplyCalculator();
-        showToast('Power calculator synced with your current build.', 'success');
+        showToast(builderText('Power calculator synced with your current build.', 'Power calculator synced with your current build.'), 'success');
     }
 
     function addSingleToCart(productId) {
@@ -721,9 +1258,9 @@ const PCBuilder = (() => {
         if (!product) return;
         if (typeof Cart !== 'undefined' && Cart.add) {
             Cart.add(product);
-            showToast(`${product.name} added to cart!`, 'success');
+            showToast(builderTemplate('cartAddedTemplate', '{name} added to cart!', { name: product.name }), 'success');
         } else {
-            showToast('Unable to add item to cart.', 'error');
+            showToast(builderText('cartCouldNotAdd', 'This product could not be added. Please refresh and try again.'), 'error');
         }
     }
 
@@ -735,7 +1272,7 @@ const PCBuilder = (() => {
         renderWizardSteps();
         renderCurrentStep();
         updateSummary();
-        showToast(`${product.name} added as your PSU.`, 'success');
+        showToast(builderTemplate('{name} added as your PSU.', '{name} added as your PSU.', {name: product.name}), 'success');
 
         chooseBuilderPath('custom', false);
         const pcBuilderBtn = document.querySelector('.bth-grid .bth-card');
@@ -768,23 +1305,23 @@ const PCBuilder = (() => {
 
         result.innerHTML = `
             <div class="tool-result-top">
-                <span class="gf-pill ${requiredType ? 'good' : 'warn'}"><i class="fas fa-memory"></i> ${requiredType || 'DDR4 / DDR5'}</span>
+                <span class="gf-pill ${requiredType ? 'good' : 'warn'}"><i class="fas fa-memory"></i> ${requiredType || builderText('DDR4 / DDR5', 'DDR4 / DDR5')}</span>
                 <strong>${capacityTarget || 16}GB+</strong>
             </div>
-            <div class="tool-note">${requiredType ? `${requiredType} memory is recommended for this platform.` : 'Select a platform or motherboard to narrow compatibility.'}</div>
+            <div class="tool-note">${requiredType ? builderTemplate('{type} memory is recommended for this platform.', '{type} memory is recommended for this platform.', {type: requiredType}) : builderText('Select a platform or motherboard to narrow compatibility.', 'Select a platform or motherboard to narrow compatibility.')}</div>
             <div class="tool-suggestions memory-picks">
-                <h4>Compatible RAM</h4>
+                <h4>${builderText('Compatible RAM', 'Compatible RAM')}</h4>
                 ${matches.length ? matches.map(product => `
                     <div class="tool-product-card">
-                        <button class="tool-product" onclick="PCBuilder.applyMemoryChoice(${product.id})" title="Select as RAM for current Build">
+                        <button class="tool-product" onclick="PCBuilder.applyMemoryChoice(${product.id})" title="${builderText('Select as RAM for current build', 'Select as RAM for current build')}">
                             <img src="${productImage(product)}" alt="${product.name}">
-                            <span><strong>${product.name}</strong><em>${getCapacityGB(product)}GB - ${getMemoryType(product) || 'Memory'} - ${formatMAD(product.price)}</em></span>
+                            <span><strong>${product.name}</strong><em>${getCapacityGB(product)}GB - ${getMemoryType(product) || builderText('Memory', 'Memory')} - ${formatMAD(product.price)}</em></span>
                         </button>
-                        <button class="tool-product-cart-btn" onclick="PCBuilder.addSingleToCart(${product.id})" title="Add directly to cart" aria-label="Add to cart">
+                        <button class="tool-product-cart-btn" onclick="PCBuilder.addSingleToCart(${product.id})" title="${builderText('addToCart', 'Add to Cart')}" aria-label="${builderText('addToCart', 'Add to Cart')}">
                             <i class="fas fa-shopping-cart"></i>
                         </button>
                     </div>
-                `).join('') : '<p>No RAM in catalog matches those filters yet.</p>'}
+                `).join('') : `<p>${builderText('No RAM in catalog matches those filters yet.', 'No RAM in catalog matches those filters yet.')}</p>`}
             </div>
         `;
     }
@@ -794,7 +1331,7 @@ const PCBuilder = (() => {
         setSelectValue('memoryPlatformSelect', cpuSocket.includes('AM5') ? 'AM5' : cpuSocket.includes('LGA 1700') ? 'LGA 1700' : '');
         setSelectValue('memoryMotherboardSelect', selectedComponents.motherboard?.id || '');
         updateMemoryFinder();
-        showToast('Memory finder synced with your current build.', 'success');
+        showToast(builderText('Memory finder synced with your current build.', 'Memory finder synced with your current build.'), 'success');
     }
 
     function applyMemoryChoice(productId) {
@@ -805,7 +1342,7 @@ const PCBuilder = (() => {
         renderWizardSteps();
         renderCurrentStep();
         updateSummary();
-        showToast(`${product.name} added as your RAM.`, 'success');
+        showToast(builderTemplate('{name} added as your RAM.', '{name} added as your RAM.', {name: product.name}), 'success');
 
         chooseBuilderPath('custom', false);
         const pcBuilderBtn = document.querySelector('.bth-grid .bth-card');
@@ -883,7 +1420,19 @@ const PCBuilder = (() => {
     function getFilteredProducts(products, stepKey) {
         const query = componentFilters.query.trim().toLowerCase();
         const target = targetBudget * getStepBudgetWeight(stepKey);
-        return products
+        
+        let filtered = products;
+
+        // Apply Price-Tier Filter Pill
+        if (activePriceTier === 'budget') {
+            filtered = filtered.filter(p => p.price <= target * 0.85);
+        } else if (activePriceTier === 'sweet') {
+            filtered = filtered.filter(p => p.price >= target * 0.85 && p.price <= target * 1.15);
+        } else if (activePriceTier === 'performance') {
+            filtered = filtered.filter(p => p.price > target * 1.15);
+        }
+
+        return filtered
             .filter(product => !componentFilters.stockOnly || product.inStock)
             .filter(product => !query || getProductSearchText(product).includes(query))
             .sort((a, b) => {
@@ -895,8 +1444,18 @@ const PCBuilder = (() => {
     }
 
     function getComponentFilterLabel(totalCount, visibleCount, stepLabel) {
-        if (componentFilters.query) return `${visibleCount} of ${totalCount} ${stepLabel} matches`;
-        return `${visibleCount} ${stepLabel} options`;
+        const translatedLabel = builderText(stepLabel, stepLabel);
+        if (componentFilters.query) {
+            return builderTemplate('{visible} of {total} {label} matches', '{visible} of {total} {label} matches', {
+                visible: visibleCount,
+                total: totalCount,
+                label: translatedLabel
+            });
+        }
+        return builderTemplate('{count} {label} options', '{count} {label} options', {
+            count: visibleCount,
+            label: translatedLabel
+        });
     }
 
     // ── Render Current Step Components ────────────────────────
@@ -906,38 +1465,62 @@ const PCBuilder = (() => {
 
         const step = STEPS[currentStep];
         const allForStep = allProducts.filter(p => p.category === step.category);
+        const stepTarget = targetBudget * getStepBudgetWeight(step.key);
+
+        // Reset price tier pill filter if active step has changed
+        if (lastRenderedStep !== currentStep) {
+            activePriceTier = 'all';
+            lastRenderedStep = currentStep;
+        }
+
         const filtered = getFilteredProducts(allForStep, step.key);
         const visibleLabel = getComponentFilterLabel(allForStep.length, filtered.length, step.label);
-        const stepTarget = targetBudget * getStepBudgetWeight(step.key);
 
         let panelHTML = `
             <div class="component-panel-head">
                 <div>
-                    <h2><i class="fas ${step.icon}"></i> Select ${step.label}</h2>
-                    <p class="panel-desc">Choose a ${step.label.toLowerCase()} for your build. ${getStepHint(step.key)}</p>
+                    <h2><i class="fas ${step.icon}"></i> ${builderTemplate('Select {label}', 'Select {label}', {label: builderText(step.label, step.label)})} ${step.optional ? `<small style="color:var(--muted);font-family:'Space Mono',monospace;font-size:0.72rem;text-transform:uppercase;">${builderText('Optional', 'Optional')}</small>` : ''}</h2>
+                    <p class="panel-desc">${builderTemplate('Choose a {label} for your build.', 'Choose a {label} for your build.', {label: builderText(step.label, step.label).toLowerCase()})} ${builderText(getStepHint(step.key), getStepHint(step.key))}</p>
                 </div>
                 <div class="step-budget-chip">
-                    <span>Target</span>
+                    <span>${builderText('Target', 'Target')}</span>
                     <strong>${formatMAD(stepTarget)}</strong>
                 </div>
             </div>
+
+            <!-- Dynamic Price-Tier Pills -->
+            <div class="price-tier-pills">
+                <button class="tier-pill ${activePriceTier === 'all' ? 'active' : ''}" onclick="PCBuilder.selectPriceTier('all')">
+                    ${builderText('All', 'All')}
+                </button>
+                <button class="tier-pill ${activePriceTier === 'budget' ? 'active' : ''}" onclick="PCBuilder.selectPriceTier('budget')">
+                    ${builderText('Budget Fit', 'Budget Fit')} (&le; 85%)
+                </button>
+                <button class="tier-pill ${activePriceTier === 'sweet' ? 'active' : ''}" onclick="PCBuilder.selectPriceTier('sweet')">
+                    ${builderText('Sweet Spot', 'Sweet Spot')} (85% - 115%)
+                </button>
+                <button class="tier-pill ${activePriceTier === 'performance' ? 'active' : ''}" onclick="PCBuilder.selectPriceTier('performance')">
+                    ${builderText('Performance Peak', 'Performance Peak')} (&gt; 115%)
+                </button>
+            </div>
+
             <div class="component-toolbar">
                 <label class="component-search">
                     <i class="fas fa-search"></i>
-                    <input type="search" id="componentSearchInput" placeholder="Search ${step.label.toLowerCase()}..." value="${escapeHTML(componentFilters.query)}">
+                    <input type="search" id="componentSearchInput" placeholder="${builderTemplate('Search {label}...', 'Search {label}...', {label: builderText(step.label, step.label).toLowerCase()})}" value="${escapeHTML(componentFilters.query)}">
                 </label>
                 <label class="component-select">
-                    <span>Sort</span>
+                    <span>${builderText('Sort', 'Sort')}</span>
                     <select id="componentSortSelect">
-                        <option value="recommended" ${componentFilters.sort === 'recommended' ? 'selected' : ''}>Recommended</option>
-                        <option value="price-asc" ${componentFilters.sort === 'price-asc' ? 'selected' : ''}>Price: low to high</option>
-                        <option value="price-desc" ${componentFilters.sort === 'price-desc' ? 'selected' : ''}>Price: high to low</option>
-                        <option value="wattage" ${componentFilters.sort === 'wattage' ? 'selected' : ''}>Lowest wattage</option>
+                        <option value="recommended" ${componentFilters.sort === 'recommended' ? 'selected' : ''}>${builderText('Recommended', 'Recommended')}</option>
+                        <option value="price-asc" ${componentFilters.sort === 'price-asc' ? 'selected' : ''}>${builderText('Price: low to high', 'Price: low to high')}</option>
+                        <option value="price-desc" ${componentFilters.sort === 'price-desc' ? 'selected' : ''}>${builderText('Price: high to low', 'Price: high to low')}</option>
+                        <option value="wattage" ${componentFilters.sort === 'wattage' ? 'selected' : ''}>${builderText('Lowest wattage', 'Lowest wattage')}</option>
                     </select>
                 </label>
                 <label class="stock-toggle">
                     <input type="checkbox" id="stockOnlyToggle" ${componentFilters.stockOnly ? 'checked' : ''}>
-                    <span>In stock only</span>
+                    <span>${builderText('In stock only', 'In stock only')}</span>
                 </label>
                 <span class="component-count">${visibleLabel}</span>
             </div>
@@ -947,15 +1530,15 @@ const PCBuilder = (() => {
             panelHTML += `
                 <div class="empty-step">
                     <i class="fas ${step.icon}"></i>
-                    <p>No ${step.label} products available in catalog.</p>
+                    <p>${builderTemplate('No {label} products available in catalog.', 'No {label} products available in catalog.', {label: builderText(step.label, step.label)})}</p>
                 </div>
             `;
         } else if (filtered.length === 0) {
             panelHTML += `
                 <div class="empty-step">
                     <i class="fas fa-filter-circle-xmark"></i>
-                    <p>No ${step.label} products match the current filters.</p>
-                    <button class="btn-build btn-save-build" id="clearComponentFiltersBtn" type="button">Clear filters</button>
+                    <p>${builderTemplate('No {label} products match the current filters.', 'No {label} products match the current filters.', {label: builderText(step.label, step.label)})}</p>
+                    <button class="btn-build btn-save-build" id="clearComponentFiltersBtn" type="button">${builderText('Clear filters', 'Clear filters')}</button>
                 </div>
             `;
         } else {
@@ -969,22 +1552,22 @@ const PCBuilder = (() => {
 
                 const wattage = extractWattage(product, step.key);
                 const specTags = Object.entries(product.specs || {}).slice(0, 3).map(([k, v]) =>
-                    `<span class="cc-spec-tag">${v}</span>`
+                    `<span class="cc-spec-tag" dir="auto">${translateSpec(v)}</span>`
                 ).join('');
                 const recommended = compat.compatible && product.inStock && Math.abs(product.price - stepTarget) <= stepTarget * 0.35;
 
                 panelHTML += `
                     <div class="${cls}" data-product-id="${product.id}" role="button" tabindex="${compat.compatible && product.inStock ? '0' : '-1'}" aria-pressed="${isSelected}">
-                        ${recommended ? '<div class="cc-badge">Recommended fit</div>' : ''}
+                        ${recommended ? `<div class="cc-badge">${builderText('Recommended fit', 'Recommended fit')}</div>` : ''}
                         <img src="${productImage(product)}" alt="${product.name}" class="cc-image" onerror="this.src='images/products/placeholder-storage.svg'">
                         <div class="cc-brand">${product.brand || ''}</div>
-                        <div class="cc-name">${product.name}</div>
+                        <div class="cc-name" dir="ltr">${product.name}</div>
                         <div class="cc-specs">${specTags}</div>
-                        ${!product.inStock ? '<div class="cc-out-of-stock"><i class="fas fa-ban"></i> Out of stock</div>' : ''}
+                        ${!product.inStock ? `<div class="cc-out-of-stock"><i class="fas fa-ban"></i> ${builderText('Out of stock', 'Out of stock')}</div>` : ''}
                         <div class="cc-price">${formatMAD(product.price)}</div>
-                        ${wattage > 0 ? `<div class="cc-wattage"><i class="fas fa-bolt"></i> ~${wattage}W</div>` : ''}
-                        ${!compat.compatible ? `<div class="cc-compat-warn"><i class="fas fa-exclamation-triangle"></i> ${compat.reason}</div>` : ''}
-                        <span class="cc-action">${isSelected ? 'Selected' : compat.compatible && product.inStock ? 'Select part' : 'Unavailable'}</span>
+                        ${wattage > 0 ? `<div class="cc-wattage" dir="auto"><i class="fas fa-bolt"></i> ~${wattage} ${window.__marocPcPhraseMap?.['W'] || 'W'}</div>` : ''}
+                        ${!compat.compatible ? `<div class="cc-compat-warn"><i class="fas fa-exclamation-triangle"></i> ${builderText(compat.reason, compat.reason)}</div>` : ''}
+                        <span class="cc-action">${isSelected ? builderText('Selected', 'Selected') : compat.compatible && product.inStock ? builderText('Select part', 'Select part') : builderText('Unavailable', 'Unavailable')}</span>
                     </div>
                 `;
             });
@@ -994,10 +1577,10 @@ const PCBuilder = (() => {
         panelHTML += `
             <div class="step-nav-actions">
                 <button class="btn-build btn-save-build" id="prevStepBtn" ${currentStep === 0 ? 'disabled style="opacity:0.3"' : ''}>
-                    <i class="fas fa-arrow-left"></i> Previous
+                    <i class="fas fa-arrow-left"></i> ${builderText('Previous', 'Previous')}
                 </button>
                 <button class="btn-build btn-add-all" id="nextStepBtn" ${currentStep === STEPS.length - 1 ? 'disabled style="opacity:0.3"' : ''}>
-                    Next <i class="fas fa-arrow-right"></i>
+                    ${builderText('Next', 'Next')} <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         `;
@@ -1044,10 +1627,10 @@ const PCBuilder = (() => {
 
             if (selectedComponents[step.key]?.id === prodId) {
                 delete selectedComponents[step.key];
-                showToast(`${step.label} removed.`, 'success');
+                showToast(builderTemplate('{label} removed.', '{label} removed.', {label: builderText(step.label, step.label)}), 'success');
             } else {
                 selectedComponents[step.key] = product;
-                showToast(`${product.name} selected.`, 'success');
+                showToast(builderTemplate('{name} selected.', '{name} selected.', {name: product.name}), 'success');
             }
 
             renderWizardSteps();
@@ -1084,6 +1667,9 @@ const PCBuilder = (() => {
             psu: 'Ensure enough wattage for all components.',
             cooling: 'Keep your system cool and quiet.',
             monitor: 'The window to your PC. Match resolution and refresh rate to your GPU.',
+            accessories: 'Optional add-ons for assembly, cable routing, and finishing touches.',
+            keyboard: 'Optional keyboard add-on; pick one only if you want it in the quote.',
+            mouse: 'Optional mouse add-on; pick one only if you want it in the quote.',
         };
         return hints[key] || '';
     }
@@ -1101,7 +1687,7 @@ const PCBuilder = (() => {
             const cpuSocket = getSocket(product);
             const boardSocket = getSocket(selectedComponents['motherboard']);
             if (cpuSocket && boardSocket && cpuSocket !== boardSocket) {
-                return { compatible: false, reason: `Requires ${boardSocket}` };
+                return { compatible: false, reason: builderTemplate('Requires {socket}', 'Requires {socket}', {socket: boardSocket}) };
             }
         }
 
@@ -1112,7 +1698,7 @@ const PCBuilder = (() => {
             if (selectedComponents['cpu']) {
                 const cpuSocket = getSocket(selectedComponents['cpu']);
                 if (cpuSocket && boardSocket && cpuSocket !== boardSocket) {
-                    return { compatible: false, reason: `${cpuSocket} CPU needs ${cpuSocket} board` };
+                    return { compatible: false, reason: builderTemplate('{socket} CPU needs {socket} board', '{socket} CPU needs {socket} board', {socket: cpuSocket}) };
                 }
             }
 
@@ -1257,10 +1843,10 @@ const PCBuilder = (() => {
         updateBuildGuide();
         if (notify) {
             const message = builderPath === 'china'
-                ? 'Ultra cheap CN value build prepared.'
+                ? builderText('Ultra cheap CN value build prepared.', 'Ultra cheap CN value build prepared.')
                 : builderPath === 'prebuilt'
-                    ? 'Choose a recommended build to start.'
-                    : 'Custom builder unlocked.';
+                    ? builderText('Choose a recommended build to start.', 'Choose a recommended build to start.')
+                    : builderText('Custom builder unlocked.', 'Custom builder unlocked.');
             showToast(message, 'success');
         }
     }
@@ -1278,7 +1864,15 @@ const PCBuilder = (() => {
     }
 
     function getNextMissingStep() {
-        return STEPS.find(step => !selectedComponents[step.key]) || null;
+        return STEPS.find(step => !step.optional && !selectedComponents[step.key]) || null;
+    }
+
+    function getRequiredSteps() {
+        return STEPS.filter(step => !step.optional);
+    }
+
+    function getRequiredSelectedCount() {
+        return getRequiredSteps().filter(step => selectedComponents[step.key]).length;
     }
 
     function getStepIndex(key) {
@@ -1297,15 +1891,17 @@ const PCBuilder = (() => {
         const guide = document.getElementById('buildGuideBar');
         const dock = document.getElementById('mobileBuildDock');
         const selectedCount = getSelectedCount();
-        const progress = Math.round((selectedCount / STEPS.length) * 100);
+        const requiredSteps = getRequiredSteps();
+        const requiredSelected = getRequiredSelectedCount();
+        const progress = Math.round((requiredSelected / Math.max(1, requiredSteps.length)) * 100);
         const nextMissing = getNextMissingStep();
-        const nextLabel = nextMissing ? nextMissing.label : 'Review build';
+        const nextLabel = nextMissing ? builderText(nextMissing.label, nextMissing.label) : builderText('Review build', 'Review build');
         const current = STEPS[currentStep];
         const total = getBuildTotal();
         const budgetDelta = targetBudget - total;
         const budgetText = budgetDelta >= 0
-            ? `${formatMAD(budgetDelta)} under target`
-            : `${formatMAD(Math.abs(budgetDelta))} over target`;
+            ? `${formatMAD(budgetDelta)} ${builderText('under target', 'under target')}`
+            : `${formatMAD(Math.abs(budgetDelta))} ${builderText('over target', 'over target')}`;
 
         if (guide) {
             guide.innerHTML = `
@@ -1313,17 +1909,17 @@ const PCBuilder = (() => {
                     <span style="width:${progress}%"></span>
                 </div>
                 <div class="bgb-copy">
-                    <span class="gf-kicker"><i class="fas fa-route"></i> Step ${currentStep + 1} of ${STEPS.length}</span>
-                    <strong>${selectedCount ? `${selectedCount} parts selected` : 'Start with your first part'}</strong>
-                    <p>${nextMissing ? `Next best step: choose ${nextLabel}.` : 'All required steps are filled. Review compatibility and add services if needed.'}</p>
+                    <span class="gf-kicker"><i class="fas fa-route"></i> ${builderTemplate('Step X of Y', 'Step {current} of {total}', {current: currentStep + 1, total: STEPS.length})}</span>
+                    <strong>${selectedCount ? builderTemplate('Parts selected', '{count} parts selected', {count: selectedCount}) : builderText('Start with your first part', 'Start with your first part')}</strong>
+                    <p>${nextMissing ? builderTemplate('Next best step', 'Next best step: choose {part}.', {part: nextLabel}) : builderText('All required steps filled', 'All required steps are filled. Review compatibility and add services if needed.')}</p>
                 </div>
                 <div class="bgb-stats">
-                    <div><span>Total</span><strong>${formatMAD(total)}</strong></div>
-                    <div><span>Budget</span><strong class="${budgetDelta < 0 ? 'over' : ''}">${budgetText}</strong></div>
-                    <div><span>Current</span><strong>${current.label}</strong></div>
+                    <div><span>${builderText('Total', 'Total')}</span><strong>${formatMAD(total)}</strong></div>
+                    <div><span>${builderText('Budget', 'Budget')}</span><strong class="${budgetDelta < 0 ? 'over' : ''}">${budgetText}</strong></div>
+                    <div><span>${builderText('Current', 'Current')}</span><strong>${builderText(current.label, current.label)}</strong></div>
                 </div>
                 <button class="guide-action" type="button" data-jump-step="${nextMissing ? getStepIndex(nextMissing.key) : currentStep}">
-                    ${nextMissing ? `Choose ${nextLabel}` : 'Review Summary'} <i class="fas fa-arrow-right"></i>
+                    ${nextMissing ? builderTemplate('Choose part', 'Choose {part}', {part: nextLabel}) : builderText('Review Summary', 'Review Summary')} <i class="fas fa-arrow-right"></i>
                 </button>
             `;
 
@@ -1335,9 +1931,9 @@ const PCBuilder = (() => {
 
         if (dock) {
             dock.innerHTML = `
-                <span><i class="fas fa-list-check"></i> ${selectedCount}/${STEPS.length} parts</span>
+                <span><i class="fas fa-list-check"></i> ${requiredSelected}/${requiredSteps.length} ${builderText('required parts', 'required parts')}</span>
                 <strong>${formatMAD(total)}</strong>
-                <em>${nextMissing ? `Next: ${nextLabel}` : 'Ready to review'}</em>
+                <em>${nextMissing ? builderTemplate('Next part', 'Next: {part}', {part: nextLabel}) : builderText('Ready to review', 'Ready to review')}</em>
             `;
         }
     }
@@ -1361,7 +1957,7 @@ const PCBuilder = (() => {
             } : null;
         });
 
-        const missing = STEPS.filter(step => !selectedComponents[step.key]).map(step => step.label);
+        const missing = STEPS.filter(step => !step.optional && !selectedComponents[step.key]).map(step => step.label);
         return {
             page: 'builder',
             builderPath,
@@ -1399,7 +1995,7 @@ const PCBuilder = (() => {
         });
 
         if (!applied) {
-            showToast('No compatible AI picks could be applied.', 'error');
+            showToast(builderText('No compatible AI picks could be applied.', 'No compatible AI picks could be applied.'), 'error');
             return false;
         }
 
@@ -1409,7 +2005,7 @@ const PCBuilder = (() => {
         renderWizardSteps();
         renderCurrentStep();
         updateSummary();
-        showToast(`Applied ${applied} AI pick${applied > 1 ? 's' : ''} to your build.`, 'success');
+        showToast(builderTemplate('Applied {count} AI pick{plural} to your build.', 'Applied {count} AI pick{plural} to your build.', {count: applied, plural: applied > 1 ? 's' : ''}), 'success');
         return true;
     }
 
@@ -1429,13 +2025,15 @@ const PCBuilder = (() => {
             const boardSocket = getSocket(motherboard);
             report.push({
                 status: cpuSocket && boardSocket && cpuSocket !== boardSocket ? 'bad' : 'ok',
-                title: 'CPU / motherboard',
+                title: builderText('CPU / motherboard', 'CPU / motherboard'),
                 text: cpuSocket && boardSocket && cpuSocket !== boardSocket
-                    ? `${cpu.name} needs ${cpuSocket}, but ${motherboard.name} is ${boardSocket}.`
-                    : `${motherboard.name} matches ${cpuSocket || 'the selected CPU socket'}.`
+                    ? builderTemplate('{cpu} needs {cpuSocket}, but {motherboard} is {boardSocket}.', '{cpu} needs {cpuSocket}, but {motherboard} is {boardSocket}.', { cpu: cpu.name, cpuSocket, motherboard: motherboard.name, boardSocket })
+                    : cpuSocket
+                        ? builderTemplate('{motherboard} matches {socket}.', '{motherboard} matches {socket}.', { motherboard: motherboard.name, socket: cpuSocket })
+                        : builderTemplate('{motherboard} matches the selected CPU socket.', '{motherboard} matches the selected CPU socket.', { motherboard: motherboard.name })
             });
         } else {
-            report.push({ status: 'warn', title: 'CPU / motherboard', text: 'Select a CPU and motherboard to validate socket support.' });
+            report.push({ status: 'warn', title: builderText('CPU / motherboard', 'CPU / motherboard'), text: builderText('Select a CPU and motherboard to validate socket support.', 'Select a CPU and motherboard to validate socket support.') });
         }
 
         if (cpu && ram) {
@@ -1444,13 +2042,15 @@ const PCBuilder = (() => {
             const needsDdr5 = cpuSocket.includes('AM5');
             report.push({
                 status: needsDdr5 && ramSpeed.includes('DDR4') ? 'bad' : 'ok',
-                title: 'CPU / RAM match',
+                title: builderText('CPU / RAM match', 'CPU / RAM match'),
                 text: needsDdr5 && ramSpeed.includes('DDR4')
-                    ? 'AM5 CPUs require DDR5 memory.'
-                    : `${cpuSocket || 'Selected CPU'} works with ${ramSpeed || 'selected memory'}.`
+                    ? builderText('AM5 CPUs require DDR5 memory.', 'AM5 CPUs require DDR5 memory.')
+                    : cpuSocket && ramSpeed
+                        ? builderTemplate('{cpuSocket} works with {ramSpeed}.', '{cpuSocket} works with {ramSpeed}.', { cpuSocket, ramSpeed })
+                        : builderText('The selected CPU works with selected memory.', 'The selected CPU works with selected memory.')
             });
         } else {
-            report.push({ status: 'warn', title: 'CPU / RAM match', text: 'Select a CPU and RAM kit to validate memory type.' });
+            report.push({ status: 'warn', title: builderText('CPU / RAM match', 'CPU / RAM match'), text: builderText('Select a CPU and RAM kit to validate memory type.', 'Select a CPU and RAM kit to validate memory type.') });
         }
 
         if (motherboard && ram) {
@@ -1458,13 +2058,15 @@ const PCBuilder = (() => {
             const ramType = getMemoryType(ram);
             report.push({
                 status: boardMemory && ramType && boardMemory !== ramType ? 'bad' : 'ok',
-                title: 'Motherboard / RAM',
+                title: builderText('Motherboard / RAM', 'Motherboard / RAM'),
                 text: boardMemory && ramType && boardMemory !== ramType
-                    ? `${motherboard.name} uses ${boardMemory}, but ${ram.name} is ${ramType}.`
-                    : `${motherboard.name} supports ${ramType || 'the selected memory kit'}.`
+                    ? builderTemplate('{motherboard} uses {boardMemory}, but {ram} is {ramType}.', '{motherboard} uses {boardMemory}, but {ram} is {ramType}.', { motherboard: motherboard.name, boardMemory, ram: ram.name, ramType })
+                    : ramType
+                        ? builderTemplate('{motherboard} supports {ramType}.', '{motherboard} supports {ramType}.', { motherboard: motherboard.name, ramType })
+                        : builderTemplate('{motherboard} supports the selected memory kit.', '{motherboard} supports the selected memory kit.', { motherboard: motherboard.name })
             });
         } else {
-            report.push({ status: 'warn', title: 'Motherboard / RAM', text: 'Select a motherboard and RAM kit to validate memory type.' });
+            report.push({ status: 'warn', title: builderText('Motherboard / RAM', 'Motherboard / RAM'), text: builderText('Select a motherboard and RAM kit to validate memory type.', 'Select a motherboard and RAM kit to validate memory type.') });
         }
 
         if (cpu && cooling) {
@@ -1472,30 +2074,38 @@ const PCBuilder = (() => {
             const coolerTdp = extractWattageFromSpec(cooling.specs?.['Max TDP'] || '');
             report.push({
                 status: coolerTdp && coolerTdp < cpuTdp ? 'bad' : 'ok',
-                title: 'Cooling headroom',
+                title: builderText('Cooling headroom', 'Cooling headroom'),
                 text: coolerTdp && coolerTdp < cpuTdp
-                    ? `Cooler is rated below the CPU load. Pick ${cpuTdp}W+ cooling.`
-                    : `${cooling.name} has enough thermal headroom.`
+                    ? builderTemplate('Cooler is rated below the CPU load. Pick {watts}W+ cooling.', 'Cooler is rated below the CPU load. Pick {watts}W+ cooling.', { watts: cpuTdp })
+                    : builderTemplate('{cooling} has enough thermal headroom.', '{cooling} has enough thermal headroom.', { cooling: cooling.name })
             });
         } else {
-            report.push({ status: 'warn', title: 'Cooling headroom', text: 'Select CPU and cooling to check thermal headroom.' });
+            report.push({ status: 'warn', title: builderText('Cooling headroom', 'Cooling headroom'), text: builderText('Select CPU and cooling to check thermal headroom.', 'Select CPU and cooling to check thermal headroom.') });
         }
 
         if (psu) {
             const psuWattage = extractWattage(psu, 'psu');
             report.push({
                 status: psuWattage < recommendedPsu ? 'bad' : 'ok',
-                title: 'PSU sizing',
+                title: builderText('PSU sizing', 'PSU sizing'),
                 text: psuWattage < recommendedPsu
-                    ? `Current load suggests a ${recommendedPsu}W+ PSU.`
-                    : `${psuWattage}W PSU covers the estimated ${totalWatt}W load.`
+                    ? builderTemplate('Current load suggests a {watts}W+ PSU.', 'Current load suggests a {watts}W+ PSU.', { watts: recommendedPsu })
+                    : builderTemplate('{psuWatts}W PSU covers the estimated {loadWatts}W load.', '{psuWatts}W PSU covers the estimated {loadWatts}W load.', { psuWatts: psuWattage, loadWatts: totalWatt })
             });
         } else {
-            report.push({ status: 'warn', title: 'PSU sizing', text: `Recommended PSU: ${recommendedPsu}W+.` });
+            report.push({ status: 'warn', title: builderText('PSU sizing', 'PSU sizing'), text: builderTemplate('Recommended PSU: {watts}W+.', 'Recommended PSU: {watts}W+.', { watts: recommendedPsu }) });
         }
 
         if (gpu && psu) {
-            report.push({ status: 'ok', title: 'GPU power planning', text: `${gpu.name} included in the ${totalWatt}W load estimate.` });
+            report.push({ status: 'ok', title: builderText('GPU power planning', 'GPU power planning'), text: builderTemplate('{gpu} is included in the {watts}W load estimate.', '{gpu} is included in the {watts}W load estimate.', { gpu: gpu.name, watts: totalWatt }) });
+        }
+
+        if (cpu && gpu && String(cpu.brand).toLowerCase() === 'amd' && String(gpu.brand).toLowerCase() === 'amd') {
+            report.push({
+                status: 'ok',
+                title: builderText('[SAM ENABLED] Hardware Synergy', '[SAM ENABLED] Hardware Synergy'),
+                text: builderText('Smart Access Memory is supported with this AMD CPU + AMD GPU combination, boosting gaming performance.', 'Smart Access Memory is supported with this AMD CPU + AMD GPU combination, boosting gaming performance.')
+            });
         }
 
         const hasCaseSelection = STEPS.some(step => step.key === 'case')
@@ -1505,16 +2115,16 @@ const PCBuilder = (() => {
         if (selectedCase) {
             report.push({
                 status: 'ok',
-                title: 'Case clearance',
-                text: `${selectedCase.name} is included for final GPU and cooler clearance review.`
+                title: builderText('Case clearance', 'Case clearance'),
+                text: builderTemplate('{caseName} is included for final GPU and cooler clearance review.', '{caseName} is included for final GPU and cooler clearance review.', { caseName: selectedCase.name })
             });
         } else {
             report.push({
                 status: hasCaseSelection ? 'warn' : 'ok',
-                title: 'Case clearance',
+                title: builderText('Case clearance', 'Case clearance'),
                 text: hasCaseSelection
-                    ? 'Select a case to validate GPU length, motherboard size, and radiator fit.'
-                    : 'No case step is required for this preset; enclosure clearance is handled during final build review.'
+                    ? builderText('Select a case to validate GPU length, motherboard size, and radiator fit.', 'Select a case to validate GPU length, motherboard size, and radiator fit.')
+                    : builderText('No case step is required for this preset; enclosure clearance is handled during final build review.', 'No case step is required for this preset; enclosure clearance is handled during final build review.')
             });
         }
 
@@ -1528,7 +2138,7 @@ const PCBuilder = (() => {
         const report = getCompatibilityReport();
         const icon = { ok: 'fa-circle-check', warn: 'fa-triangle-exclamation', bad: 'fa-circle-xmark' };
         panel.innerHTML = `
-            <h4><i class="fas fa-shield-halved"></i> Compatibility Check</h4>
+            <h4><i class="fas fa-shield-halved"></i> ${builderText('Compatibility Check', 'Compatibility Check')}</h4>
             <div class="compat-list">
                 ${report.map(item => `
                     <div class="compat-item ${item.status}">
@@ -1637,11 +2247,11 @@ const PCBuilder = (() => {
             const percentage = Math.round((1 - ratio) * 100);
             return {
                 type: 'cpu',
-                label: 'CPU bottleneck',
+                label: builderText('CPU bottleneck', 'CPU bottleneck'),
                 percentage,
                 score: Math.max(0, 100 - percentage * 2),
                 color: 'var(--diagnostic-red)',
-                text: `${cpu.name} may hold back ${gpu.name} by about ${percentage}% at ${resolution}.`
+                text: builderTemplate('{cpu} may hold back {gpu} by about {percentage}% at {resolution}.', '{cpu} may hold back {gpu} by about {percentage}% at {resolution}.', { cpu: cpu.name, gpu: gpu.name, percentage, resolution })
             };
         }
 
@@ -1649,33 +2259,33 @@ const PCBuilder = (() => {
             const percentage = Math.round(Math.min(35, (ratio - 1) * 70));
             return {
                 type: 'gpu',
-                label: 'GPU bottleneck',
+                label: builderText('GPU bottleneck', 'GPU bottleneck'),
                 percentage,
                 score: Math.max(0, 100 - percentage * 1.6),
                 color: '#4da3ff',
-                text: `${gpu.name} is the limiting part by about ${percentage}% at ${resolution}.`
+                text: builderTemplate('{gpu} is the limiting part by about {percentage}% at {resolution}.', '{gpu} is the limiting part by about {percentage}% at {resolution}.', { gpu: gpu.name, percentage, resolution })
             };
         }
 
         return {
             type: 'balanced',
-            label: 'Balanced',
+            label: builderText('Balanced', 'Balanced'),
             percentage: Math.round(Math.abs(1 - ratio) * 100),
             score: 96,
             color: 'var(--diagnostic-green)',
-            text: `${cpu.name} and ${gpu.name} are well matched at ${resolution}.`
+            text: builderTemplate('{cpu} and {gpu} are well matched at {resolution}.', '{cpu} and {gpu} are well matched at {resolution}.', { cpu: cpu.name, gpu: gpu.name, resolution })
         };
     }
 
     function bottleneckTips(result) {
-        if (!result) return 'Select a CPU and GPU to calculate balance at 1080p, 1440p, and 4K.';
+        if (!result) return builderText('Select a CPU and GPU to calculate balance at 1080p, 1440p, and 4K.', 'Select a CPU and GPU to calculate balance at 1080p, 1440p, and 4K.');
         if (result.type === 'cpu') {
-            return 'Upgrade the CPU for high-refresh gaming, or save money by choosing a less powerful GPU.';
+            return builderText('Upgrade the CPU for high-refresh gaming, or save money by choosing a less powerful GPU.', 'Upgrade the CPU for high-refresh gaming, or save money by choosing a less powerful GPU.');
         }
         if (result.type === 'gpu') {
-            return 'Upgrade the GPU for this CPU, or keep the current GPU if the goal is budget efficiency.';
+            return builderText('Upgrade the GPU for this CPU, or keep the current GPU if the goal is budget efficiency.', 'Upgrade the GPU for this CPU, or keep the current GPU if the goal is budget efficiency.');
         }
-        return 'This pairing is healthy. Spend the next upgrade budget on cooling, storage, or monitor quality.';
+        return builderText('This pairing is healthy. Spend the next upgrade budget on cooling, storage, or monitor quality.', 'This pairing is healthy. Spend the next upgrade budget on cooling, storage, or monitor quality.');
     }
 
     function updateBottleneckPanel() {
@@ -1688,10 +2298,10 @@ const PCBuilder = (() => {
 
         if (!cpu || !gpu) {
             panel.innerHTML = `
-                <h4><i class="fas fa-gauge-high"></i> Bottleneck Analyzer</h4>
+                <h4><i class="fas fa-gauge-high"></i> ${builderText('Bottleneck Analyzer', 'Bottleneck Analyzer')}</h4>
                 <div class="bottleneck-empty">
-                    <span>CPU + GPU required</span>
-                    <small>Select both parts for real-time balance analysis.</small>
+                    <span>${builderText('CPU + GPU required', 'CPU + GPU required')}</span>
+                    <small>${builderText('Select both parts for real-time balance analysis.', 'Select both parts for real-time balance analysis.')}</small>
                 </div>
             `;
             return;
@@ -1699,8 +2309,8 @@ const PCBuilder = (() => {
 
         const score = Math.round(result.score);
         panel.innerHTML = `
-            <h4><i class="fas fa-gauge-high"></i> Bottleneck Analyzer</h4>
-            <div class="bottleneck-tabs" role="tablist" aria-label="Resolution">
+            <h4><i class="fas fa-gauge-high"></i> ${builderText('Bottleneck Analyzer', 'Bottleneck Analyzer')}</h4>
+            <div class="bottleneck-tabs" role="tablist" aria-label="${builderText('Resolution', 'Resolution')}">
                 ${['1080p', '1440p', '4K'].map(res => `
                     <button type="button" class="${res === bottleneckResolution ? 'active' : ''}" data-bottleneck-res="${res}">${res}</button>
                 `).join('')}
@@ -1710,7 +2320,7 @@ const PCBuilder = (() => {
                     <strong>${result.label}</strong>
                     <span>${score}/100</span>
                 </div>
-                <div class="bottleneck-bar" aria-label="System balance score ${score}">
+                <div class="bottleneck-bar" aria-label="${builderTemplate('System balance score {score}', 'System balance score {score}', { score })}">
                     <span style="width:${score}%; background:${result.color};"></span>
                 </div>
             </div>
@@ -1804,9 +2414,9 @@ const PCBuilder = (() => {
             if (gpuName.includes('blower') || gpuName.includes('turbo')) db += 8;
         }
 
-        if (db > 45) desc = 'Loud under load';
-        else if (db > 35) desc = 'Audible hum';
-        else desc = 'Quiet under load';
+        if (db > 45) desc = builderText('Loud under load', 'Loud under load');
+        else if (db > 35) desc = builderText('Audible hum', 'Audible hum');
+        else desc = builderText('Quiet under load', 'Quiet under load');
 
         return { db, desc };
     }
@@ -1818,31 +2428,31 @@ const PCBuilder = (() => {
         const noise = getNoiseEstimate();
         const selectedCount = getSelectedCount();
         panel.innerHTML = `
-            <h4><i class="fas fa-heart-pulse"></i> Build Health Score</h4>
+            <h4><i class="fas fa-heart-pulse"></i> ${builderText('Build Health Score', 'Build Health Score')}</h4>
             <div class="health-score-line">
                 <strong>${selectedCount ? health.overall : '--'}</strong>
                 <span>/100</span>
-                <em>${selectedCount ? 'diagnostic confidence' : 'select parts to score'}</em>
+                <em>${selectedCount ? builderText('diagnostic confidence', 'diagnostic confidence') : builderText('select parts to score', 'select parts to score')}</em>
             </div>
             <div class="health-metrics">
                 ${health.metrics.map(item => `
                     <div>
-                        <span>${item.label}</span>
+                        <span>${builderLabel(item.label)}</span>
                         <b>${selectedCount ? item.value : '--'}</b>
                         <i style="width:${selectedCount ? item.value : 0}%"></i>
                     </div>
                 `).join('')}
             </div>
             <div class="psu-overhead-gauge" style="margin-bottom: 8px;">
-                <span>PSU overhead</span>
-                <strong>${selectedComponents.psu ? `${health.psuHeadroom}%` : 'Pick PSU'}</strong>
+                <span>${builderText('PSU overhead', 'PSU overhead')}</span>
+                <strong>${selectedComponents.psu ? `${health.psuHeadroom}%` : builderText('Pick PSU', 'Pick PSU')}</strong>
             </div>
             <div class="psu-overhead-gauge">
-                <span><i class="fas fa-volume-low"></i> Noise estimate</span>
+                <span><i class="fas fa-volume-low"></i> ${builderText('Noise estimate', 'Noise estimate')}</span>
                 <strong>${selectedCount ? `${noise.db} dB <span style="font-size: 0.65rem; color: var(--muted); font-weight: normal; margin-left: 4px;">(${noise.desc})</span>` : '--'}</strong>
             </div>
             <button type="button" class="health-action" id="downgradeBudgetBtn">
-                <i class="fas fa-arrow-trend-down"></i> Downgrade to budget
+                <i class="fas fa-arrow-trend-down"></i> ${builderText('Downgrade to budget', 'Downgrade to budget')}
             </button>
         `;
 
@@ -1853,20 +2463,20 @@ const PCBuilder = (() => {
         const items = [];
         const selectedKeys = Object.keys(selectedComponents);
         STEPS.forEach(step => {
-            if (!selectedComponents[step.key]) {
-                items.push({ tone: 'warn', text: `Missing ${step.label}.` });
+            if (!step.optional && !selectedComponents[step.key]) {
+                items.push({ tone: 'warn', text: builderTemplate('{part} is missing.', '{part} is missing.', { part: builderLabel(step.label) }) });
             }
         });
 
         const storageName = String(selectedComponents.storage?.name || '').toLowerCase();
-        if (storageName.includes('sata')) items.push({ tone: 'warn', text: 'SATA storage selected, add a SATA data cable if your motherboard bundle is limited.' });
-        if (selectedComponents.cpu && !selectedComponents.cooling) items.push({ tone: 'bad', text: 'CPU selected without cooling.' });
-        if (selectedComponents.cpu) items.push({ tone: 'ok', text: 'Thermal paste should be in the cart or included with the cooler.' });
-        if (selectedComponents.gpu || selectedComponents.psu) items.push({ tone: 'ok', text: 'Confirm GPU power cable count before assembly.' });
+        if (storageName.includes('sata')) items.push({ tone: 'warn', text: builderText('SATA storage selected, add a SATA data cable if your motherboard bundle is limited.', 'SATA storage selected, add a SATA data cable if your motherboard bundle is limited.') });
+        if (selectedComponents.cpu && !selectedComponents.cooling) items.push({ tone: 'bad', text: builderText('CPU selected without cooling.', 'CPU selected without cooling.') });
+        if (selectedComponents.cpu) items.push({ tone: 'ok', text: builderText('Thermal paste should be in the cart or included with the cooler.', 'Thermal paste should be in the cart or included with the cooler.') });
+        if (selectedComponents.gpu || selectedComponents.psu) items.push({ tone: 'ok', text: builderText('Confirm GPU power cable count before assembly.', 'Confirm GPU power cable count before assembly.') });
         if (selectedComponents.motherboard && !String(selectedComponents.motherboard.name || '').toLowerCase().includes('wifi')) {
-            items.push({ tone: 'warn', text: 'No Wi-Fi signal detected in motherboard name. Add a Wi-Fi card if needed.' });
+            items.push({ tone: 'warn', text: builderText('No Wi-Fi signal detected in motherboard name. Add a Wi-Fi card if needed.', 'No Wi-Fi signal detected in motherboard name. Add a Wi-Fi card if needed.') });
         }
-        if (selectedKeys.length >= 6) items.push({ tone: 'ok', text: 'Core build is nearly complete.' });
+        if (getRequiredSelectedCount() >= Math.max(1, getRequiredSteps().length - 1)) items.push({ tone: 'ok', text: builderText('Core build is nearly complete.', 'Core build is nearly complete.') });
         return items.slice(0, 8);
     }
 
@@ -1875,7 +2485,7 @@ const PCBuilder = (() => {
         if (!panel) return;
         const items = getSmartChecklistItems();
         panel.innerHTML = `
-            <h4><i class="fas fa-clipboard-check"></i> Oops I Forgot</h4>
+            <h4><i class="fas fa-clipboard-check"></i> ${builderText('Oops I Forgot', 'Oops I Forgot')}</h4>
             <div class="smart-checklist">
                 ${items.map(item => `
                     <div class="${item.tone}">
@@ -1889,18 +2499,18 @@ const PCBuilder = (() => {
 
     function getAssemblyGuideSteps() {
         const steps = [];
-        if (selectedComponents.motherboard) steps.push('Bench-test motherboard, CPU, one RAM stick, and PSU before mounting.');
-        if (selectedComponents.cpu) steps.push('Install CPU and check socket orientation before locking the retention arm.');
+        if (selectedComponents.motherboard) steps.push(builderText('Bench-test motherboard, CPU, one RAM stick, and PSU before mounting.', 'Bench-test motherboard, CPU, one RAM stick, and PSU before mounting.'));
+        if (selectedComponents.cpu) steps.push(builderText('Install CPU and check socket orientation before locking the retention arm.', 'Install CPU and check socket orientation before locking the retention arm.'));
         if (selectedComponents.storage && String(selectedComponents.storage.name || '').toLowerCase().includes('m.2')) {
-            steps.push('Install M.2 SSD before the board goes into the case; add a heatsink if the slot has no shield.');
+            steps.push(builderText('Install M.2 SSD before the board goes into the case; add a heatsink if the slot has no shield.', 'Install M.2 SSD before the board goes into the case; add a heatsink if the slot has no shield.'));
         }
         if (selectedComponents.cooling && /nh-d15|dark rock|tower/i.test(selectedComponents.cooling.name || '')) {
-            steps.push('Mount the tower cooler before final cable routing because RAM clearance gets tight.');
+            steps.push(builderText('Mount the tower cooler before final cable routing because RAM clearance gets tight.', 'Mount the tower cooler before final cable routing because RAM clearance gets tight.'));
         }
-        if (selectedComponents.gpu) steps.push('Install GPU after front-panel and PSU cables are routed.');
-        if (selectedComponents.psu) steps.push('Leave at least 25 percent PSU headroom for transient GPU spikes and future upgrades.');
-        if (selectedServices.stress) steps.push('Run memory, CPU, and GPU stress tests before packing.');
-        if (!steps.length) steps.push('Select parts to generate a component-specific assembly path.');
+        if (selectedComponents.gpu) steps.push(builderText('Install GPU after front-panel and PSU cables are routed.', 'Install GPU after front-panel and PSU cables are routed.'));
+        if (selectedComponents.psu) steps.push(builderText('Leave at least 25 percent PSU headroom for transient GPU spikes and future upgrades.', 'Leave at least 25 percent PSU headroom for transient GPU spikes and future upgrades.'));
+        if (selectedServices.stress) steps.push(builderText('Run memory, CPU, and GPU stress tests before packing.', 'Run memory, CPU, and GPU stress tests before packing.'));
+        if (!steps.length) steps.push(builderText('Select parts to generate a component-specific assembly path.', 'Select parts to generate a component-specific assembly path.'));
         return steps.slice(0, 6);
     }
 
@@ -1908,7 +2518,7 @@ const PCBuilder = (() => {
         const panel = document.getElementById('assemblyGuidePanel');
         if (!panel) return;
         panel.innerHTML = `
-            <h4><i class="fas fa-timeline"></i> Assembly Timeline</h4>
+            <h4><i class="fas fa-timeline"></i> ${builderText('Assembly Timeline', 'Assembly Timeline')}</h4>
             <ol class="assembly-steps">
                 ${getAssemblyGuideSteps().map(item => `<li>${item}</li>`).join('')}
             </ol>
@@ -1934,13 +2544,13 @@ const PCBuilder = (() => {
         });
 
         if (!changed) {
-            showToast('No cheaper compatible swaps found in stock.', 'error');
+            showToast(builderText('No cheaper compatible swaps found in stock.', 'No cheaper compatible swaps found in stock.'), 'error');
             return;
         }
         renderWizardSteps();
         renderCurrentStep();
         updateSummary();
-        showToast(`Applied ${changed} budget-focused swap${changed > 1 ? 's' : ''}.`, 'success');
+        showToast(builderTemplate('Applied {count} budget-focused swap{plural}.', 'Applied {count} budget-focused swap{plural}.', {count: changed, plural: changed > 1 ? 's' : ''}), 'success');
     }
 
     function getPSURecommendation(totalWattage) {
@@ -1967,38 +2577,56 @@ const PCBuilder = (() => {
         let itemCount = 0;
         const serviceTotal = calculateServiceTotal();
 
-        summaryItems.innerHTML = STEPS.map(step => {
+        const caseSlots = document.getElementById('caseSlots');
+        if (caseSlots) {
+            caseSlots.innerHTML = STEPS.map(step => {
             const comp = selectedComponents[step.key];
             if (comp) {
                 total += comp.price;
                 itemCount++;
             }
+            const slot = CASE_SLOT_LAYOUT[step.key] || { row: 'auto', col: '1 / 3', size: 'sm', zone: 'EXTERN' };
+            const filled = comp ? 'is-filled' : 'is-empty';
+            const localizedLabel = (window.__marocPcPhraseMap && window.__marocPcPhraseMap[step.label]) || step.label;
+            const emptyText = (window.__marocPcPhraseMap && window.__marocPcPhraseMap['Not Installed']) || 'Not Installed';
+            const svgArt = getComponentSVG(step.key);
             return `
-                <div class="summary-item ${comp ? 'has-component' : ''}" data-summary-step="${step.key}" role="button" tabindex="0">
-                    <div class="si-icon"><i class="fas ${step.icon}"></i></div>
-                    <div class="si-info">
-                        <div class="si-label">${step.label}</div>
-                        <div class="si-value">${comp ? comp.name : 'Not selected'}</div>
+                <button type="button"
+                        class="case-slot slot-${step.key} ${filled}"
+                        data-summary-step="${step.key}"
+                        aria-label="${localizedLabel}: ${comp ? comp.name : emptyText}">
+                    <div class="slot-svg">${svgArt}</div>
+                    <div class="slot-content">
+                        <div class="slot-header">
+                            <span class="slot-badge">${slot.zone}</span>
+                            <span class="slot-label">${localizedLabel}</span>
+                        </div>
+                        ${comp ? `
+                            <div class="slot-model">${comp.name}</div>
+                            <div class="slot-price-row">
+                                <span class="slot-price">${formatMAD(comp.price)}</span>
+                                <span class="slot-remove" data-key="${step.key}" role="button" tabindex="0" title="${builderText('Remove', 'Remove')}">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                            </div>
+                        ` : `<div class="slot-empty-text">${emptyText}</div>`}
                     </div>
-                    ${comp ? `
-                        <span class="si-price">${formatMAD(comp.price)}</span>
-                        <button class="si-remove" data-key="${step.key}" title="Remove"><i class="fas fa-times"></i></button>
-                    ` : ''}
-                </div>
-            `;
-        }).join('') + Object.values(selectedServices).map(service => `
-            <div class="summary-item has-component">
-                <div class="si-icon"><i class="fas ${service.icon}"></i></div>
-                <div class="si-info">
-                    <div class="si-label">Service</div>
-                    <div class="si-value">${service.name}</div>
-                </div>
-                <span class="si-price">${formatMAD(service.price)}</span>
-            </div>
-        `).join('');
+                </button>`;
+        }).join('');
+        } // end if (caseSlots)
+
+        // Services strip (below the case interior)
+        const servicesStrip = document.getElementById('caseServicesStrip');
+        if (servicesStrip) {
+            servicesStrip.innerHTML = Object.values(selectedServices).map(service => `
+                <span class="case-service-chip">
+                    <i class="fas ${service.icon}"></i>${service.name}
+                    <em>${formatMAD(service.price)}</em>
+                </span>`).join('');
+        }
 
         // Remove button handlers
-        summaryItems.querySelectorAll('.si-remove').forEach(btn => {
+        summaryItems.querySelectorAll('.slot-remove').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 delete selectedComponents[btn.dataset.key];
@@ -2011,7 +2639,7 @@ const PCBuilder = (() => {
         summaryItems.querySelectorAll('[data-summary-step]').forEach(item => {
             const navigate = () => jumpToStep(getStepIndex(item.dataset.summaryStep));
             item.addEventListener('click', (event) => {
-                if (event.target.closest('.si-remove')) return;
+                if (event.target.closest('.slot-remove')) return;
                 navigate();
             });
             item.addEventListener('keydown', (event) => {
@@ -2022,8 +2650,10 @@ const PCBuilder = (() => {
             });
         });
 
+        const finalTotal = total + serviceTotal;
+
         // Total price
-        if (totalPrice) totalPrice.textContent = formatMAD(total + serviceTotal);
+        if (totalPrice) totalPrice.textContent = formatMAD(finalTotal);
 
         // Wattage meter
         const totalWatt = calculateTotalWattage(true);
@@ -2038,11 +2668,45 @@ const PCBuilder = (() => {
         }
         if (wattageRec) {
             const rec = getPSURecommendation(totalWatt);
-            wattageRec.innerHTML = `Recommended PSU: <strong>${rec}W+</strong>`;
+            wattageRec.innerHTML = builderText('Recommended PSU:', 'Recommended PSU:') + ' <strong>' + rec + 'W+</strong>';
         }
 
         // Add all to cart button
         if (addAllBtn) addAllBtn.disabled = itemCount === 0;
+
+        // Update Sticky Bottom Dock details
+        const stickyTotalPrice = document.getElementById('stickyTotalPrice');
+        const stickyPartsCount = document.getElementById('stickyPartsCount');
+        const stickyWattage = document.getElementById('stickyWattage');
+        const stickyBuildName = document.getElementById('stickyBuildName');
+
+        if (stickyTotalPrice) stickyTotalPrice.textContent = formatMAD(finalTotal);
+        if (stickyPartsCount) stickyPartsCount.textContent = `${itemCount} ${itemCount !== 1 ? builderText('parts', 'parts') : builderText('part', 'part')}`;
+        if (stickyWattage) {
+            stickyWattage.textContent = `${totalWatt}W / ${psuWatt ? psuWatt + 'W' : '???'}`;
+        }
+        if (stickyBuildName) stickyBuildName.textContent = buildName || builderText('My Build', 'My Build');
+
+        // Update workspace classes for empty vs populated build state
+        const workspace = document.getElementById('pcBuilderWorkspace');
+        if (workspace) {
+            if (itemCount > 0) {
+                workspace.classList.remove('build-empty');
+                workspace.classList.add('build-populated');
+            } else {
+                workspace.classList.remove('build-populated');
+                workspace.classList.add('build-empty');
+                
+                // Hide active preset banner if build is completely cleared
+                const banner = document.getElementById('activePresetBanner');
+                if (banner) banner.style.display = 'none';
+            }
+
+            // In Focus Mode, auto-adjust accordion collapse state based on items selection
+            if (workspace.classList.contains('workspace-mode-focus')) {
+                adjustFocusAccordions();
+            }
+        }
 
         updateCompatibilityPanel();
         updateBottleneckPanel();
@@ -2085,7 +2749,10 @@ const PCBuilder = (() => {
             }
         });
 
-        showToast(`Added ${items.length} components${services.length ? ` and ${services.length} services` : ''} to cart!`, 'success');
+        showToast(builderTemplate('Added {itemsCount} components{servicesText} to cart!', 'Added {itemsCount} components{servicesText} to cart!', {
+            itemsCount: items.length,
+            servicesText: services.length ? builderTemplate(' and {count} services', ' and {count} services', {count: services.length}) : ''
+        }), 'success');
     }
 
     // ── Save Build ───────────────────────────────────────────
@@ -2100,12 +2767,12 @@ const PCBuilder = (() => {
         }
 
         if (Object.keys(components).length === 0) {
-            showToast('Select at least one component first.', 'error');
+            showToast(builderText('Select at least one component first.', 'Select at least one component first.'), 'error');
             return;
         }
 
         const nameInput = document.getElementById('buildNameInput');
-        if (nameInput) buildName = nameInput.value.trim() || 'My Build';
+        if (nameInput) buildName = nameInput.value.trim() || builderText('My Build', 'My Build');
 
         try {
             const res = await fetch('api/builder-save.php', {
@@ -2125,10 +2792,10 @@ const PCBuilder = (() => {
             if (data.success) {
                 showShareModal(data.share_code);
             } else {
-                showToast(data.message || 'Failed to save build.', 'error');
+                showToast(data.message || builderText('Failed to save build.', 'Failed to save build.'), 'error');
             }
         } catch (e) {
-            showToast('Network error. Try again.', 'error');
+            showToast(builderText('Network error. Try again.', 'Network error. Try again.'), 'error');
         }
     }
 
@@ -2140,7 +2807,7 @@ const PCBuilder = (() => {
 
             if (data.success && data.build) {
                 const build = data.build;
-                buildName = build.build_name || 'Shared Build';
+                buildName = build.build_name || builderText('Shared Build', 'Shared Build');
                 useCase = build.use_case || 'general';
                 activePreset = PRESETS.find(p => p.useCase === useCase)?.key || 'aaa1440';
 
@@ -2172,7 +2839,7 @@ const PCBuilder = (() => {
                 renderUseCaseBar();
                 renderCurrentStep();
                 updateSummary();
-                showToast(`Loaded build: "${buildName}"`, 'success');
+                showToast(builderTemplate('Loaded build: "{buildName}"', 'Loaded build: "{buildName}"', {buildName}), 'success');
             }
         } catch (e) {
             console.error('Failed to load shared build:', e);
@@ -2180,7 +2847,16 @@ const PCBuilder = (() => {
     }
 
     // ── Auto Build ───────────────────────────────────────────
-    function autoBuild(presetUseCase = useCase, budget = targetBudget, notify = true) {
+    function autoBuild(presetUseCase = null, budget = null, notify = true) {
+        if (presetUseCase === null) {
+            openOnboardingWizard();
+            return;
+        }
+
+        if (budget === null) {
+            budget = targetBudget;
+        }
+
         selectedComponents = {};
 
         const budgetWeights = {
@@ -2194,7 +2870,7 @@ const PCBuilder = (() => {
             accessories: 0.05,
         };
 
-        STEPS.forEach(step => {
+        STEPS.filter(step => !step.optional).forEach(step => {
             const categoryBudget = budget * (budgetWeights[step.key] || 0.12);
             const options = allProducts
                 .filter(p => p.category === step.category && p.inStock)
@@ -2228,7 +2904,7 @@ const PCBuilder = (() => {
         renderWizardSteps();
         renderCurrentStep();
         updateSummary();
-        if (notify) showToast(`Auto-built ${presetUseCase} PC around ${formatMAD(budget)}.`, 'success');
+        if (notify) showToast(builderTemplate('Auto-built {useCase} PC around {budget}.', 'Auto-built {useCase} PC around {budget}.', {useCase: presetUseCase, budget: formatMAD(budget)}), 'success');
 
         // Update FPS Estimator
         if (typeof FPSEstimator !== 'undefined') {
@@ -2269,7 +2945,7 @@ const PCBuilder = (() => {
                 qrBox.innerHTML = `
                     <div class="qr-placeholder">
                         <i class="fas fa-qrcode"></i>
-                        <span>QR CODE</span>
+                        <span>${builderText('QR CODE', 'QR CODE')}</span>
                     </div>
                 `;
             }
@@ -2280,7 +2956,7 @@ const PCBuilder = (() => {
         const input = document.getElementById('shareUrlInput');
         if (!input) return;
         navigator.clipboard.writeText(input.value).then(() => {
-            showToast('Build URL copied!', 'success');
+            showToast(builderText('Build URL copied!', 'Build URL copied!'), 'success');
         });
     }
 
@@ -2300,7 +2976,7 @@ const PCBuilder = (() => {
 
     function shareWhatsApp() {
         if (Object.keys(selectedComponents).length === 0) {
-            showToast('Select components before sharing.', 'error');
+            showToast(builderText('Select components before sharing.', 'Select components before sharing.'), 'error');
             return;
         }
         const text = encodeURIComponent(`${buildQuoteText()}\n\nCan you confirm availability and compatibility?`);
@@ -2309,18 +2985,18 @@ const PCBuilder = (() => {
 
     function exportQuote() {
         if (Object.keys(selectedComponents).length === 0) {
-            showToast('Select components before exporting.', 'error');
+            showToast(builderText('Select components before exporting.', 'Select components before exporting.'), 'error');
             return;
         }
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
-            showToast('Popup blocked. Allow popups to export the quote.', 'error');
+            showToast(builderText('Popup blocked. Allow popups to export the quote.', 'Popup blocked. Allow popups to export the quote.'), 'error');
             return;
         }
         const html = `
             <html>
             <head>
-                <title>${buildName || 'Maroc PC Build Quote'}</title>
+                <title>${buildName || builderText('Maroc PC Build Quote', 'Maroc PC Build Quote')}</title>
                 <style>
                     body { font-family: Arial, sans-serif; padding: 32px; color: #111; }
                     h1 { margin: 0 0 8px; }
@@ -2332,27 +3008,27 @@ const PCBuilder = (() => {
                 </style>
             </head>
             <body>
-                <h1>${buildName || 'Maroc PC Build Quote'}</h1>
-                <div class="muted">Generated ${new Date().toLocaleString()} - Estimated wattage ${calculateTotalWattage(true)}W</div>
+                <h1>${buildName || builderText('Maroc PC Build Quote', 'Maroc PC Build Quote')}</h1>
+                <div class="muted">${builderText('Generated', 'Generated')} ${new Date().toLocaleString()} - ${builderText('Estimated wattage', 'Estimated wattage')} ${calculateTotalWattage(true)}W</div>
                 <table>
-                    <thead><tr><th>Type</th><th>Item</th><th>Price</th></tr></thead>
+                    <thead><tr><th>${builderText('Type', 'Type')}</th><th>${builderText('Item', 'Item')}</th><th>${builderText('Price', 'Price')}</th></tr></thead>
                     <tbody>
                         ${Object.entries(selectedComponents).map(([key, product]) => {
                             const step = STEPS.find(s => s.key === key);
                             return `<tr><td>${step?.label || key}</td><td>${product.name}</td><td>${formatMAD(product.price)}</td></tr>`;
                         }).join('')}
-                        ${Object.values(selectedServices).map(service => `<tr><td>Service</td><td>${service.name}</td><td>${formatMAD(service.price)}</td></tr>`).join('')}
+                        ${Object.values(selectedServices).map(service => `<tr><td>${builderText('Service', 'Service')}</td><td>${service.name}</td><td>${formatMAD(service.price)}</td></tr>`).join('')}
                     </tbody>
                 </table>
-                <div class="total">Total: ${formatMAD(Object.values(selectedComponents).reduce((s, p) => s + p.price, 0) + calculateServiceTotal())}</div>
-                <p class="muted">Prices and stock are estimates until confirmed by Maroc PC.</p>
+                <div class="total">${builderText('Total:', 'Total:')} ${formatMAD(Object.values(selectedComponents).reduce((s, p) => s + p.price, 0) + calculateServiceTotal())}</div>
+                <p class="muted">${builderText('Prices and stock are estimates until confirmed by Maroc PC.', 'Prices and stock are estimates until confirmed by Maroc PC.')}</p>
             </body>
             </html>
         `;
         printWindow.document.write(html);
         printWindow.document.close();
         printWindow.focus();
-        printWindow.print();
+printWindow.print();
     }
 
     // ── Toast Helper ─────────────────────────────────────────
@@ -2373,7 +3049,12 @@ const PCBuilder = (() => {
 
     // ── Format ───────────────────────────────────────────────
     function formatMAD(n) {
-        return Number(n).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD';
+        if (typeof window !== 'undefined' && typeof window.formatMAD === 'function') {
+            return window.formatMAD(n);
+        }
+        const lang = (document.documentElement.lang || 'en').slice(0, 2);
+        const currency = lang === 'ar' ? 'د.م.' : 'DH';
+        return Number(n).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + currency;
     }
 
     function escapeHTML(value) {
@@ -2391,7 +3072,7 @@ const PCBuilder = (() => {
         document.querySelectorAll('.ps-card').forEach(card => {
             card.classList.toggle('active', card.dataset.platform === platform);
         });
-        showToast(`Building ${platform.toUpperCase()} Combo...`, 'success');
+        showToast(builderTemplate('Building {platform} Combo...', 'Building {platform} Combo...', {platform: platform.toUpperCase()}), 'success');
         
         chooseBuilderPath('custom', false);
         autoBuild(useCase, targetBudget, false);
@@ -2404,12 +3085,220 @@ const PCBuilder = (() => {
 
     function shareWA() {
         const url = document.getElementById('shareUrlInput').value;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Check out my PC build: ' + url)}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(builderText('Check out my PC build: ', 'Check out my PC build: ') + url)}`, '_blank');
     }
 
     function shareTW() {
         const url = document.getElementById('shareUrlInput').value;
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out my PC build: ' + url)}`, '_blank');
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(builderText('Check out my PC build: ', 'Check out my PC build: ') + url)}`, '_blank');
+    }
+
+    // ── Focus/Expert Workspace Mode ──────────────────────────
+    function setWorkspaceMode(mode) {
+        const workspace = document.getElementById('pcBuilderWorkspace');
+        const checkbox = document.getElementById('workspaceModeToggle');
+        const labelFocus = document.getElementById('modeLabelFocus');
+        const labelExpert = document.getElementById('modeLabelExpert');
+        const description = document.getElementById('modeDescription');
+
+        if (!workspace) return;
+
+        localStorage.setItem('workspaceMode', mode);
+
+        if (mode === 'expert') {
+            workspace.classList.remove('workspace-mode-focus');
+            workspace.classList.add('workspace-mode-expert');
+            if (checkbox) checkbox.checked = true;
+            if (labelFocus) labelFocus.classList.remove('active');
+            if (labelExpert) labelExpert.classList.add('active');
+            if (description) description.textContent = builderText('Expert Technical Mode: full specs, socket checks, and raw gauges.', 'Expert Technical Mode: full specs, socket checks, and raw gauges.');
+            
+            // Expand all details sidebars in Expert mode
+            document.querySelectorAll('.sidebar-accordion').forEach(acc => {
+                acc.setAttribute('open', 'true');
+            });
+        } else {
+            workspace.classList.remove('workspace-mode-expert');
+            workspace.classList.add('workspace-mode-focus');
+            if (checkbox) checkbox.checked = false;
+            if (labelFocus) labelFocus.classList.add('active');
+            if (labelExpert) labelExpert.classList.remove('active');
+            if (description) description.textContent = builderText('Guided step-by-step assistant tailored for your build path.', 'Guided step-by-step assistant tailored for your build path.');
+
+            adjustFocusAccordions();
+        }
+    }
+
+    function toggleWorkspaceMode() {
+        const checkbox = document.getElementById('workspaceModeToggle');
+        if (checkbox) {
+            const mode = checkbox.checked ? 'expert' : 'focus';
+            setWorkspaceMode(mode);
+        }
+    }
+
+    function adjustFocusAccordions() {
+        const workspace = document.getElementById('pcBuilderWorkspace');
+        if (!workspace || !workspace.classList.contains('workspace-mode-focus')) return;
+
+        const itemCount = Object.keys(selectedComponents).length;
+
+        const summaryAcc = document.getElementById('accordion-summary');
+        const wattageAcc = document.getElementById('accordion-wattage');
+        const diagnosticsAcc = document.getElementById('accordion-diagnostics');
+        const servicesAcc = document.getElementById('accordion-services');
+
+        if (itemCount === 0) {
+            if (summaryAcc) summaryAcc.setAttribute('open', 'true');
+            if (wattageAcc) wattageAcc.removeAttribute('open');
+            if (diagnosticsAcc) diagnosticsAcc.removeAttribute('open');
+            if (servicesAcc) servicesAcc.setAttribute('open', 'true');
+        } else {
+            if (summaryAcc) summaryAcc.setAttribute('open', 'true');
+            if (wattageAcc) wattageAcc.removeAttribute('open');
+            if (diagnosticsAcc) diagnosticsAcc.removeAttribute('open');
+            if (servicesAcc) servicesAcc.removeAttribute('open');
+        }
+    }
+
+    // ── Sticky Dock Observer ──────────────────────────────────
+    function initStickyDockObserver() {
+        const buildActions = document.querySelector('.build-actions');
+        const stickyDock = document.getElementById('stickyBuildDock');
+        if (!buildActions || !stickyDock) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    stickyDock.classList.add('visible');
+                } else {
+                    stickyDock.classList.remove('visible');
+                }
+            });
+        }, {
+            root: null,
+            threshold: 0
+        });
+
+        observer.observe(buildActions);
+    }
+
+    // ── Price-Tier Pills ─────────────────────────────────────
+    function selectPriceTier(tier) {
+        activePriceTier = tier;
+        renderCurrentStep();
+    }
+
+    // ── Onboarding Questionnaire Wizard ──────────────────────
+    function openOnboardingWizard() {
+        const modal = document.getElementById('onboardingWizardModal');
+        if (!modal) return;
+
+        wizardState.currentStep = 1;
+        wizardState.useCase = 'gaming';
+        wizardState.budget = 12000;
+        wizardState.theme = 'performance';
+
+        // Reset visual cards state
+        document.querySelectorAll('.wizard-option-card').forEach(card => card.classList.remove('active'));
+
+        const range = document.getElementById('wizardBudgetRange');
+        if (range) range.value = 12000;
+        const display = document.getElementById('wizardBudgetValue');
+        if (display) display.textContent = formatMAD(12000);
+
+        showWizardStep(1);
+        modal.style.display = 'flex';
+    }
+
+    function closeOnboardingWizard() {
+        const modal = document.getElementById('onboardingWizardModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function showWizardStep(stepNum) {
+        wizardState.currentStep = stepNum;
+
+        const progressFill = document.getElementById('wizardProgressFill');
+        if (progressFill) {
+            progressFill.style.width = (stepNum * 25) + '%';
+        }
+
+        document.querySelectorAll('.wizard-modal-step').forEach(el => {
+            const step = parseInt(el.dataset.step);
+            if (step === stepNum) {
+                el.style.display = 'block';
+                el.classList.add('active');
+            } else {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            }
+        });
+
+        if (stepNum === 4) {
+            triggerWizardBuild();
+        }
+    }
+
+    function selectWizardOption(key, value) {
+        wizardState[key] = value;
+
+        const activeStepEl = document.querySelector(`.wizard-modal-step[data-step="${wizardState.currentStep}"]`);
+        if (activeStepEl) {
+            activeStepEl.querySelectorAll('.wizard-option-card').forEach(card => {
+                const onclickStr = card.getAttribute('onclick') || '';
+                if (onclickStr.includes(`'${value}'`)) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        if (wizardState.currentStep === 1) {
+            setTimeout(() => nextWizardStep(), 350);
+        } else if (wizardState.currentStep === 3) {
+            setTimeout(() => nextWizardStep(), 350);
+        }
+    }
+
+    // ── Update Wizard Budget ──────────────────────────────────
+    function updateWizardBudget(val) {
+        wizardState.budget = parseInt(val, 10);
+        const display = document.getElementById('wizardBudgetValue');
+        if (display) display.textContent = formatMAD(wizardState.budget);
+    }
+
+    function prevWizardStep() {
+        if (wizardState.currentStep > 1) {
+            showWizardStep(wizardState.currentStep - 1);
+        }
+    }
+
+    function nextWizardStep() {
+        if (wizardState.currentStep < 4) {
+            showWizardStep(wizardState.currentStep + 1);
+        }
+    }
+
+    function triggerWizardBuild() {
+        setTimeout(() => {
+            closeOnboardingWizard();
+
+            if (wizardState.theme === 'rgb') {
+                selectedServices['assembly'] = BUILD_SERVICES['assembly'];
+                const assemblyCb = document.querySelector('.service-checkbox[value="assembly"]');
+                if (assemblyCb) assemblyCb.checked = true;
+            }
+
+            autoBuild(wizardState.useCase, wizardState.budget, true);
+            setWorkspaceMode('focus');
+
+            const workspace = document.getElementById('pcBuilderWorkspace');
+            if (workspace) {
+                workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 1500);
     }
 
     // ── Public API ───────────────────────────────────────────
@@ -2437,7 +3326,19 @@ const PCBuilder = (() => {
         focusSummary,
         getAssistantContext,
         applyAssistantProducts,
-        getSelected: () => selectedComponents
+        getSelected: () => selectedComponents,
+
+        // Premium Revamped UI/UX Expositions
+        setWorkspaceMode,
+        toggleWorkspaceMode,
+        showPresetSelector,
+        selectPriceTier,
+        openOnboardingWizard,
+        closeOnboardingWizard,
+        selectWizardOption,
+        updateWizardBudget,
+        prevWizardStep,
+        nextWizardStep
     };
 })();
 

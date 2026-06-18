@@ -93,9 +93,16 @@
     font-size: 0.68rem;
     font-weight: 700;
     color: var(--text, #e0e6ed);
-    text-transform: uppercase;
     letter-spacing: 0.02em;
     white-space: nowrap;
+}
+
+html[dir="ltr"] .plan-months {
+    text-transform: uppercase;
+}
+
+html[dir="rtl"] .plan-months {
+    text-transform: none;
 }
 
 .installment-plan-btn.active .plan-months {

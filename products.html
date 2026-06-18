@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/auth-nav.css">
-    <link rel="stylesheet" href="assets/css/products.css">
+    <link rel="stylesheet" href="assets/css/products.css?v=detail-page-1">
     <link rel="stylesheet" href="assets/css/installment-compare.css">
     <link rel="stylesheet" href="assets/css/light-mode-industrial.css">
     <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');</script>
     <script src="assets/js/wishlist.js"></script>
+    <script src="assets/js/page-transitions.js"></script>
 </head>
 
 <body>
@@ -400,6 +401,20 @@
         </div>
     </section>
 
+    <!-- Product Detail Page Surface -->
+    <section class="product-detail-page" id="productDetailPage" hidden>
+        <div class="container">
+            <div class="product-detail-nav">
+                <a href="products.html" class="product-detail-back" id="productDetailBack">
+                    <i class="fas fa-arrow-left"></i> Back to Components
+                </a>
+            </div>
+            <article class="product-detail-shell" id="productDetailContent" aria-live="polite">
+                <!-- Product detail page content is loaded via JavaScript -->
+            </article>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -457,7 +472,7 @@
         </div>
     </footer>
 
-    <!-- Quick View Modal -->
+    <!-- Legacy quick view modal kept as a safe fallback; product details now use the page surface above. -->
     <div class="modal" id="quickViewModal">
         <div class="modal-overlay"></div>
         <div class="modal-content">
@@ -475,20 +490,20 @@
     </div>
     <div id="roleModal" class="role-modal-overlay" style="display:none;">
         <div class="role-modal">
-            <p class="role-modal-title">Continue as</p>
-            <p class="role-modal-subtitle">Choose your access level to proceed.</p>
+            <p class="role-modal-title">Sign In</p>
+            <p class="role-modal-subtitle">Select your account type to continue to the login page.</p>
             <button class="role-btn" onclick="selectRole('user')">
-                <span class="role-icon user-icon">👤</span>
+                <span class="role-icon user-icon"><i class="fas fa-user"></i></span>
                 <div>
-                    <strong>Continue as user</strong>
-                    <small>Standard access</small>
+                    <strong>Customer Account</strong>
+                    <small>Track orders, wishlists &amp; purchases</small>
                 </div>
             </button>
             <button class="role-btn" onclick="selectRole('administrator')">
-                <span class="role-icon admin-icon">🛡️</span>
+                <span class="role-icon admin-icon"><i class="fas fa-shield-alt"></i></span>
                 <div>
-                    <strong>Continue as administrator</strong>
-                    <small>Full access</small>
+                    <strong>Admin Portal</strong>
+                    <small>Inventory, orders &amp; site management</small>
                 </div>
             </button>
             <button class="role-cancel" onclick="closeRoleModal()">Cancel</button>
@@ -496,11 +511,11 @@
     </div>
 
     <script src="assets/js/data.js"></script>
-    <script src="assets/js/cart.js"></script>
-    <script src="assets/js/translate.js"></script>
+    <script src="assets/js/cart.js?v=notify-toast-2"></script>
+    <script src="assets/js/translate.js?v=shared-translate-1"></script>
     <script src="assets/js/installment.js"></script>
     <script src="assets/js/reviews.js"></script>
-    <script src="assets/js/prod.js"></script>
+    <script src="assets/js/prod.js?v=detail-page-1"></script>
     <script src="assets/js/theme.js"></script>
     <script src="assets/js/auth-nav.js"></script>
     <script>
@@ -605,6 +620,10 @@
                     <li><a href="products.html?category=power" class="sidebar-sublink">Power Supplies</a></li>
                     <li><a href="products.html?category=monitor" class="sidebar-sublink">Monitors</a></li>
                     <li><a href="products.html?category=accessories" class="sidebar-sublink">Accessories</a></li>
+                    <li><a href="products.html?category=keyboard" class="sidebar-sublink">Keyboards</a></li>
+                    <li><a href="products.html?category=mouse" class="sidebar-sublink">Mice</a></li>
+                    <li><a href="products.html?category=vr" class="sidebar-sublink">VR Headsets</a></li>
+                    <li><a href="products.html?category=router" class="sidebar-sublink">Routers</a></li>
                 </ul>
             </li>
             <li class="sidebar-dropdown">
@@ -619,6 +638,7 @@
                     <li><a href="laptop-finder.php" class="sidebar-sublink">Laptop Finder</a></li>
                     <li><a href="builder.php?tab=psu-calculator" class="sidebar-sublink">Power Supply Calculator</a></li>
                     <li><a href="builder.php?tab=memory-finder" class="sidebar-sublink">Memory Finder</a></li>
+                    <li><a href="tools.php" class="sidebar-sublink">Tools Cockpit</a></li>
                 </ul>
             </li>
             <li><a href="index.html#deals" class="sidebar-link"><i class="fas fa-bolt"></i> Deals</a></li>

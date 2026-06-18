@@ -10,11 +10,14 @@ const FPSEstimator = (() => {
         update();
     }
 
+    function t(key) {
+        return window.__marocPcPhraseMap?.[key] || key;
+    }
+
     function renderContainer() {
         const summary = document.querySelector('.build-summary');
         if (!summary) return;
 
-        // Create container before Total section
         const totalSection = summary.querySelector('.build-total');
         const container = document.createElement('div');
         container.className = 'fps-estimator';
@@ -22,7 +25,7 @@ const FPSEstimator = (() => {
         
         container.innerHTML = `
             <div class="fe-header">
-                <span class="fe-label"><i class="fas fa-gamepad"></i> FPS Estimator</span>
+                <span class="fe-label"><i class="fas fa-gamepad"></i> ${t('FPS Estimator')}</span>
                 <div class="fe-res-toggles">
                     <button class="fe-res-btn active" data-res="1080p">1080p</button>
                     <button class="fe-res-btn" data-res="1440p">1440p</button>
@@ -30,15 +33,13 @@ const FPSEstimator = (() => {
                 </div>
             </div>
             <div class="fe-games" id="feGames">
-                <!-- Populated by JS -->
-                <div class="fe-empty">Select a GPU to see estimates</div>
+                <div class="fe-empty">${t('Select a GPU to see estimates')}</div>
             </div>
-            <div class="fe-disclaimer">* Estimated FPS at Ultra settings</div>
+            <div class="fe-disclaimer">* ${t('Estimated FPS at Ultra settings')}</div>
         `;
 
         summary.insertBefore(container, totalSection);
 
-        // Resolution toggle events
         container.querySelectorAll('.fe-res-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 currentResolution = btn.dataset.res;
@@ -53,17 +54,16 @@ const FPSEstimator = (() => {
         const gamesContainer = document.getElementById('feGames');
         if (!gamesContainer) return;
 
-        // Get selected GPU and CPU from PCBuilder state (global access)
         const selected = (typeof PCBuilder !== 'undefined') ? PCBuilder.getSelected() : {};
         const gpu = selected['gpu'];
         const cpu = selected['cpu'];
 
         if (!gpu) {
-            gamesContainer.innerHTML = '<div class="fe-empty">Select a GPU to see estimates</div>';
+            gamesContainer.innerHTML = `<div class="fe-empty">${t('Select a GPU to see estimates')}</div>`;
             return;
         }
 
-        const gpuBenchmarks = FPS_DATA.benchmarks[gpu.id] || FPS_DATA.benchmarks["3"]; // Default to 4070Ti specs if unknown
+        const gpuBenchmarks = FPS_DATA.benchmarks[gpu.id] || FPS_DATA.benchmarks["3"];
         const cpuMultiplier = FPS_DATA.cpuTiers[cpu?.id] || FPS_DATA.cpuTiers.default;
 
         let html = '';
@@ -75,7 +75,7 @@ const FPSEstimator = (() => {
             const fallbackFPS = getFallbackGameFps(gpuBenchmarks, game);
             const baseFPS = gpuBenchmarks[game.id]?.[currentResolution] || fallbackFPS;
             const finalFPS = Math.round(baseFPS * cpuMultiplier);
-            const barWidth = Math.min(100, (finalFPS / 200) * 100); // 200 FPS is 100%
+            const barWidth = Math.min(100, (finalFPS / 200) * 100);
 
             html += `
                 <div class="fe-game-item">

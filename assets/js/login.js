@@ -1,14 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ── Theme toggle ──────────────────────────────────────────
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const html = document.documentElement;
-            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-        });
-    }
 
     const form = document.forms.login;
     const passInput = document.getElementById('login-pass');
@@ -21,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.addEventListener('click', () => {
         const isPass = passInput.type === 'password';
         passInput.type = isPass ? 'text' : 'password';
-        toggleBtn.textContent = isPass ? '🙈' : '👁';
+        toggleBtn.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
         toggleBtn.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
     });
 
@@ -38,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const valid = validators[name](input.value);
         group.classList.toggle('invalid', !valid);
+        group.classList.toggle('valid', valid && input.value.length > 0);
         return valid;
     }
 
@@ -47,16 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('blur', () => validateField(field));
         el.addEventListener('input', () => {
             // clear error as soon as user starts typing
-            el.closest('.form-group')?.classList.remove('invalid');
+            const group = el.closest('.form-group');
+            if (group) {
+                group.classList.remove('invalid');
+            }
         });
     });
 
     // ── Toast helper ──────────────────────────────────────────
     function showToast(message, isError = false) {
         toastMsg.textContent = message;
-        toast.style.borderColor = isError ? 'var(--red)' : 'var(--cyan)';
+        toast.classList.remove('success', 'error');
+        toast.classList.add(isError ? 'error' : 'success');
         toast.querySelector('i').textContent = isError ? '✕' : '⚡';
-        toast.querySelector('i').style.color = isError ? 'var(--red)' : 'var(--cyan)';
         toast.classList.add('show');
 
         setTimeout(() => {
@@ -82,9 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         submitBtn.textContent = 'Verifying...';
         submitBtn.disabled = true;
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3ef74137-7336-41af-9a23-1526acbc2e88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({runId:'post-fix',hypothesisId:'H7',location:'js/login.js:submit',message:'Login validation passed, submitting form',data:{action:form.action,remember:!!form.elements.remember?.checked},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         form.submit();
     });
 });

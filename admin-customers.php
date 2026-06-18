@@ -104,55 +104,58 @@ adminPageStart('Customer Management', 'customers');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">User Monitoring</span>
-        <h1>Customers</h1>
-        <p class="section-copy">Monitor registered users, review their order activity, and remove accounts when required. Deleting a user also deletes their orders and order items.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('User Monitoring')) ?></span>
+        <h1><?= adminH(adminPhrase('Customers')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Monitor registered users, review their order activity, and remove accounts when required. Deleting a user also deletes their orders and order items.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-orders.php">Orders</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-orders.php"><?= adminH(adminPhrase('Orders')) ?></a>
         <a class="button button-light" href="api/export-customers.php?format=csv"><i class="fas fa-file-csv"></i> CSV</a>
         <a class="button button-light" href="api/export-customers.php?format=r"><i class="fas fa-code"></i> RData Script</a>
     </div>
 </section>
 
 <?php if (isset($_GET['deleted'])): ?>
-    <div class="admin-alert success">Customer and related orders were deleted.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Customer and related orders were deleted.')) ?></div>
+<?php elseif (isset($_GET['suspended'])): ?>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Customer suspended successfully.')) ?></div>
+<?php elseif (isset($_GET['unsuspended'])): ?>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Customer restored successfully.')) ?></div>
 <?php elseif (isset($_GET['error'])): ?>
     <div class="admin-alert error"><?= adminH($_GET['error']) ?></div>
 <?php endif; ?>
 
 <div class="stats-grid">
-    <article class="stat-card"><strong><?= $stats['customers'] ?></strong><span>Total customers</span></article>
-    <article class="stat-card"><strong><?= $stats['with_orders'] ?></strong><span>Customers with orders</span></article>
-    <article class="stat-card"><strong><?= $stats['orders'] ?></strong><span>Total orders</span></article>
-    <article class="stat-card"><strong><?= adminMoney($stats['revenue']) ?></strong><span>Customer revenue</span></article>
+    <article class="stat-card"><strong><?= $stats['customers'] ?></strong><span><?= adminH(adminPhrase('Total customers')) ?></span></article>
+    <article class="stat-card"><strong><?= $stats['with_orders'] ?></strong><span><?= adminH(adminPhrase('Customers with orders')) ?></span></article>
+    <article class="stat-card"><strong><?= $stats['orders'] ?></strong><span><?= adminH(adminPhrase('Total orders')) ?></span></article>
+    <article class="stat-card"><strong><?= adminMoney($stats['revenue']) ?></strong><span><?= adminH(adminPhrase('Customer revenue')) ?></span></article>
 </div>
 
 <section class="table-card customers-panel">
     <div class="card-head">
-        <h2>Registered Users</h2>
+        <h2><?= adminH(adminPhrase('Registered Users')) ?></h2>
     </div>
 
     <form class="filter-bar customer-filter" method="get">
         <label>
-            Search
-            <input type="text" name="search" value="<?= adminH($search) ?>" placeholder="Name, email, phone">
+            <?= adminH(adminPhrase('Search')) ?>                            <input type="text" name="search" value="<?= adminH($search) ?>" placeholder="<?= adminH(adminPhrase('Name, email, phone')) ?>">
         </label>
         <label>
-            Order status
+            <?= adminH(adminPhrase('Order Status')) ?>
             <select name="status">
-                <option value="">Any order status</option>
+                <option value=""><?= adminH(adminPhrase('Any order status')) ?></option>
                 <?php foreach (['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $status): ?>
                     <option value="<?= adminH($status) ?>" <?= $orderStatus === $status ? 'selected' : '' ?>><?= adminH(ucfirst($status)) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <button class="button button-primary" type="submit">Filter</button>
+        <button class="button button-primary" type="submit"><?= adminH(adminPhrase('Filter')) ?></button>
     </form>
 
     <?php if ($customers === []): ?>
-        <p class="empty-copy">No users match the current filters.</p>
+        <p class="empty-copy"><?= adminH(adminPhrase('No users match the current filters.')) ?></p>
     <?php else: ?>
         <div class="customer-list">
             <?php foreach ($customers as $customer): ?>
@@ -170,30 +173,30 @@ adminPageStart('Customer Management', 'customers');
                     <div class="customer-metrics">
                         <span>
                             <strong><?= (int) $customer['order_count'] ?></strong>
-                            <small>Orders</small>
+                            <small><?= adminH(adminPhrase('Orders')) ?></small>
                         </span>
                         <span>
                             <strong><?= adminMoney((float) $customer['total_spent']) ?></strong>
-                            <small>Total spent</small>
+                            <small><?= adminH(adminPhrase('Total spent')) ?></small>
                         </span>
                         <span>
-                            <strong><?= $customer['last_order_at'] ? adminH(date('Y-m-d', strtotime((string) $customer['last_order_at']))) : 'None' ?></strong>
-                            <small>Last order</small>
+                            <strong><?= $customer['last_order_at'] ? adminH(date('Y-m-d', strtotime((string) $customer['last_order_at']))) : adminH(adminPhrase('None')) ?></strong>
+                            <small><?= adminH(adminPhrase('Last order')) ?></small>
                         </span>
                     </div>
 
                     <div class="customer-actions">
                         <?php if ($customer['is_suspended']): ?>
-                            <span class="status-badge status-failed" style="margin-right: 8px;">Suspended</span>
-                            <a class="button button-light button-small" href="admin-customers.php?action=unsuspend&id=<?= (int) $customer['id_client'] ?>">Restore</a>
+                            <span class="status-badge status-failed" style="margin-right: 8px;"><?= adminH(adminPhrase('Suspended')) ?></span>
+                            <a class="button button-light button-small" href="admin-customers.php?action=unsuspend&id=<?= (int) $customer['id_client'] ?>"><?= adminH(adminPhrase('Restore')) ?></a>
                         <?php else: ?>
-                            <button class="button button-warning button-small" onclick="suspendUser(<?= (int) $customer['id_client'] ?>)">Suspend</button>
+                            <button class="button button-warning button-small" onclick="suspendUser(<?= (int) $customer['id_client'] ?>)"><?= adminH(adminPhrase('Suspend')) ?></button>
                         <?php endif; ?>
-                        <a class="button button-light button-small" href="admin-customer-detail.php?id=<?= (int) $customer['id_client'] ?>">Details</a>
-                        <form method="post" action="admin-customer-delete.php" onsubmit="return confirm('Delete this user and all related orders?');" style="display:inline;">
+                        <a class="button button-light button-small" href="admin-customer-detail.php?id=<?= (int) $customer['id_client'] ?>"><?= adminH(adminPhrase('Details')) ?></a>
+                        <form method="post" action="admin-customer-delete.php" onsubmit="return confirm('<?= htmlspecialchars(i18n_t('Delete this user and all related orders?', [], 'Delete this user and all related orders?'), ENT_QUOTES, 'UTF-8') ?>')" style="display:inline;">
                             <?= csrfField() ?>
                             <input type="hidden" name="id" value="<?= (int) $customer['id_client'] ?>">
-                            <button class="button button-danger button-small" type="submit">Delete</button>
+                            <button class="button button-danger button-small" type="submit"><?= adminH(adminPhrase('Delete')) ?></button>
                         </form>
                     </div>
                 </article>

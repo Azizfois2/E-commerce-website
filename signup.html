@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/signup.css">
 	<link rel="stylesheet" href="assets/css/light-mode-industrial.css">
+	<script src="assets/js/page-transitions.js"></script>
 </head>
     <!-- Confirmation Modal -->
     <div class="confirm-overlay" id="confirmOverlay"></div>
@@ -84,7 +85,29 @@
                         <input type="password" name="pass" id="pass" class="hh" placeholder="••••••••" required minlength="8">
                         <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password">👁</button>
                     </div>
-                    <span class="hint">At least 8 characters with a number and symbol</span>
+                    
+                    <!-- Password Requirements Checklist -->
+                    <div class="password-requirements" id="passwordRequirements">
+                        <div class="requirement" id="req-length">
+                            <span class="req-icon">○</span>
+                            <span class="req-text">At least 8 characters</span>
+                        </div>
+                        <div class="requirement" id="req-number">
+                            <span class="req-icon">○</span>
+                            <span class="req-text">Contains a number</span>
+                        </div>
+                        <div class="requirement" id="req-symbol">
+                            <span class="req-icon">○</span>
+                            <span class="req-text">Contains a symbol (!@#$%^&*)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-text" id="strengthText">Enter password</span>
+                    </div>
                     <span class="error-msg" id="err-pass">Password is too weak</span>
                 </div>
 
@@ -128,5 +151,6 @@
     </div>
 
     <script src="assets/js/form.js" defer></script>
+    <script src="assets/js/auth-premium.js" defer></script>
 </body>
 </html>

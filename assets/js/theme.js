@@ -62,28 +62,65 @@
     }
 })();
 
-document.addEventListener('DOMContentLoaded', () => {
-    // ── Session Footprint Sync ─────────────────────────────────────
-    if (document.cookie.includes('plant_footprint=1')) {
-        localStorage.setItem('has_active_session', '1');
-        document.cookie = 'plant_footprint=; Max-Age=0; path=/';
+function initThemeToggle() {
+    try {
+        // ── Session Footprint Sync ─────────────────────────────────────
+        if (document.cookie && document.cookie.includes('plant_footprint=1')) {
+            try {
+                localStorage.setItem('has_active_session', '1');
+            } catch (e) {
+                console.warn('localStorage is not accessible:', e);
+            }
+            document.cookie = 'plant_footprint=; Max-Age=0; path=/';
+        }
+
+        if (document.cookie && document.cookie.includes('plant_admin_footprint=1')) {
+            try {
+                localStorage.setItem('has_active_admin_session', '1');
+            } catch (e) {
+                console.warn('localStorage is not accessible:', e);
+            }
+            document.cookie = 'plant_admin_footprint=; Max-Age=0; path=/';
+        }
+    } catch (e) {
+        console.warn('Cookie access issue:', e);
     }
 
     const toggle = document.getElementById('themeToggle');
     if (toggle) {
         toggle.addEventListener('click', () => {
-            const html = document.documentElement;
-            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
+            try {
+                const html = document.documentElement;
+                const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', next);
+                try {
+                    localStorage.setItem('theme', next);
+                } catch (e) {
+                    console.warn('Failed to save theme in localStorage:', e);
+                }
+                document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: next } }));
+            } catch (err) {
+                console.error('Theme toggle execution failed:', err);
+            }
         });
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
+} else {
+    initThemeToggle();
+}
 
 window.addEventListener('storage', (e) => {
-    if (e.key === 'theme') {
-        const theme = e.newValue || 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
+    try {
+        if (e.key === 'theme') {
+            const theme = e.newValue || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
+        }
+    } catch (err) {
+        console.warn('Storage event handling failed:', err);
     }
 });
 
@@ -172,7 +209,7 @@ function showToast(message, type = 'success') {
     }
     
     // Set text and class to trigger CSS animation
-    toast.className = \`toast show \${type}\`;
+    toast.className = `toast show ${type}`;
     toastMsg.textContent = message;
     
     clearTimeout(window.globalToastTimer);
@@ -181,4 +218,3 @@ function showToast(message, type = 'success') {
     }, 3500);
 }
 window.showToast = showToast;
-

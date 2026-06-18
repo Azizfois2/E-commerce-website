@@ -4,13 +4,14 @@
  */
 require_once 'config.php';
 require_once 'mailer.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 $email = $_GET['email'] ?? '';
 $message = '';
 $isError = false;
 
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $message = 'Invalid email address.';
+    $message = i18n_t('auth.invalid_email', [], 'Invalid email address.');
     $isError = true;
 } else {
     $pdo = db();
@@ -21,10 +22,10 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $user = $stmt->fetch();
 
     if (!$user) {
-        $message = 'No account found with this email.';
+        $message = i18n_t('auth.resend_no_account', [], 'No account found with this email.');
         $isError = true;
     } elseif (!empty($user['email_verified'])) {
-        $message = 'Your email is already verified! You can log in.';
+        $message = i18n_t('auth.resend_already_verified', [], 'Your email is already verified! You can log in.');
         $isError = false;
     } else {
         // Invalidate old tokens
@@ -43,20 +44,20 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $sent = sendVerificationEmail($email, $user['nom'], $token);
 
         if ($sent) {
-            $message = 'A new verification email has been sent! Check your inbox.';
+            $message = i18n_t('auth.resend_sent', [], 'A new verification email has been sent! Check your inbox.');
         } else {
-            $message = 'Failed to send email. Please try again later.';
+            $message = i18n_t('auth.resend_failed', [], 'Failed to send email. Please try again later.');
             $isError = true;
         }
     }
 }
 ?>
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="<?= htmlspecialchars(i18n_current_locale(), ENT_QUOTES, 'UTF-8') ?>" dir="<?= htmlspecialchars(i18n_direction(), ENT_QUOTES, 'UTF-8') ?>" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resend Verification — Maroc PC</title>
+    <title><?= i18n_t('auth.resend_title_page', [], 'Resend Verification — Maroc PC') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/signup.css">
@@ -76,18 +77,20 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     </style>
 </head>
 <body>
+    <?= i18n_language_switcher('nav-translate', 'position:fixed;top:1.5rem;right:1.5rem;') ?>
     <div class="verify-container">
         <div class="verify-card">
             <div class="verify-icon <?= $isError ? 'error' : 'success' ?>">
                 <i class="fas <?= $isError ? 'fa-exclamation-circle' : 'fa-envelope-circle-check' ?>"></i>
             </div>
-            <h2><?= $isError ? 'Oops!' : 'Email Sent!' ?></h2>
+            <h2><?= $isError ? htmlspecialchars(i18n_t('auth.resend_error_title'), ENT_QUOTES, 'UTF-8') : htmlspecialchars(i18n_t('auth.resend_sent_title'), ENT_QUOTES, 'UTF-8') ?></h2>
             <p><?= htmlspecialchars($message) ?></p>
             <a href="login.php" class="verify-btn">
-                <i class="fas fa-sign-in-alt"></i> Back to Login
+                <i class="fas fa-sign-in-alt"></i> <?php i18n_e('auth.back_to_login'); ?>
             </a>
         </div>
     </div>
     <script src="assets/js/theme.js" defer></script>
+    <?= i18n_language_switcher_assets() ?>
 </body>
 </html>

@@ -26,6 +26,7 @@ function ensureAfterSalesTables(PDO $pdo): void
             product_condition ENUM('sealed','opened_unused','used','defective','damaged_package','missing_item') NOT NULL,
             package_opened TINYINT(1) NOT NULL DEFAULT 0,
             serial_number VARCHAR(120) DEFAULT NULL,
+            product_image VARCHAR(255) DEFAULT NULL,
             reason TEXT NOT NULL,
             status ENUM('submitted','reviewing','approved','awaiting_item','inspecting','resolved','rejected') NOT NULL DEFAULT 'submitted',
             priority ENUM('normal','urgent') NOT NULL DEFAULT 'normal',
@@ -38,6 +39,15 @@ function ensureAfterSalesTables(PDO $pdo): void
             INDEX idx_after_sales_status (status)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
+
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM after_sales_requests LIKE 'product_image'");
+        if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+            $pdo->exec("ALTER TABLE after_sales_requests ADD COLUMN product_image VARCHAR(255) DEFAULT NULL AFTER serial_number");
+        }
+    } catch (PDOException $e) {
+        // Ignore
+    }
 }
 
 function cleanText(mixed $value, int $max = 255): string
@@ -54,13 +64,13 @@ function failJson(string $message, int $status = 400): never
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-if (!is_array($input)) {
+$input = $_POST;
+if (empty($input)) {
     failJson('Invalid request payload.');
 }
 
-$allowedTypes = ['return', 'refund', 'exchange', 'warranty', 'repair', 'missing', 'damaged'];
-$allowedResolutions = ['refund', 'replacement', 'store_credit', 'repair', 'diagnostic'];
+$allowedTypes = ['return', 'refund', 'exchange', 'warranty', 'missing', 'damaged'];
+$allowedResolutions = ['refund', 'replacement', 'store_credit'];
 $allowedConditions = ['sealed', 'opened_unused', 'used', 'defective', 'damaged_package', 'missing_item'];
 
 $orderId = (int) ($input['order_id'] ?? 0);
@@ -75,6 +85,22 @@ $serialNumber = cleanText($input['serial_number'] ?? '', 120);
 $reason = trim((string) ($input['reason'] ?? ''));
 $packageOpened = !empty($input['package_opened']) ? 1 : 0;
 $clientId = !empty($_SESSION['client_id']) ? (int) $_SESSION['client_id'] : null;
+
+$imagePath = null;
+if (!empty($_FILES['rma_image']['tmp_name'])) {
+    $uploadDir = dirname(__DIR__) . '/Images/rma/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+    $fileInfo = pathinfo($_FILES['rma_image']['name']);
+    $ext = strtolower($fileInfo['extension'] ?? '');
+    if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+        $newFilename = 'rma_' . uniqid() . '.' . $ext;
+        if (move_uploaded_file($_FILES['rma_image']['tmp_name'], $uploadDir . $newFilename)) {
+            $imagePath = 'Images/rma/' . $newFilename;
+        }
+    }
+}
 
 if ($orderId <= 0) failJson('Please enter a valid order number.');
 if ($customerName === '') failJson('Please enter your full name.');
@@ -105,10 +131,10 @@ if (!$order) {
 
 $daysSinceOrder = max(0, (int) floor((time() - strtotime((string) $order['created_at'])) / 86400));
 $isReturnLike = in_array($requestType, ['return', 'refund', 'exchange'], true);
-$isWarrantyLike = in_array($requestType, ['warranty', 'repair'], true);
+$isWarrantyLike = in_array($requestType, ['warranty'], true);
 
 if ($isReturnLike && $daysSinceOrder > 14) {
-    failJson('This order is outside the 14-day return window. Please choose warranty or repair service instead.');
+    failJson('This order is outside the 14-day return window. Please choose warranty service instead.');
 }
 
 if ($isReturnLike && $order['status'] === 'cancelled') {
@@ -117,8 +143,8 @@ if ($isReturnLike && $order['status'] === 'cancelled') {
 
 $priority = in_array($requestType, ['damaged', 'missing'], true) ? 'urgent' : 'normal';
 $nextAction = match ($requestType) {
-    'damaged', 'missing' => 'Upload photos to support@marocpc.com and keep all packaging until triage is complete.',
-    'warranty', 'repair' => 'Our technician will confirm serial number, symptoms, and warranty route before intake.',
+    'damaged', 'missing' => $imagePath ? 'Triage is reviewing your photos. Keep all packaging until complete.' : 'Upload photos to support@marocpc.com and keep all packaging until triage is complete.',
+    'warranty' => 'Our technician will confirm serial number, symptoms, and warranty route before intake.',
     default => 'Keep the product complete with accessories. We will confirm eligibility before return drop-off.',
 };
 
@@ -131,9 +157,9 @@ $ticketCode = 'RMA-' . date('ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 $stmt = $pdo->prepare("
     INSERT INTO after_sales_requests
       (ticket_code, order_id, client_id, customer_name, email, phone, request_type, preferred_resolution,
-       product_name, product_condition, package_opened, serial_number, reason, priority, next_action)
+       product_name, product_condition, package_opened, serial_number, product_image, reason, priority, next_action)
     VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 $stmt->execute([
     $ticketCode,
@@ -148,6 +174,7 @@ $stmt->execute([
     $condition,
     $packageOpened,
     $serialNumber ?: null,
+    $imagePath,
     mb_substr($reason, 0, 2000),
     $priority,
     $nextAction,

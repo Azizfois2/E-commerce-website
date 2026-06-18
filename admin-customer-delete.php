@@ -1,5 +1,6 @@
 <?php
 require_once 'admin-helpers.php';
+require_once 'inventory-helpers.php';
 
 adminRequireAuth();
 
@@ -20,6 +21,17 @@ $pdo = db();
 
 try {
     $pdo->beginTransaction();
+
+    if (adminTableExists($pdo, 'orders')) {
+        $stmt = $pdo->prepare('SELECT id, stock_reserved FROM orders WHERE client_id = ? FOR UPDATE');
+        $stmt->execute([$customerId]);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($orders as $order) {
+            if (!empty($order['stock_reserved'])) {
+                inventoryRestoreOrderStock($pdo, (int)$order['id']);
+            }
+        }
+    }
 
     if (adminTableExists($pdo, 'order_items') && adminTableExists($pdo, 'orders')) {
         $stmt = $pdo->prepare('

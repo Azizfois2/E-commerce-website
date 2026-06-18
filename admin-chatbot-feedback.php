@@ -87,14 +87,14 @@ adminPageStart('Chatbot Logs & Ratings', 'chatbot');
 
 <div class="section-heading">
     <div>
-        <span class="eyebrow">Interactive Insights</span>
-        <h1>Chatbot Assistant Logs</h1>
-        <p class="section-copy">Monitor and review AI-driven user queries, auto-responses, and thumbs feedback rating logs.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Interactive Insights')) ?></span>
+        <h1><?= adminH(adminPhrase('Chatbot Assistant Logs')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Monitor and review AI-driven user queries, auto-responses, and thumbs feedback rating logs.')) ?></p>
     </div>
     <div class="heading-actions">
         <?php if ($totalCount > 0): ?>
-            <a href="admin-chatbot-feedback.php?action=clear_all" class="button button-danger" onclick="return confirm('Are you sure you want to permanently clear all chatbot interaction logs?');" style="gap: 8px;">
-                <i class="fas fa-trash-alt"></i> Clear All Logs
+            <a href="admin-chatbot-feedback.php?action=clear_all" class="button button-danger" onclick="return confirm(<?= i18n_script_json(adminPhrase('Are you sure you want to permanently clear all chatbot interaction logs?')) ?>);" style="gap: 8px;">
+                <i class="fas fa-trash-alt"></i> <?= adminH(adminPhrase('Clear All Logs')) ?>
             </a>
         <?php endif; ?>
     </div>
@@ -103,7 +103,7 @@ adminPageStart('Chatbot Logs & Ratings', 'chatbot');
 <?php if (isset($_GET['success'])): ?>
     <div class="admin-alert success" style="margin: 20px 0;">
         <i class="fas fa-circle-check"></i> 
-        <?= $_GET['success'] === '1' ? 'All logs successfully cleared!' : 'Interaction log successfully deleted.' ?>
+        <?= adminH($_GET['success'] === '1' ? adminPhrase('All logs successfully cleared!') : adminPhrase('Interaction log successfully deleted.')) ?>
     </div>
 <?php endif; ?>
 
@@ -117,44 +117,44 @@ adminPageStart('Chatbot Logs & Ratings', 'chatbot');
 <div class="stats-grid" style="margin: 24px 0 32px;">
     <div class="stat-card">
         <strong><?= $totalCount ?></strong>
-        <span>Total Queries Logged</span>
+        <span><?= adminH(adminPhrase('Total Queries Logged')) ?></span>
     </div>
     
     <div class="stat-card">
         <strong style="color: #2ecc71;"><?= $likesCount ?></strong>
-        <span style="color: #2ecc71;">Likes (Positive) <i class="fas fa-thumbs-up"></i></span>
+        <span style="color: #2ecc71;"><?= adminH(adminPhrase('Likes (Positive)')) ?> <i class="fas fa-thumbs-up"></i></span>
     </div>
 
     <div class="stat-card">
         <strong style="color: #e74c3c;"><?= $dislikesCount ?></strong>
-        <span style="color: #e74c3c;">Dislikes (Negative) <i class="fas fa-thumbs-down"></i></span>
+        <span style="color: #e74c3c;"><?= adminH(adminPhrase('Dislikes (Negative)')) ?> <i class="fas fa-thumbs-down"></i></span>
     </div>
 
     <div class="stat-card">
         <strong><?= $approvalRate ?>%</strong>
-        <span>AI Approval Rate</span>
+        <span><?= adminH(adminPhrase('AI Approval Rate')) ?></span>
     </div>
 </div>
 
 <!-- Filters Bar -->
 <form method="GET" action="admin-chatbot-feedback.php" class="filter-bar" style="grid-template-columns: minmax(160px, 200px) minmax(240px, 1fr) auto auto; margin-bottom: 24px; background: var(--card-bg); padding: 18px; border: 1px solid var(--border); border-radius: 14px;">
     <label>
-        Rating Status
+        <?= adminH(adminPhrase('Rating Status')) ?>
         <select name="rating" id="rating" onchange="this.form.submit();">
-            <option value="all" <?= $ratingFilter === 'all' ? 'selected' : '' ?>>All Interactions</option>
+            <option value="all" <?= $ratingFilter === 'all' ? 'selected' : '' ?>><?= adminH(adminPhrase('All Interactions')) ?></option>
             <option value="likes" <?= $ratingFilter === 'likes' ? 'selected' : '' ?>>👍 Likes Only</option>
             <option value="dislikes" <?= $ratingFilter === 'dislikes' ? 'selected' : '' ?>>👎 Dislikes Only</option>
         </select>
     </label>
 
     <label>
-        Search Queries & Responses
-        <input type="text" name="search" placeholder="Type user queries, responses..." value="<?= adminH($searchQuery) ?>">
+        <?= adminH(adminPhrase('Search Queries & Responses')) ?>
+        <input type="text" name="search" placeholder="<?= adminH(adminPhrase('Type user queries, responses...')) ?>" value="<?= adminH($searchQuery) ?>">
     </label>
 
-    <button type="submit" class="button button-primary button-small" style="height: 46px;"><i class="fas fa-search"></i> Filter</button>
+    <button type="submit" class="button button-primary button-small" style="height: 46px;"><i class="fas fa-search"></i> <?= adminH(adminPhrase('Filter')) ?></button>
     <?php if ($ratingFilter !== 'all' || $searchQuery !== ''): ?>
-        <a href="admin-chatbot-feedback.php" class="button button-light button-small" style="height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"><i class="fas fa-times"></i> Reset</a>
+        <a href="admin-chatbot-feedback.php" class="button button-light button-small" style="height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"><i class="fas fa-times"></i> <?= adminH(adminPhrase('Reset')) ?></a>
     <?php endif; ?>
 </form>
 
@@ -164,12 +164,12 @@ adminPageStart('Chatbot Logs & Ratings', 'chatbot');
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
                 <tr>
-                    <th style="width: 10%;">ID & Date</th>
-                    <th style="width: 20%;">User / Customer</th>
-                    <th style="width: 30%;">User Query</th>
-                    <th style="width: 25%;">AI Agent Response</th>
-                    <th style="text-align: center; width: 10%;">Feedback</th>
-                    <th style="text-align: center; width: 5%;">Actions</th>
+                    <th style="width: 10%;"><?= adminH(adminPhrase('ID & Date')) ?></th>
+                    <th style="width: 20%;"><?= adminH(adminPhrase('User / Customer')) ?></th>
+                    <th style="width: 30%;"><?= adminH(adminPhrase('User Query')) ?></th>
+                    <th style="width: 25%;"><?= adminH(adminPhrase('AI Agent Response')) ?></th>
+                    <th style="text-align: center; width: 10%;"><?= adminH(adminPhrase('Feedback')) ?></th>
+                    <th style="text-align: center; width: 5%;"><?= adminH(adminPhrase('Actions')) ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -184,7 +184,7 @@ adminPageStart('Chatbot Logs & Ratings', 'chatbot');
                                 <strong style="color: var(--white); display: block; font-size: 0.88rem;"><?= adminH($log['client_name']) ?></strong>
                                 <span style="font-size: 0.78rem; color: var(--cyan); display: block;"><?= adminH($log['client_email']) ?></span>
                             <?php else: ?>
-                                <span style="color: var(--muted); font-style: italic; font-size: 0.82rem;">Anonymous Guest</span>
+                                <span style="color: var(--muted); font-style: italic; font-size: 0.82rem;"><?= adminH(adminPhrase('Anonymous Guest')) ?></span>
                             <?php endif; ?>
                         </td>
                         <td style="font-size: 0.85rem; color: var(--text); vertical-align: top; max-width: 250px; word-wrap: break-word; white-space: normal; line-height: 1.4;">

@@ -92,6 +92,8 @@
 
   function initRippleEffect() {
     document.querySelectorAll('.btn-primary, .btn-secondary, button').forEach(btn => {
+      if (btn.dataset.cinematicRipple === '1') return;
+      btn.dataset.cinematicRipple = '1';
       btn.addEventListener('click', createRipple);
     });
   }
@@ -99,6 +101,12 @@
   // ── MAGNETIC BUTTONS ────────────────────────────────
   function initMagneticButtons() {
     document.querySelectorAll('.btn-primary, .btn-secondary, .magnetic-btn').forEach(btn => {
+      if (btn.dataset.cinematicMagnetic === '1') return;
+      if (btn.matches('.add-to-cart-btn, .add-to-cart-btn-modal, .detail-add-to-cart, .featured-add-to-cart, .flash-sale-btn')) {
+        return;
+      }
+      btn.dataset.cinematicMagnetic = '1';
+
       btn.addEventListener('mousemove', (e) => {
         const rect = btn.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
@@ -114,11 +122,18 @@
   }
 
   // ── 3D TILT EFFECT (BALANCED) ────────────────────────────────
-  function init3DTilt() {
-    document.querySelectorAll('.product-card').forEach(card => {
+  function init3DTilt(root = document) {
+    root.querySelectorAll('.product-card').forEach(card => {
+      if (card.dataset.cinematicTilt === '1') return;
+      card.dataset.cinematicTilt = '1';
       card.classList.add('product-card-3d');
       
       card.addEventListener('mousemove', (e) => {
+        if (e.target.closest('button, a, input, select, textarea, [role="button"]')) {
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+          return;
+        }
+
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -126,11 +141,11 @@
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
-        // Balanced tilt - not too subtle, not too extreme (divide by 5)
-        const rotateX = (y - centerY) / 5;
-        const rotateY = (centerX - x) / 5;
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+        const rotateX = clamp((y - centerY) / 24, -4, 4);
+        const rotateY = clamp((centerX - x) / 24, -4, 4);
         
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+        card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.012, 1.012, 1.012)`;
         card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
         card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
       });
@@ -139,6 +154,34 @@
         card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
       });
     });
+  }
+
+  function initDynamicCardEnhancements() {
+    const observer = new MutationObserver((mutations) => {
+      let shouldRefreshTilt = false;
+      let shouldRefreshButtons = false;
+
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (!(node instanceof HTMLElement)) return;
+          if (node.matches('.product-card') || node.querySelector('.product-card')) {
+            shouldRefreshTilt = true;
+          }
+          if (node.matches('button, .btn-primary, .btn-secondary, .magnetic-btn') || node.querySelector('button, .btn-primary, .btn-secondary, .magnetic-btn')) {
+            shouldRefreshButtons = true;
+          }
+        });
+      });
+
+      if (shouldRefreshTilt) init3DTilt();
+      if (shouldRefreshButtons) {
+        initRippleEffect();
+        initMagneticButtons();
+        initShineEffects();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
 
@@ -276,6 +319,16 @@
     initProgressiveImages();
     initShineEffects();
     initNavbarScroll();
+    initDynamicCardEnhancements();
+
+    window.CinematicEnhancements = {
+      refresh: () => {
+        init3DTilt();
+        initRippleEffect();
+        initMagneticButtons();
+        initShineEffects();
+      }
+    };
 
     console.log('🎬 Cinematic enhancements loaded successfully!');
   }

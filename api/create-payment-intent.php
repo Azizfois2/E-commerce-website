@@ -66,6 +66,8 @@ try {
         'standard' => 100,
         'express' => 200,
         'overnight' => 400,
+        'free' => 0,
+        'pickup' => 0,
     ];
     $shippingFee = $shippingPrices[$shippingMethod] ?? 100;
     if ($payable >= 1000 && $shippingMethod === 'standard') {

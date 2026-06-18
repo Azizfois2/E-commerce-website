@@ -39,7 +39,7 @@ $output = fopen('php://output', 'w');
 fputs($output, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
 
 // Header row
-fputcsv($output, ['ID', 'Name', 'Brand', 'Category', 'Price (MAD)', 'Old Price', 'Badge', 'Rating', 'Reviews', 'In Stock', 'Stock Qty', 'Reorder Level', 'Created At']);
+fputcsv($output, ['ID', 'Name', 'Brand', 'Category', 'Price (DH)', 'Old Price', 'Badge', 'Rating', 'Reviews', 'In Stock', 'Stock Qty', 'Reorder Level', 'Created At']);
 
 foreach ($products as $row) {
     fputcsv($output, [

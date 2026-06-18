@@ -1,50 +1,128 @@
 (() => {
     'use strict';
 
-    document.addEventListener('click', (event) => {
-        const accountLink = event.target.closest('a[aria-label="Account"]');
-        if (!accountLink) return;
+    const i18n = window.__marocPcI18n || {};
+    const urls = i18n.urls || {};
+    const text = (key, fallback) => i18n[key] || fallback;
+    const url = (key, fallback) => urls[key] || fallback;
+    const mobileAccountQuery = window.matchMedia('(max-width: 760px), (pointer: coarse)');
 
-        const href = accountLink.getAttribute('href') || '';
-        if (href.indexOf('login.php') === -1 && href.indexOf('login.html') === -1) {
+    function openRoleModal() {
+        const modal = document.getElementById('roleModal');
+        if (!modal) return false;
+        modal.style.display = 'flex';
+        return true;
+    }
+
+    function closeGuestMenus(exceptWrapper = null) {
+        document.querySelectorAll('.account-access-wrapper.is-open').forEach((wrapper) => {
+            if (wrapper === exceptWrapper) return;
+            wrapper.classList.remove('is-open');
+            const trigger = wrapper.querySelector('.account-access-trigger');
+            const menu = wrapper.querySelector('.account-access-menu');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            if (menu) menu.hidden = true;
+        });
+    }
+
+    function toggleGuestMenu(wrapper, forceOpen = null) {
+        const trigger = wrapper.querySelector('.account-access-trigger');
+        const menu = wrapper.querySelector('.account-access-menu');
+        if (!trigger || !menu) return;
+
+        const shouldOpen = forceOpen ?? !wrapper.classList.contains('is-open');
+        closeGuestMenus(wrapper);
+        wrapper.classList.toggle('is-open', shouldOpen);
+        trigger.setAttribute('aria-expanded', String(shouldOpen));
+        menu.hidden = !shouldOpen;
+    }
+
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('.account-access-trigger');
+        if (trigger) {
+            const wrapper = trigger.closest('.account-access-wrapper');
+            if (!wrapper) return;
+
+            event.preventDefault();
             event.stopPropagation();
+
+            if (mobileAccountQuery.matches && openRoleModal()) {
+                closeGuestMenus();
+                return;
+            }
+
+            toggleGuestMenu(wrapper);
+            return;
         }
-    }, true);
+
+        const expandedButton = event.target.closest('[data-open-role-modal]');
+        if (expandedButton) {
+            event.preventDefault();
+            closeGuestMenus();
+            openRoleModal();
+            return;
+        }
+
+        if (!event.target.closest('.account-access-wrapper')) {
+            closeGuestMenus();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        closeGuestMenus();
+    });
+
+    function renderGuestAccess(userWrapper) {
+        userWrapper.innerHTML = `
+            <div class="user-menu-wrapper account-access-wrapper">
+                <button type="button" class="cart-icon account-access-trigger" aria-label="${text('account', 'Account')}" aria-haspopup="menu" aria-expanded="false" aria-controls="accountAccessMenu">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="user-dropdown account-access-menu" id="accountAccessMenu" role="menu" hidden>
+                    <span class="user-name">${text('accountAccess', 'Account access')}</span>
+                    <a href="${url('login', 'login.php')}" role="menuitem">
+                        <i class="fas fa-user"></i>
+                        <span><strong>${text('customerLogin', 'Customer login')}</strong><small>${text('customerLoginHint', 'Orders, wishlist, purchases')}</small></span>
+                    </a>
+                    <a href="${url('signup', 'signup.php')}" role="menuitem">
+                        <i class="fas fa-user-plus"></i>
+                        <span><strong>${text('createAccount', 'Create account')}</strong><small>${text('createAccountHint', 'New Maroc PC profile')}</small></span>
+                    </a>
+                    <span class="account-access-divider" aria-hidden="true"></span>
+                    <a href="${url('adminLogin', 'adminlogin.php')}" role="menuitem" class="admin-access-link">
+                        <i class="fas fa-shield-alt"></i>
+                        <span><strong>${text('adminAccess', 'Admin access')}</strong><small>${text('adminAccessHint', 'Inventory and order tools')}</small></span>
+                    </a>
+                    <button type="button" class="account-access-expanded" data-open-role-modal role="menuitem">
+                        <i class="fas fa-layer-group"></i>
+                        <span>${text('moreSignInOptions', 'More sign-in options')}</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
 
     function updateNav(auth) {
-        const userWrapper = document.querySelector('.cart-wrapper:has(a[aria-label="Account"])');
+        const userWrapper = document.getElementById('userNav') || document.querySelector('.cart-wrapper:has(a[aria-label="Account"])');
         if (!userWrapper) return;
 
         if (auth?.loggedIn) {
             userWrapper.innerHTML = `
                 <div class="user-menu-wrapper">
-                    <a href="account.php" class="cart-icon" aria-label="Account">
+                    <a href="${url('account', 'account.php')}" class="cart-icon" aria-label="${text('account', 'Account')}">
                         <i class="fas fa-user-check"></i>
                     </a>
                     <div class="user-dropdown">
-                        <span class="user-name">${auth.user || 'Account'}</span>
-                        <a href="account.php"><i class="fas fa-user"></i> My Account</a>
-                        <a href="account.php?tab=orders"><i class="fas fa-box"></i> My Orders</a>
-                        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <span class="user-name">${auth.user || text('account', 'Account')}</span>
+                        <a href="${url('account', 'account.php')}"><i class="fas fa-user"></i> ${text('myAccount', 'My Account')}</a>
+                        <a href="${url('orders', 'account.php?tab=orders')}"><i class="fas fa-box"></i> ${text('myOrders', 'My Orders')}</a>
+                        <a href="${url('logout', 'logout.php')}"><i class="fas fa-sign-out-alt"></i> ${text('logout', 'Logout')}</a>
                     </div>
                 </div>
             `;
         } else {
-            const link = userWrapper.querySelector('a[aria-label="Account"]');
-            if (link) {
-                const currentHref = link.getAttribute('href') || 'login.php';
-                if (!/^login\.(php|html)$/i.test(currentHref)) {
-                    link.href = 'login.php';
-                }
-                link.innerHTML = '<i class="fas fa-user"></i>';
-                link.onclick = (e) => {
-                    const modal = document.getElementById('roleModal');
-                    if (modal) {
-                        e.preventDefault();
-                        modal.style.display = 'flex';
-                    }
-                };
-            }
+            renderGuestAccess(userWrapper);
         }
     }
 
@@ -89,6 +167,7 @@
         window.addEventListener('pagehide', (event) => {
             if (event.persisted || keepSession) return;
 
+            try { localStorage.removeItem('wishlist'); } catch (_) {}
             const body = new Blob(['exit=1'], { type: 'application/x-www-form-urlencoded' });
             if (navigator.sendBeacon) {
                 navigator.sendBeacon('api/end-session.php', body);

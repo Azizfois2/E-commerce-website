@@ -96,13 +96,13 @@ adminPageStart('B2B Procurement', 'procurement');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">Supply Chain & Logistics</span>
-        <h1>B2B Procurement</h1>
-        <p class="section-copy">Manage wholesale component vendor suppliers, audit stock restock cycles, and tracks active Purchase Orders.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Supply Chain & Logistics')) ?></span>
+        <h1><?= adminH(adminPhrase('B2B Procurement')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Manage wholesale component vendor suppliers, audit stock restock cycles, and tracks active Purchase Orders.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-stock.php">Inventory Stock</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-stock.php"><?= adminH(adminPhrase('Inventory Stock')) ?></a>
     </div>
 </section>
 
@@ -112,29 +112,29 @@ adminPageStart('B2B Procurement', 'procurement');
 <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-bottom:24px">
     <!-- Purchase Orders View -->
     <section class="table-card" style="margin-bottom:0">
-        <div class="card-head"><h2>Active Purchase Orders</h2></div>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Active Purchase Orders')) ?></h2></div>
         <div style="padding:16px;max-height:600px;overflow-y:auto">
             <table>
                 <thead>
                     <tr>
-                        <th>PO ID</th>
-                        <th>Supplier</th>
-                        <th>Total Cost</th>
-                        <th>Delivery Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= adminH(adminPhrase('PO ID')) ?></th>
+                        <th><?= adminH(adminPhrase('Supplier')) ?></th>
+                        <th><?= adminH(adminPhrase('Total Cost')) ?></th>
+                        <th><?= adminH(adminPhrase('Delivery Date')) ?></th>
+                        <th><?= adminH(adminPhrase('Status')) ?></th>
+                        <th><?= adminH(adminPhrase('Actions')) ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($purchaseOrders === []): ?>
-                        <tr><td colspan="6">No purchase orders created yet.</td></tr>
+                        <tr><td colspan="6"><?= adminH(adminPhrase('No purchase orders created yet.')) ?></td></tr>
                     <?php endif; ?>
                     <?php foreach ($purchaseOrders as $po): ?>
                         <tr>
                             <td><strong>#<?= (int)$po['id'] ?></strong></td>
                             <td><?= adminH($po['supplier_name']) ?></td>
                             <td><strong><?= adminMoney((float)$po['total_cost']) ?></strong></td>
-                            <td><?= $po['expected_delivery'] ? adminH(date('Y-m-d', strtotime((string)$po['expected_delivery']))) : '<em style="color:var(--muted)">Not set</em>' ?></td>
+                            <td><?= $po['expected_delivery'] ? adminH(date('Y-m-d', strtotime((string)$po['expected_delivery']))) : '<em style="color:var(--muted)">' . adminH(adminPhrase('Not set')) . '</em>' ?></td>
                             <td>
                                 <span class="status-badge <?= $po['status'] === 'received' ? 'is-good' : ($po['status'] === 'cancelled' ? 'is-danger' : 'is-warn') ?>">
                                     <?= adminH(ucfirst($po['status'])) ?>
@@ -146,10 +146,10 @@ adminPageStart('B2B Procurement', 'procurement');
                                     <input type="hidden" name="action" value="update_po_status">
                                     <input type="hidden" name="po_id" value="<?= (int)$po['id'] ?>">
                                     <select name="status" style="padding:4px;border-radius:6px;background:var(--page-bg);color:var(--text);border:1px solid var(--border)">
-                                        <option value="pending" <?= $po['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                        <option value="ordered" <?= $po['status'] === 'ordered' ? 'selected' : '' ?>>Ordered</option>
-                                        <option value="received" <?= $po['status'] === 'received' ? 'selected' : '' ?>>Received</option>
-                                        <option value="cancelled" <?= $po['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                        <option value="pending" <?= $po['status'] === 'pending' ? 'selected' : '' ?>><?= adminH(adminPhrase('Pending')) ?></option>
+                                        <option value="ordered" <?= $po['status'] === 'ordered' ? 'selected' : '' ?>><?= adminH(adminPhrase('Ordered')) ?></option>
+                                        <option value="received" <?= $po['status'] === 'received' ? 'selected' : '' ?>><?= adminH(adminPhrase('Received')) ?></option>
+                                        <option value="cancelled" <?= $po['status'] === 'cancelled' ? 'selected' : '' ?>><?= adminH(adminPhrase('Cancelled')) ?></option>
                                     </select>
                                     <button type="submit" class="button button-primary button-small"><i class="fas fa-check"></i></button>
                                 </form>
@@ -164,7 +164,7 @@ adminPageStart('B2B Procurement', 'procurement');
     <!-- Create PO & Suppliers -->
     <div style="display:flex;flex-direction:column;gap:24px">
         <section class="table-card" style="margin-bottom:0">
-            <div class="card-head"><h2>Create Purchase Order</h2></div>
+            <div class="card-head"><h2><?= adminH(adminPhrase('Create Purchase Order')) ?></h2></div>
             <form method="post" style="padding:20px;display:flex;flex-direction:column;gap:16px">
                 <?= csrfField() ?>
                 <input type="hidden" name="action" value="create_po">
@@ -180,8 +180,8 @@ adminPageStart('B2B Procurement', 'procurement');
                 </label>
 
                 <label>
-                    Total Order Cost (MAD)
-                    <input type="number" step="0.01" min="0.01" name="total_cost" placeholder="e.g. 15000" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
+                    Total Order Cost (DH)
+                    <input type="number" step="0.01" min="0.01" name="total_cost" placeholder="<?= adminH(adminPhrase('e.g. 15000')) ?>" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
 
                 <label>
@@ -189,24 +189,24 @@ adminPageStart('B2B Procurement', 'procurement');
                     <input type="date" name="expected_delivery" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
 
-                <button type="submit" class="button button-primary" style="margin-top:8px">Submit Purchase Order</button>
+                <button type="submit" class="button button-primary" style="margin-top:8px"><?= adminH(adminPhrase('Submit Purchase Order')) ?></button>
             </form>
         </section>
 
         <section class="table-card" style="margin-bottom:0">
-            <div class="card-head"><h2>Add New B2B Supplier</h2></div>
+            <div class="card-head"><h2><?= adminH(adminPhrase('Add New B2B Supplier')) ?></h2></div>
             <form method="post" style="padding:20px;display:flex;flex-direction:column;gap:16px">
                 <?= csrfField() ?>
                 <input type="hidden" name="action" value="add_supplier">
 
                 <label>
                     Supplier / Company Name
-                    <input type="text" name="name" placeholder="Tech Distro Morocco" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
+                    <input type="text" name="name" placeholder="<?= adminH(adminPhrase('Tech Distro Morocco')) ?>" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
 
                 <label>
                     Contact Email Address
-                    <input type="email" name="contact_email" placeholder="contact@techdistro.ma" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
+                    <input type="email" name="contact_email" placeholder="<?= adminH(adminPhrase('contact@techdistro.ma')) ?>" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
 
                 <label>
@@ -214,34 +214,34 @@ adminPageStart('B2B Procurement', 'procurement');
                     <input type="text" name="contact_phone" placeholder="+212 600-000000" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
 
-                <button type="submit" class="button button-info" style="margin-top:8px">Add Supplier</button>
+                <button type="submit" class="button button-info" style="margin-top:8px"><?= adminH(adminPhrase('Add Supplier')) ?></button>
             </form>
         </section>
     </div>
 </div>
 
 <section class="table-card">
-    <div class="card-head"><h2>Registered Component Suppliers</h2></div>
+    <div class="card-head"><h2><?= adminH(adminPhrase('Registered Component Suppliers')) ?></h2></div>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Supplier Name</th>
-                <th>Contact Email</th>
-                <th>Phone Number</th>
-                <th>Registration Date</th>
+                <th><?= adminH(adminPhrase('ID')) ?></th>
+                <th><?= adminH(adminPhrase('Supplier Name')) ?></th>
+                <th><?= adminH(adminPhrase('Contact Email')) ?></th>
+                <th><?= adminH(adminPhrase('Phone Number')) ?></th>
+                <th><?= adminH(adminPhrase('Registration Date')) ?></th>
             </tr>
         </thead>
         <tbody>
             <?php if ($suppliers === []): ?>
-                <tr><td colspan="5">No suppliers registered. Add a supplier above.</td></tr>
+                <tr><td colspan="5"><?= adminH(adminPhrase('No suppliers registered. Add a supplier above.')) ?></td></tr>
             <?php endif; ?>
             <?php foreach ($suppliers as $s): ?>
                 <tr>
                     <td>#<?= (int)$s['id'] ?></td>
                     <td><strong><?= adminH($s['name']) ?></strong></td>
-                    <td><?= $s['contact_email'] ? adminH($s['contact_email']) : '<em style="color:var(--muted)">Not provided</em>' ?></td>
-                    <td><?= $s['contact_phone'] ? adminH($s['contact_phone']) : '<em style="color:var(--muted)">Not provided</em>' ?></td>
+                    <td><?= $s['contact_email'] ? adminH($s['contact_email']) : '<em style="color:var(--muted)">' . adminH(adminPhrase('Not provided')) . '</em>' ?></td>
+                    <td><?= $s['contact_phone'] ? adminH($s['contact_phone']) : '<em style="color:var(--muted)">' . adminH(adminPhrase('Not provided')) . '</em>' ?></td>
                     <td><?= adminH(date('Y-m-d', strtotime((string)$s['created_at']))) ?></td>
                 </tr>
             <?php endforeach; ?>

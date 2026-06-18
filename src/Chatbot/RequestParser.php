@@ -287,12 +287,16 @@ class RequestParser
 
     /**
      * Detect user's language from raw query.
-     * Returns 'english', 'french', or 'darija'.
+     * Returns 'english', 'french', or 'arabic'.
      */
     public function detectLanguage(string $rawQuery): string
     {
         $query = strtolower(trim($rawQuery));
         $query = $this->stripAccents($query);
+
+        if (preg_match('/\p{Arabic}/u', $rawQuery)) {
+            return 'arabic';
+        }
 
         // Darija unique words/slang
         $darijaWords = [
@@ -337,7 +341,7 @@ class RequestParser
         }
 
         if ($darijaCount > 0 && $darijaCount >= $frenchCount) {
-            return 'darija';
+            return 'arabic';
         }
         if ($frenchCount > 0 && $frenchCount > $darijaCount) {
             return 'french';
@@ -353,6 +357,53 @@ class RequestParser
     {
         $query = strtolower(trim($rawQuery));
         $query = $this->stripAccents($query);
+
+        $arabicMap = [
+            'مرحبا' => ' hello ',
+            'السلام عليكم' => ' hello ',
+            'أهلا' => ' hello ',
+            'اهلا' => ' hello ',
+            'سلام' => ' hello ',
+            'شكرا' => ' thanks ',
+            'شكرًا' => ' thanks ',
+            'وداعا' => ' goodbye ',
+            'وداعاً' => ' goodbye ',
+            'إلى اللقاء' => ' goodbye ',
+            'الى اللقاء' => ' goodbye ',
+            'ساعدني' => ' help me ',
+            'مساعدة' => ' help ',
+            'تتبع' => ' track ',
+            'طلبي' => ' order ',
+            'طلب' => ' order ',
+            'الطلب' => ' order ',
+            'ضمان' => ' warranty ',
+            'إرجاع' => ' return ',
+            'ارجاع' => ' return ',
+            'استرجاع' => ' return ',
+            'حاسوب محمول' => ' laptop ',
+            'كمبيوتر محمول' => ' laptop ',
+            'لابتوب' => ' laptop ',
+            'حاسوب' => ' computer ',
+            'كمبيوتر' => ' computer ',
+            'ألعاب' => ' gaming ',
+            'العاب' => ' gaming ',
+            'تجميعة' => ' build ',
+            'معالج' => ' cpu ',
+            'بطاقة رسومية' => ' gpu ',
+            'كرت شاشة' => ' gpu ',
+            'ذاكرة' => ' ram ',
+            'تخزين' => ' storage ',
+            'قرص' => ' drive ',
+            'سعر' => ' price ',
+            'أرخص' => ' cheap ',
+            'ارخص' => ' cheap ',
+            'متوفر' => ' available ',
+            'المخزون' => ' stock ',
+            'قارن' => ' compare ',
+            'مقارنة' => ' compare ',
+        ];
+
+        $query = str_replace(array_keys($arabicMap), array_values($arabicMap), $query);
 
         // Phase 1: Expand slang/abbreviations
         foreach ($this->abbrevMap as $abbrev => $expansion) {

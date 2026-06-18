@@ -1,6 +1,16 @@
 (function () {
     "use strict";
 
+    const i18n = window.__marocPcI18n || {};
+    const t = (key, fallback) => i18n[key] || fallback;
+    const tf = (key, fallback, params = {}) => {
+        let value = t(key, fallback);
+        Object.entries(params).forEach(([name, replacement]) => {
+            value = value.replaceAll(`{${name}}`, replacement);
+        });
+        return value;
+    };
+
     //declaration des variables
     const els = {
         cartItemsList: document.getElementById('cartItemsList'),
@@ -30,7 +40,7 @@
         return Number(value).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-        }) + ' MAD';
+        }) + ' DH';
     }
 
     const FREE_SHIPPING_THRESHOLD = 1000;
@@ -39,10 +49,10 @@
     // Matgoulha li tachi wahed hhh
     let activePromo = null;
     const PROMO_CODES = {
-        'SAVE10': { type: 'percent', value: 0.10, label: '10% off' },
-        'SAVE20': { type: 'percent', value: 0.20, label: '20% off' },
-        'TECH50': { type: 'fixed', value: 50.00, label: '50 MAD off' },
-        'FREESHIP': { type: 'shipping', value: 0, label: 'Free shipping' }
+        'SAVE10': { type: 'percent', value: 0.10, label: t('cartPromoPercent10', '10% off') },
+        'SAVE20': { type: 'percent', value: 0.20, label: t('cartPromoPercent20', '20% off') },
+        'TECH50': { type: 'fixed', value: 50.00, label: t('cartPromoFixed50', '50 DH off') },
+        'FREESHIP': { type: 'shipping', value: 0, label: t('cartPromoFreeShipping', 'Free shipping') }
     };
 
 
@@ -74,7 +84,7 @@
                         <p class="cart-item-category">${item.category || 'Maroc PC'}</p>
                         <p class="cart-item-stock ${item.inStock !== false ? 'in-stock' : 'out-of-stock'}">
                             <i class="fas ${item.inStock !== false ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-                            ${item.inStock !== false ? 'In Stock' : 'Out of Stock'}
+                            ${item.inStock !== false ? t('cartInStock', 'In Stock') : t('cartOutOfStock', 'Out of Stock')}
                         </p>
                     </div>
                 </div>
@@ -83,12 +93,12 @@
                 </div>
                 <div class="cart-col-quantity">
                     <div class="quantity-controls">
-                        <button class="qty-btn qty-minus" data-id="${item.id}" aria-label="Decrease quantity">
+                        <button class="qty-btn qty-minus" data-id="${item.id}" aria-label="${t('cartDecreaseQuantity', 'Decrease quantity')}">
                             <i class="fas fa-minus"></i>
                         </button>
                         <input type="number" class="qty-input" value="${item.quantity}" 
-                               min="1" max="99" data-id="${item.id}" aria-label="Quantity">
-                        <button class="qty-btn qty-plus" data-id="${item.id}" aria-label="Increase quantity">
+                               min="1" max="99" data-id="${item.id}" aria-label="${t('cartQuantity', 'Quantity')}">
+                        <button class="qty-btn qty-plus" data-id="${item.id}" aria-label="${t('cartIncreaseQuantity', 'Increase quantity')}">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -97,7 +107,7 @@
                     <span class="cart-item-total">${formatMAD(parseFloat(itemTotal))}</span>
                 </div>
                 <div class="cart-col-action">
-                    <button class="remove-btn" data-id="${item.id}" aria-label="Remove item">
+                    <button class="remove-btn" data-id="${item.id}" aria-label="${t('cartRemoveItem', 'Remove item')}">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -168,7 +178,7 @@
                         Cart.remove(id);
                         refreshCart();
                         if (item) {
-                            Cart.showToast(`${item.name} removed from cart`, 'info');
+                            Cart.showToast(tf('cartRemovedTemplate', '{name} removed from cart', { name: item.name }), 'info');
                         }
                     }, 300);
                 } else {
@@ -226,9 +236,9 @@
 
         if (els.shipping) {
             if (shipping === 0 && subtotal > 0) {
-                els.shipping.innerHTML = '<span class="free-shipping">FREE</span>';
+                els.shipping.innerHTML = `<span class="free-shipping">${t('cartFree', 'FREE')}</span>`;
             } else if (subtotal === 0) {
-                els.shipping.textContent = 'Calculated at checkout';
+                els.shipping.textContent = t('cartCalculatedCheckout', 'Calculated at checkout');
             } else {
                 els.shipping.textContent = formatMAD(shipping);
             }
@@ -290,28 +300,28 @@
 
         // Prioritized logic for "Complete My Build"
         if (cartCategories.has('cpu') && !cartCategories.has('motherboard')) {
-            missing = 'motherboard';
-            message = 'You have a CPU but no motherboard.';
+            missing = t('missingMotherboardName', 'motherboard');
+            message = t('missingMotherboardMessage', 'You have a CPU but no motherboard.');
             suggestionCat = 'motherboard';
         } else if (cartCategories.has('motherboard') && !cartCategories.has('cpu')) {
-            missing = 'CPU';
-            message = 'You have a motherboard but no processor.';
+            missing = t('missingCpuName', 'CPU');
+            message = t('missingCpuMessage', 'You have a motherboard but no processor.');
             suggestionCat = 'cpu';
         } else if ((cartCategories.has('cpu') || cartCategories.has('motherboard')) && !cartCategories.has('ram')) {
-            missing = 'RAM';
-            message = "Don't forget the memory (RAM) for your system.";
+            missing = t('missingRamName', 'RAM');
+            message = t('missingRamMessage', "Don't forget the memory (RAM) for your system.");
             suggestionCat = 'ram';
         } else if (cartCategories.has('cpu') && cartCategories.has('motherboard') && !cartCategories.has('storage')) {
-            missing = 'storage';
-            message = 'Your system needs storage to boot.';
+            missing = t('missingStorageName', 'storage');
+            message = t('missingStorageMessage', 'Your system needs storage to boot.');
             suggestionCat = 'storage';
         } else if (cartCategories.has('cpu') && cartCategories.has('motherboard') && cartCategories.has('ram') && !cartCategories.has('psu')) {
-            missing = 'power supply';
-            message = 'Power up your components with a reliable PSU.';
+            missing = t('missingPsuName', 'power supply');
+            message = t('missingPsuMessage', 'Power up your components with a reliable PSU.');
             suggestionCat = 'psu';
         } else if (cartCategories.has('cpu') && cartCategories.has('motherboard') && cartCategories.has('ram') && cartCategories.has('psu') && !cartCategories.has('case')) {
-            missing = 'case';
-            message = 'Give your components a home.';
+            missing = t('missingCaseName', 'case');
+            message = t('missingCaseMessage', 'Give your components a home.');
             suggestionCat = 'case';
         }
 
@@ -322,9 +332,12 @@
                  const catProducts = products.filter(p => p.category?.toLowerCase() === suggestionCat && p.inStock);
                  if (catProducts.length > 0) {
                      catProducts.sort((a,b) => a.price - b.price);
-                     startingPriceStr = ` from <strong>${formatMAD(catProducts[0].price)}</strong>`;
+                     startingPriceStr = tf('buildFromTemplate', ' from {price}', { price: `<strong>${formatMAD(catProducts[0].price)}</strong>` });
                  }
             }
+            const productsUrl = i18n.urls?.products || 'products.php';
+            const separator = productsUrl.includes('?') ? '&' : '?';
+            const browseUrl = `${productsUrl}${separator}category=${encodeURIComponent(suggestionCat)}`;
 
             upsellContainer.innerHTML = `
                 <div class="upsell-banner" style="background: rgba(0, 245, 212, 0.05); border: 1px solid var(--cyan); border-radius: 12px; padding: 16px; margin: 24px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
@@ -333,12 +346,12 @@
                             <i class="fas fa-puzzle-piece"></i>
                         </div>
                         <div>
-                            <h4 style="margin: 0 0 4px; color: var(--cyan); font-family: var(--font-mono); text-transform: uppercase; font-size: 0.85rem;">Complete My Build</h4>
-                            <p style="margin: 0; color: var(--text);">${message} Add a compatible ${missing}${startingPriceStr}.</p>
+                            <h4 style="margin: 0 0 4px; color: var(--cyan); font-family: var(--font-mono); text-transform: uppercase; font-size: 0.85rem;">${t('completeBuild', 'Complete My Build')}</h4>
+                            <p style="margin: 0; color: var(--text);">${tf('addCompatibleTemplate', '{message} Add a compatible {missing}{from}.', { message, missing, from: startingPriceStr })}</p>
                         </div>
                     </div>
-                    <a href="products.html?category=${suggestionCat}" class="btn btn-outline" style="border-color: var(--cyan); color: var(--cyan); white-space: nowrap;">
-                        Browse ${missing.charAt(0).toUpperCase() + missing.slice(1)} <i class="fas fa-arrow-right"></i>
+                    <a href="${browseUrl}" class="btn btn-outline" style="border-color: var(--cyan); color: var(--cyan); white-space: nowrap;">
+                        ${tf('browseMissingTemplate', 'Browse {missing}', { missing })} <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             `;
@@ -360,18 +373,18 @@
     function applyPromo() {
         const code = els.promoCode.value.trim().toUpperCase();
         if (!code) {
-            Cart.showToast('Please enter a promo code', 'error');
+            Cart.showToast(t('cartPromoEmpty', 'Please enter a promo code'), 'error');
             return;
         }
 
         if (PROMO_CODES[code]) {
             activePromo = PROMO_CODES[code];
-            Cart.showToast(`Promo applied: ${activePromo.label}`, 'success');
+            Cart.showToast(tf('cartPromoAppliedTemplate', 'Promo applied: {label}', { label: activePromo.label }), 'success');
             els.promoCode.value = '';
-            els.promoCode.placeholder = `Active: ${activePromo.label}`;
+            els.promoCode.placeholder = tf('cartPromoActiveTemplate', 'Active: {label}', { label: activePromo.label });
             els.promoCode.parentElement.classList.add('promo-active');
         } else {
-            Cart.showToast('Invalid promo code', 'error');
+            Cart.showToast(t('cartInvalidPromo', 'Invalid promo code'), 'error');
             activePromo = null;
             els.promoCode.parentElement.classList.remove('promo-active');
         }
@@ -384,19 +397,20 @@
 
         els.clearCart.addEventListener('click', () => {
             if (Cart.items.length === 0) {
-                Cart.showToast('Cart is already empty', 'info');
+                Cart.showToast(t('cartAlreadyEmpty', 'Cart is already empty'), 'info');
                 return;
             }
 
-            if (confirm('Are you sure you want to clear your cart?')) {
+            if (confirm(t('cartClearConfirm', 'Are you sure you want to clear your cart?'))) {
                 Cart.clear();
                 activePromo = null;
                 if (els.promoCode) {
-                    els.promoCode.placeholder = 'Promo Code';
+                    els.promoCode.value = '';
+                    els.promoCode.placeholder = t('cartPromoCode', 'Promo Code');
                     els.promoCode.parentElement.classList.remove('promo-active');
                 }
                 refreshCart();
-                Cart.showToast('Cart cleared', 'info');
+                Cart.showToast(t('cartCleared', 'Cart cleared'), 'info');
             }
         });
     }
@@ -429,7 +443,7 @@
                         <h3>${product.name}</h3>
                         <p class="product-price">${formatMAD(product.price)}</p>
                         <button class="btn btn-primary add-to-cart-btn" data-id="${product.id}">
-                            Add to Cart
+                            ${t('addToCart', 'Add to Cart')}
                         </button>
                     </div>
                 </div>
@@ -465,7 +479,7 @@
         const performSearch = () => {
             const query = searchInput.value.trim();
             if (query) {
-                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+                window.location.href = `products.php?search=${encodeURIComponent(query)}`;
             }
         };
 
@@ -557,6 +571,18 @@
                     refreshCart();
                 } catch (err) {
                     console.warn('Failed to sync cart from storage:', err);
+                }
+            }
+        });
+
+        // Abandoned cart price lock
+        window.addEventListener('beforeunload', () => {
+            const items = (typeof Cart !== 'undefined' && Cart.items) ? Cart.items : [];
+            if (items.length > 0) {
+                const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                if (subtotal > 0) {
+                    const payload = JSON.stringify({ items, total: subtotal });
+                    navigator.sendBeacon('api/lock-cart-price.php', payload);
                 }
             }
         });

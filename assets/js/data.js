@@ -1,133 +1,8 @@
 /**
  * data.js - Single source of truth for all product data.
  * This file is updated by the admin dashboard product tools.
- * Last updated: 2026-05-18 — Added RTX 50 series, Zen 5 X3D, Arrow Lake.
- * Fixed: placeholder images, incorrect core counts, missing specs, spec inconsistencies.
  */
 const products = [
-
-    // =========================================================
-    // GPUs — RTX 50 SERIES (Blackwell)
-    // =========================================================
-    {
-        "id": 101,
-        "name": "NVIDIA RTX 5090 Founders Edition",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 24999.9,
-        "oldPrice": null,
-        "badge": "Flagship",
-        "rating": 4.9,
-        "reviews": 312,
-        "image": "images/products/rtx5090.png",
-        "featured": true,
-        "inStock": false,
-        "specs": {
-            "VRAM": "32 GB GDDR7",
-            "CUDA Cores": "21 760",
-            "Boost Clock": "2.41 GHz",
-            "TDP": "575 W",
-            "Architecture": "Blackwell",
-            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
-            "Recommended PSU": "1 000 W+"
-        }
-    },
-    {
-        "id": 102,
-        "name": "NVIDIA RTX 5080 Founders Edition",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 15999.9,
-        "oldPrice": null,
-        "badge": "New",
-        "rating": 4.8,
-        "reviews": 487,
-        "image": "images/products/rtx5080.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "VRAM": "16 GB GDDR7",
-            "CUDA Cores": "10 752",
-            "Boost Clock": "2.62 GHz",
-            "TDP": "360 W",
-            "Architecture": "Blackwell",
-            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
-            "Recommended PSU": "850 W+"
-        }
-    },
-    {
-        "id": 103,
-        "name": "NVIDIA RTX 5070 Ti",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 11999.9,
-        "oldPrice": null,
-        "badge": "New",
-        "rating": 4.8,
-        "reviews": 623,
-        "image": "images/products/rtx5070ti.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "VRAM": "16 GB GDDR7",
-            "CUDA Cores": "8 960",
-            "Boost Clock": "2.45 GHz",
-            "TDP": "300 W",
-            "Architecture": "Blackwell",
-            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
-            "Recommended PSU": "750 W+"
-        }
-    },
-    {
-        "id": 104,
-        "name": "NVIDIA RTX 5070",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 7999.9,
-        "oldPrice": null,
-        "badge": "New",
-        "rating": 4.6,
-        "reviews": 891,
-        "image": "images/products/rtx5070.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "VRAM": "12 GB GDDR7",
-            "CUDA Cores": "6 144",
-            "Boost Clock": "2.51 GHz",
-            "TDP": "250 W",
-            "Architecture": "Blackwell",
-            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
-            "Recommended PSU": "650 W+"
-        }
-    },
-    {
-        "id": 105,
-        "name": "NVIDIA RTX 5060 Ti 16 GB",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 5999.9,
-        "oldPrice": null,
-        "badge": "New",
-        "rating": 4.5,
-        "reviews": 234,
-        "image": "images/products/rtx5060ti.png",
-        "featured": false,
-        "inStock": false,
-        "specs": {
-            "VRAM": "16 GB GDDR7",
-            "CUDA Cores": "4 608",
-            "Boost Clock": "2.57 GHz",
-            "TDP": "180 W",
-            "Architecture": "Blackwell",
-            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
-            "Recommended PSU": "650 W+"
-        }
-    },
-
-    // =========================================================
-    // GPUs — RTX 40 SERIES (Ada Lovelace) — existing + fixes
-    // =========================================================
     {
         "id": 1,
         "name": "NVIDIA RTX 4090 Founders Edition",
@@ -149,52 +24,6 @@ const products = [
             "Architecture": "Ada Lovelace",
             "Outputs": "3× DP 1.4a · 1× HDMI 2.1",
             "Recommended PSU": "850 W+"
-        }
-    },
-    {
-        "id": 17,
-        "name": "NVIDIA RTX 4080 Super",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 9999.9,
-        "oldPrice": 11999.9,
-        "badge": "Sale",
-        "rating": 4.8,
-        "reviews": 706,
-        "image": "images/products/rtx4080super.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "VRAM": "16 GB GDDR6X",
-            "CUDA Cores": "10 240",
-            "Boost Clock": "2.55 GHz",
-            "TDP": "320 W",
-            "Architecture": "Ada Lovelace",
-            "Outputs": "3× DP 1.4a · 1× HDMI 2.1",
-            "Recommended PSU": "750 W+"
-        }
-    },
-    {
-        "id": 3,
-        "name": "NVIDIA RTX 4070 Ti Super",
-        "brand": "NVIDIA",
-        "category": "gpu",
-        "price": 6999.9,
-        "oldPrice": 7999.9,
-        "badge": "Sale",
-        "rating": 4.8,
-        "reviews": 432,
-        "image": "images/products/rtx4070ti.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "VRAM": "16 GB GDDR6X",
-            "CUDA Cores": "8 448",
-            "Boost Clock": "2.61 GHz",
-            "TDP": "285 W",
-            "Architecture": "Ada Lovelace",
-            "Outputs": "3× DP 1.4a · 1× HDMI 2.1",
-            "Recommended PSU": "700 W+"
         }
     },
     {
@@ -221,196 +50,49 @@ const products = [
         }
     },
     {
-        "id": 18,
-        "name": "AMD Radeon RX 7800 XT",
-        "brand": "AMD",
+        "id": 3,
+        "name": "NVIDIA RTX 4070 Ti Super",
+        "brand": "NVIDIA",
         "category": "gpu",
-        "price": 4799.9,
-        "oldPrice": 5799.9,
+        "price": 6999.9,
+        "oldPrice": 7999.9,
         "badge": "Sale",
-        "rating": 4.6,
-        "reviews": 930,
-        "image": "images/products/rx7800xt.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "VRAM": "16 GB GDDR6",
-            "Stream Processors": "3 840",
-            "Boost Clock": "2.43 GHz",
-            "TDP": "263 W",
-            "Architecture": "RDNA 3",
-            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
-            "Recommended PSU": "650 W+"
-        }
-    },
-
-    // Budget / CN GPUs
-    {
-        "id": 35,
-        "name": "MAXSUN Radeon RX 550 4 GB",
-        "brand": "MAXSUN",
-        "category": "gpu",
-        "price": 699.9,
-        "badge": "Ultra Low",
-        "rating": 4.0,
-        "reviews": 176,
-        "image": "images/products/rx550.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "VRAM": "4 GB GDDR5",
-            "Stream Processors": "512",
-            "Boost Clock": "1.18 GHz",
-            "TDP": "50 W",
-            "Architecture": "Polaris",
-            "Outputs": "1× HDMI · 1× DVI · 1× DP",
-            "Recommended PSU": "400 W+"
-        }
-    },
-    {
-        "id": 36,
-        "name": "MLLSE Radeon RX 580 8 GB (2048SP)",
-        "brand": "MLLSE",
-        "category": "gpu",
-        "price": 1299.9,
-        "badge": "1080p Budget",
-        "rating": 4.1,
-        "reviews": 304,
-        "image": "images/products/rx580.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "VRAM": "8 GB GDDR5",
-            "Stream Processors": "2 048",
-            "Boost Clock": "1.28 GHz",
-            "TDP": "150 W",
-            "Architecture": "Polaris (rebadge)",
-            "Outputs": "1× HDMI · 1× DP",
-            "Recommended PSU": "500 W+",
-            "Warning": "2048SP variant — not full RX 580"
-        }
-    },
-
-    // =========================================================
-    // CPUs — AMD ZEN 5 (AM5)
-    // =========================================================
-    {
-        "id": 201,
-        "name": "AMD Ryzen 7 9800X3D",
-        "brand": "AMD",
-        "category": "cpu",
-        "price": 4999.9,
-        "oldPrice": null,
-        "badge": "Best Gaming",
-        "rating": 4.9,
-        "reviews": 1876,
-        "image": "images/products/ryzen7-9800x3d.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "Cores": "8 / 16 threads",
-            "Boost Clock": "5.2 GHz",
-            "L3 Cache": "96 MB (3D V-Cache)",
-            "TDP": "120 W",
-            "Socket": "AM5",
-            "Architecture": "Zen 5",
-            "Memory": "DDR5-5600"
-        }
-    },
-    {
-        "id": 202,
-        "name": "AMD Ryzen 9 9950X",
-        "brand": "AMD",
-        "category": "cpu",
-        "price": 6499.9,
-        "oldPrice": null,
-        "badge": "Workstation",
         "rating": 4.8,
-        "reviews": 542,
-        "image": "images/products/ryzen9-9950x.png",
+        "reviews": 432,
+        "image": "images/products/rtx4070ti.png",
         "featured": false,
         "inStock": true,
         "specs": {
-            "Cores": "16 / 32 threads",
-            "Boost Clock": "5.7 GHz",
-            "L3 Cache": "64 MB",
-            "TDP": "170 W",
-            "Socket": "AM5",
-            "Architecture": "Zen 5",
-            "Memory": "DDR5-5600"
+            "VRAM": "16 GB GDDR6X",
+            "CUDA Cores": "8 448",
+            "Boost Clock": "2.61 GHz",
+            "TDP": "285 W",
+            "Architecture": "Ada Lovelace",
+            "Outputs": "3× DP 1.4a · 1× HDMI 2.1",
+            "Recommended PSU": "700 W+"
         }
     },
     {
-        "id": 203,
-        "name": "AMD Ryzen 7 9700X",
-        "brand": "AMD",
+        "id": 4,
+        "name": "Intel Core i9-14900K",
+        "brand": "Intel",
         "category": "cpu",
-        "price": 3499.9,
-        "oldPrice": null,
-        "badge": "Value",
-        "rating": 4.7,
-        "reviews": 734,
-        "image": "images/products/ryzen7-9700x.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Cores": "8 / 16 threads",
-            "Boost Clock": "5.5 GHz",
-            "L3 Cache": "32 MB",
-            "TDP": "65 W",
-            "Socket": "AM5",
-            "Architecture": "Zen 5",
-            "Memory": "DDR5-5600"
-        }
-    },
-    {
-        "id": 204,
-        "name": "AMD Ryzen 5 9600X",
-        "brand": "AMD",
-        "category": "cpu",
-        "price": 2699.9,
-        "oldPrice": null,
-        "badge": "Budget AM5",
-        "rating": 4.6,
-        "reviews": 612,
-        "image": "images/products/ryzen5-9600x.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Cores": "6 / 12 threads",
-            "Boost Clock": "5.4 GHz",
-            "L3 Cache": "32 MB",
-            "TDP": "65 W",
-            "Socket": "AM5",
-            "Architecture": "Zen 5",
-            "Memory": "DDR5-5600"
-        }
-    },
-
-    // =========================================================
-    // CPUs — AMD ZEN 4 (AM5) — existing + fixes
-    // =========================================================
-    {
-        "id": 16,
-        "name": "AMD Ryzen 7 7800X3D",
-        "brand": "AMD",
-        "category": "cpu",
-        "price": 3799.9,
-        "oldPrice": 4499.9,
+        "price": 4499.9,
+        "oldPrice": 5499.9,
         "badge": "Sale",
-        "rating": 4.9,
-        "reviews": 2145,
-        "image": "images/products/ryzen7-7800x3d.png",
+        "rating": 4.8,
+        "reviews": 2031,
+        "image": "images/products/i9-14900k.png",
         "featured": true,
         "inStock": true,
         "specs": {
-            "Cores": "8 / 16 threads",
-            "Boost Clock": "5.0 GHz",
-            "L3 Cache": "96 MB (3D V-Cache)",
-            "TDP": "120 W",
-            "Socket": "AM5",
-            "Architecture": "Zen 4",
-            "Memory": "DDR5-5200"
+            "Cores": "24 (8P + 16E) / 32 threads",
+            "Boost Clock": "6.0 GHz",
+            "L3 Cache": "36 MB",
+            "TDP": "125 W",
+            "Socket": "LGA 1700",
+            "Architecture": "Raptor Lake Refresh",
+            "Memory": "DDR4 / DDR5"
         }
     },
     {
@@ -459,81 +141,169 @@ const products = [
             "Memory": "DDR5-5200"
         }
     },
-
-    // =========================================================
-    // CPUs — INTEL ARROW LAKE (LGA 1851)
-    // =========================================================
     {
-        "id": 301,
-        "name": "Intel Core Ultra 9 285K",
-        "brand": "Intel",
-        "category": "cpu",
-        "price": 5999.9,
-        "oldPrice": null,
-        "badge": "New",
-        "rating": 4.5,
-        "reviews": 412,
-        "image": "images/products/core-ultra9-285k.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Cores": "24 (8P + 16E) / 24 threads",
-            "Boost Clock": "5.7 GHz",
-            "L3 Cache": "36 MB",
-            "TDP": "125 W",
-            "Socket": "LGA 1851",
-            "Architecture": "Arrow Lake",
-            "Memory": "DDR5-6400"
-        }
-    },
-    {
-        "id": 302,
-        "name": "Intel Core Ultra 7 265K",
-        "brand": "Intel",
-        "category": "cpu",
-        "price": 3999.9,
-        "oldPrice": null,
-        "badge": "New",
-        "rating": 4.5,
-        "reviews": 287,
-        "image": "images/products/core-ultra7-265k.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Cores": "20 (8P + 12E) / 20 threads",
-            "Boost Clock": "5.5 GHz",
-            "L3 Cache": "30 MB",
-            "TDP": "125 W",
-            "Socket": "LGA 1851",
-            "Architecture": "Arrow Lake",
-            "Memory": "DDR5-6400"
-        }
-    },
-
-    // =========================================================
-    // CPUs — INTEL RAPTOR LAKE (LGA 1700) — existing + fixes
-    // =========================================================
-    {
-        "id": 4,
-        "name": "Intel Core i9-14900K",
-        "brand": "Intel",
-        "category": "cpu",
-        "price": 4499.9,
-        "oldPrice": 5499.9,
+        "id": 7,
+        "name": "Corsair Dominator Platinum DDR5 32 GB",
+        "brand": "Corsair",
+        "category": "ram",
+        "price": 1899.9,
+        "oldPrice": 2199.9,
         "badge": "Sale",
-        "rating": 4.8,
-        "reviews": 2031,
-        "image": "images/products/i9-14900k.png",
+        "rating": 4.7,
+        "reviews": 654,
+        "image": "images/products/corsair-ddr5.png",
         "featured": true,
         "inStock": true,
         "specs": {
-            "Cores": "24 (8P + 16E) / 32 threads",
-            "Boost Clock": "6.0 GHz",
-            "L3 Cache": "36 MB",
-            "TDP": "125 W",
-            "Socket": "LGA 1700",
-            "Architecture": "Raptor Lake Refresh",
-            "Memory": "DDR4 / DDR5"
+            "Capacity": "32 GB (2 × 16 GB)",
+            "Type": "DDR5",
+            "Speed": "DDR5-6000",
+            "Latency": "CL36",
+            "Voltage": "1.35 V",
+            "Profile": "XMP 3.0"
+        }
+    },
+    {
+        "id": 8,
+        "name": "G.Skill Trident Z5 RGB 64 GB",
+        "brand": "G.Skill",
+        "category": "ram",
+        "price": 2999.9,
+        "badge": "New",
+        "rating": 4.8,
+        "reviews": 312,
+        "image": "images/products/gskill-ddr5.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "64 GB (2 × 32 GB)",
+            "Type": "DDR5",
+            "Speed": "DDR5-6400",
+            "Latency": "CL32",
+            "Voltage": "1.40 V",
+            "Profile": "XMP 3.0"
+        }
+    },
+    {
+        "id": 9,
+        "name": "Samsung 990 Pro NVMe SSD 2 TB",
+        "brand": "Samsung",
+        "category": "storage",
+        "price": 1699.9,
+        "oldPrice": 1999.9,
+        "badge": "Sale",
+        "rating": 4.9,
+        "reviews": 4871,
+        "image": "images/products/samsung-990pro.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Capacity": "2 TB",
+            "Interface": "PCIe 4.0 × 4 NVMe",
+            "Form Factor": "M.2 2280",
+            "Seq. Read": "7 450 MB/s",
+            "Seq. Write": "6 900 MB/s",
+            "TBW": "1 200 TB"
+        }
+    },
+    {
+        "id": 10,
+        "name": "WD Black SN850X 1 TB",
+        "brand": "Western Digital",
+        "category": "storage",
+        "price": 1099.9,
+        "rating": 4.8,
+        "reviews": 2190,
+        "image": "images/products/wd-sn850x.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "1 TB",
+            "Interface": "PCIe 4.0 × 4 NVMe",
+            "Form Factor": "M.2 2280",
+            "Seq. Read": "7 300 MB/s",
+            "Seq. Write": "6 600 MB/s",
+            "TBW": "600 TB"
+        }
+    },
+    {
+        "id": 11,
+        "name": "Noctua NH-D15 CPU Cooler",
+        "brand": "Noctua",
+        "category": "cooling",
+        "price": 999.9,
+        "rating": 4.9,
+        "reviews": 6540,
+        "image": "images/products/noctua-nhd15.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Air — Dual Tower",
+            "Fan Size": "2 × 140 mm",
+            "Max TDP": "250 W+",
+            "Noise": "24.6 dB(A)",
+            "Socket Support": "AM5 / AM4 / LGA 1700 / LGA 1851"
+        }
+    },
+    {
+        "id": 12,
+        "name": "NZXT Kraken Elite 360 AIO",
+        "brand": "NZXT",
+        "category": "cooling",
+        "price": 2799.9,
+        "oldPrice": 3199.9,
+        "badge": "Sale",
+        "rating": 4.6,
+        "reviews": 821,
+        "image": "images/products/nzxt-kraken360.png",
+        "featured": true,
+        "inStock": false,
+        "specs": {
+            "Type": "Liquid AIO",
+            "Radiator": "360 mm",
+            "Fans": "3 × 120 mm",
+            "Display": "2.36\" LCD",
+            "Socket Support": "AM5 / AM4 / LGA 1700 / LGA 1851"
+        }
+    },
+    {
+        "id": 13,
+        "name": "Corsair RM1000x 1000W 80+ Gold",
+        "brand": "Corsair",
+        "category": "psu",
+        "price": 1799.9,
+        "rating": 4.8,
+        "reviews": 1120,
+        "image": "images/products/corsair-rm1000x.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Wattage": "1 000 W",
+            "Efficiency": "80+ Gold",
+            "Modular": "Full",
+            "Fan": "135 mm Zero RPM",
+            "Connectors": "12V-2×6 (RTX 50 ready)"
+        }
+    },
+    {
+        "id": 14,
+        "name": "Seasonic Focus GX-850 850W",
+        "brand": "Seasonic",
+        "category": "psu",
+        "price": 1399.9,
+        "oldPrice": 1599.9,
+        "badge": "Low Stock",
+        "rating": 4.7,
+        "reviews": 2380,
+        "image": "images/products/seasonic-gx850.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Wattage": "850 W",
+            "Efficiency": "80+ Gold",
+            "Modular": "Full",
+            "Fan": "120 mm Hybrid",
+            "Connectors": "12V-2×6 (RTX 50 ready)"
         }
     },
     {
@@ -559,10 +329,326 @@ const products = [
             "Memory": "DDR4 / DDR5"
         }
     },
-
-    // =========================================================
-    // CPUs — XEON / X99 CN VALUE
-    // =========================================================
+    {
+        "id": 16,
+        "name": "AMD Ryzen 7 7800X3D",
+        "brand": "AMD",
+        "category": "cpu",
+        "price": 3799.9,
+        "oldPrice": 4499.9,
+        "badge": "Sale",
+        "rating": 4.9,
+        "reviews": 2145,
+        "image": "images/products/ryzen7-7800x3d.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Cores": "8 / 16 threads",
+            "Boost Clock": "5.0 GHz",
+            "L3 Cache": "96 MB (3D V-Cache)",
+            "TDP": "120 W",
+            "Socket": "AM5",
+            "Architecture": "Zen 4",
+            "Memory": "DDR5-5200"
+        }
+    },
+    {
+        "id": 17,
+        "name": "NVIDIA RTX 4080 Super",
+        "brand": "NVIDIA",
+        "category": "gpu",
+        "price": 9999.9,
+        "oldPrice": 11999.9,
+        "badge": "Sale",
+        "rating": 4.8,
+        "reviews": 706,
+        "image": "images/products/rtx4080super.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "VRAM": "16 GB GDDR6X",
+            "CUDA Cores": "10 240",
+            "Boost Clock": "2.55 GHz",
+            "TDP": "320 W",
+            "Architecture": "Ada Lovelace",
+            "Outputs": "3× DP 1.4a · 1× HDMI 2.1",
+            "Recommended PSU": "750 W+"
+        }
+    },
+    {
+        "id": 18,
+        "name": "AMD Radeon RX 7800 XT",
+        "brand": "AMD",
+        "category": "gpu",
+        "price": 4799.9,
+        "oldPrice": 5799.9,
+        "badge": "Sale",
+        "rating": 4.6,
+        "reviews": 930,
+        "image": "images/products/rx7800xt.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "VRAM": "16 GB GDDR6",
+            "Stream Processors": "3 840",
+            "Boost Clock": "2.43 GHz",
+            "TDP": "263 W",
+            "Architecture": "RDNA 3",
+            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
+            "Recommended PSU": "650 W+"
+        }
+    },
+    {
+        "id": 19,
+        "name": "Kingston Fury Beast DDR5 32 GB",
+        "brand": "Kingston",
+        "category": "ram",
+        "price": 1499.9,
+        "badge": "Value",
+        "rating": 4.6,
+        "reviews": 812,
+        "image": "images/products/generic-ram.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "32 GB (2 × 16 GB)",
+            "Type": "DDR5",
+            "Speed": "DDR5-5600",
+            "Latency": "CL36",
+            "Voltage": "1.25 V",
+            "Profile": "XMP 3.0 / EXPO"
+        }
+    },
+    {
+        "id": 20,
+        "name": "Crucial Pro DDR4 32 GB",
+        "brand": "Crucial",
+        "category": "ram",
+        "price": 899.9,
+        "badge": "Budget",
+        "rating": 4.5,
+        "reviews": 640,
+        "image": "images/products/generic-ram.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "32 GB (2 × 16 GB)",
+            "Type": "DDR4",
+            "Speed": "DDR4-3200",
+            "Latency": "CL22",
+            "Voltage": "1.20 V",
+            "Profile": "XMP 2.0"
+        }
+    },
+    {
+        "id": 21,
+        "name": "Crucial T500 NVMe SSD 1 TB",
+        "brand": "Crucial",
+        "category": "storage",
+        "price": 1099.9,
+        "badge": "Value",
+        "rating": 4.7,
+        "reviews": 528,
+        "image": "images/products/i-crucial-t500-m-2-pci-e-4-0-nvme-1tb-ct1000t500ssd5.webp",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "1 TB",
+            "Interface": "PCIe 4.0 × 4 NVMe",
+            "Form Factor": "M.2 2280",
+            "Seq. Read": "7 300 MB/s",
+            "Seq. Write": "6 800 MB/s",
+            "TBW": "600 TB"
+        }
+    },
+    {
+        "id": 22,
+        "name": "be quiet! Dark Rock Pro 5",
+        "brand": "be quiet!",
+        "category": "cooling",
+        "price": 1199.9,
+        "badge": "Silent",
+        "rating": 4.8,
+        "reviews": 402,
+        "image": "images/products/Dark-Rock-Pro-5_Promo-1024x683.webp",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Air — Dual Tower",
+            "Fan Size": "1 × 120 mm + 1 × 135 mm",
+            "Max TDP": "270 W",
+            "Noise": "23.3 dB(A)",
+            "Socket Support": "AM5 / AM4 / LGA 1700 / LGA 1851"
+        }
+    },
+    {
+        "id": 23,
+        "name": "Cooler Master MWE Gold 750 V2",
+        "brand": "Cooler Master",
+        "category": "psu",
+        "price": 999.9,
+        "badge": "Budget",
+        "rating": 4.5,
+        "reviews": 785,
+        "image": "images/products/mwe-gold-750-v2-atx3-600x600.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Wattage": "750 W",
+            "Efficiency": "80+ Gold",
+            "Modular": "Semi",
+            "Fan": "120 mm"
+        }
+    },
+    {
+        "id": 24,
+        "name": "Corsair RM750e 750W 80+ Gold",
+        "brand": "Corsair",
+        "category": "psu",
+        "price": 1199.9,
+        "rating": 4.6,
+        "reviews": 956,
+        "image": "images/products/rm750e_ac62522_75331.webp",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Wattage": "750 W",
+            "Efficiency": "80+ Gold",
+            "Modular": "Full",
+            "Fan": "120 mm Zero RPM"
+        }
+    },
+    {
+        "id": 25,
+        "name": "ASUS ROG Strix B650E-F Gaming WiFi",
+        "brand": "ASUS",
+        "category": "motherboard",
+        "price": 2899.9,
+        "badge": "AM5 Top",
+        "rating": 4.8,
+        "reviews": 364,
+        "image": "images/products/generic-motherboard.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Socket": "AM5",
+            "Chipset": "B650E",
+            "Memory": "DDR5",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "ATX",
+            "M.2 Slots": "3",
+            "PCIe": "1× PCIe 5.0 x16"
+        }
+    },
+    {
+        "id": 26,
+        "name": "MSI MAG B650 Tomahawk WiFi",
+        "brand": "MSI",
+        "category": "motherboard",
+        "price": 2399.9,
+        "badge": "Value",
+        "rating": 4.7,
+        "reviews": 512,
+        "image": "images/products/mag-b650-tomahawk-wifi1.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Socket": "AM5",
+            "Chipset": "B650",
+            "Memory": "DDR5",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "ATX",
+            "M.2 Slots": "3",
+            "PCIe": "1× PCIe 4.0 x16"
+        }
+    },
+    {
+        "id": 27,
+        "name": "Gigabyte Z790 AORUS Elite AX",
+        "brand": "Gigabyte",
+        "category": "motherboard",
+        "price": 2799.9,
+        "badge": "Gaming",
+        "rating": 4.8,
+        "reviews": 438,
+        "image": "images/products/generic-motherboard.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Socket": "LGA 1700",
+            "Chipset": "Z790",
+            "Memory": "DDR5",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "ATX",
+            "M.2 Slots": "4",
+            "PCIe": "1× PCIe 5.0 x16"
+        }
+    },
+    {
+        "id": 28,
+        "name": "MSI MAG B760 Tomahawk WiFi DDR4",
+        "brand": "MSI",
+        "category": "motherboard",
+        "price": 1999.9,
+        "badge": "Budget",
+        "rating": 4.6,
+        "reviews": 286,
+        "image": "images/products/msi_b760tamawifid4_mag_b760_tomahawk_wifi_1746346.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Socket": "LGA 1700",
+            "Chipset": "B760",
+            "Memory": "DDR4",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "ATX",
+            "M.2 Slots": "3",
+            "PCIe": "1× PCIe 4.0 x16"
+        }
+    },
+    {
+        "id": 29,
+        "name": "ASUS TUF Gaming B650-Plus WiFi",
+        "brand": "ASUS",
+        "category": "motherboard",
+        "price": 2199.9,
+        "rating": 4.7,
+        "reviews": 341,
+        "image": "images/products/asus_tuf_gaming_b650_plus_wifi_1668078327_1730807.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Socket": "AM5",
+            "Chipset": "B650",
+            "Memory": "DDR5",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "ATX",
+            "M.2 Slots": "3",
+            "PCIe": "1× PCIe 4.0 x16"
+        }
+    },
+    {
+        "id": 30,
+        "name": "Gigabyte B760M DS3H DDR4",
+        "brand": "Gigabyte",
+        "category": "motherboard",
+        "price": 1299.9,
+        "badge": "Budget",
+        "rating": 4.5,
+        "reviews": 219,
+        "image": "images/products/generic-motherboard.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Socket": "LGA 1700",
+            "Chipset": "B760",
+            "Memory": "DDR4",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "Micro-ATX",
+            "M.2 Slots": "2",
+            "PCIe": "1× PCIe 4.0 x16"
+        }
+    },
     {
         "id": 31,
         "name": "Intel Xeon E5-2640 v4",
@@ -609,558 +695,6 @@ const products = [
             "Warning": "Legacy platform — no PCIe 4.0, limited overclocking"
         }
     },
-
-    // =========================================================
-    // RAM
-    // =========================================================
-    {
-        "id": 7,
-        "name": "Corsair Dominator Platinum DDR5 32 GB",
-        "brand": "Corsair",
-        "category": "ram",
-        "price": 1899.9,
-        "oldPrice": 2199.9,
-        "badge": "Sale",
-        "rating": 4.7,
-        "reviews": 654,
-        "image": "images/products/corsair-ddr5.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "Capacity": "32 GB (2 × 16 GB)",
-            "Type": "DDR5",
-            "Speed": "DDR5-6000",
-            "Latency": "CL36",
-            "Voltage": "1.35 V",
-            "Profile": "XMP 3.0"
-        }
-    },
-    {
-        "id": 8,
-        "name": "G.Skill Trident Z5 RGB 64 GB",
-        "brand": "G.Skill",
-        "category": "ram",
-        "price": 2999.9,
-        "badge": "New",
-        "rating": 4.8,
-        "reviews": 312,
-        "image": "images/products/gskill-ddr5.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "64 GB (2 × 32 GB)",
-            "Type": "DDR5",
-            "Speed": "DDR5-6400",
-            "Latency": "CL32",
-            "Voltage": "1.40 V",
-            "Profile": "XMP 3.0"
-        }
-    },
-    {
-        "id": 19,
-        "name": "Kingston Fury Beast DDR5 32 GB",
-        "brand": "Kingston",
-        "category": "ram",
-        "price": 1499.9,
-        "badge": "Value",
-        "rating": 4.6,
-        "reviews": 812,
-        "image": "images/products/generic-ram.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "32 GB (2 × 16 GB)",
-            "Type": "DDR5",
-            "Speed": "DDR5-5600",
-            "Latency": "CL36",
-            "Voltage": "1.25 V",
-            "Profile": "XMP 3.0 / EXPO"
-        }
-    },
-    {
-        "id": 20,
-        "name": "Crucial Pro DDR4 32 GB",
-        "brand": "Crucial",
-        "category": "ram",
-        "price": 899.9,
-        "badge": "Budget",
-        "rating": 4.5,
-        "reviews": 640,
-        "image": "images/products/generic-ram.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "32 GB (2 × 16 GB)",
-            "Type": "DDR4",
-            "Speed": "DDR4-3200",
-            "Latency": "CL22",
-            "Voltage": "1.20 V",
-            "Profile": "XMP 2.0"
-        }
-    },
-    {
-        "id": 34,
-        "name": "Kllisre DDR4 ECC Registered 16 GB",
-        "brand": "Kllisre",
-        "category": "ram",
-        "price": 299.9,
-        "badge": "CN Value",
-        "rating": 4.0,
-        "reviews": 211,
-        "image": "images/products/generic-ram.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "16 GB (1 × 16 GB)",
-            "Type": "DDR4 ECC REG",
-            "Speed": "DDR4-2133",
-            "Latency": "Server JEDEC",
-            "Voltage": "1.20 V",
-            "Profile": "None — server memory",
-            "Compatibility": "X99 / LGA 2011-3 only"
-        }
-    },
-
-    // =========================================================
-    // STORAGE
-    // =========================================================
-    {
-        "id": 9,
-        "name": "Samsung 990 Pro NVMe SSD 2 TB",
-        "brand": "Samsung",
-        "category": "storage",
-        "price": 1699.9,
-        "oldPrice": 1999.9,
-        "badge": "Sale",
-        "rating": 4.9,
-        "reviews": 4871,
-        "image": "images/products/samsung-990pro.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "Capacity": "2 TB",
-            "Interface": "PCIe 4.0 × 4 NVMe",
-            "Form Factor": "M.2 2280",
-            "Seq. Read": "7 450 MB/s",
-            "Seq. Write": "6 900 MB/s",
-            "TBW": "1 200 TB"
-        }
-    },
-    {
-        "id": 10,
-        "name": "WD Black SN850X 1 TB",
-        "brand": "Western Digital",
-        "category": "storage",
-        "price": 1099.9,
-        "rating": 4.8,
-        "reviews": 2190,
-        "image": "images/products/wd-sn850x.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "1 TB",
-            "Interface": "PCIe 4.0 × 4 NVMe",
-            "Form Factor": "M.2 2280",
-            "Seq. Read": "7 300 MB/s",
-            "Seq. Write": "6 600 MB/s",
-            "TBW": "600 TB"
-        }
-    },
-    {
-        "id": 21,
-        "name": "Crucial T500 NVMe SSD 1 TB",
-        "brand": "Crucial",
-        "category": "storage",
-        "price": 1099.9,
-        "badge": "Value",
-        "rating": 4.7,
-        "reviews": 528,
-        "image": "images/products/i-crucial-t500-m-2-pci-e-4-0-nvme-1tb-ct1000t500ssd5.webp",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "1 TB",
-            "Interface": "PCIe 4.0 × 4 NVMe",
-            "Form Factor": "M.2 2280",
-            "Seq. Read": "7 300 MB/s",
-            "Seq. Write": "6 800 MB/s",
-            "TBW": "600 TB"
-        }
-    },
-    {
-        "id": 37,
-        "name": "KingSpec P3 SATA SSD 512 GB",
-        "brand": "KingSpec",
-        "category": "storage",
-        "price": 299.9,
-        "badge": "Ultra Low",
-        "rating": 4.1,
-        "reviews": 386,
-        "image": "images/products/kingspec-sata.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Capacity": "512 GB",
-            "Interface": "SATA III 6 Gb/s",
-            "Form Factor": "2.5\"",
-            "Seq. Read": "550 MB/s",
-            "Seq. Write": "500 MB/s",
-            "TBW": "240 TB"
-        }
-    },
-
-    // =========================================================
-    // COOLING
-    // =========================================================
-    {
-        "id": 11,
-        "name": "Noctua NH-D15 CPU Cooler",
-        "brand": "Noctua",
-        "category": "cooling",
-        "price": 999.9,
-        "rating": 4.9,
-        "reviews": 6540,
-        "image": "images/products/noctua-nhd15.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Type": "Air — Dual Tower",
-            "Fan Size": "2 × 140 mm",
-            "Max TDP": "250 W+",
-            "Noise": "24.6 dB(A)",
-            "Socket Support": "AM5 / AM4 / LGA 1700 / LGA 1851"
-        }
-    },
-    {
-        "id": 22,
-        "name": "be quiet! Dark Rock Pro 5",
-        "brand": "be quiet!",
-        "category": "cooling",
-        "price": 1199.9,
-        "badge": "Silent",
-        "rating": 4.8,
-        "reviews": 402,
-        "image": "images/products/Dark-Rock-Pro-5_Promo-1024x683.webp",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Type": "Air — Dual Tower",
-            "Fan Size": "1 × 120 mm + 1 × 135 mm",
-            "Max TDP": "270 W",
-            "Noise": "23.3 dB(A)",
-            "Socket Support": "AM5 / AM4 / LGA 1700 / LGA 1851"
-        }
-    },
-    {
-        "id": 12,
-        "name": "NZXT Kraken Elite 360 AIO",
-        "brand": "NZXT",
-        "category": "cooling",
-        "price": 2799.9,
-        "oldPrice": 3199.9,
-        "badge": "Sale",
-        "rating": 4.6,
-        "reviews": 821,
-        "image": "images/products/nzxt-kraken360.png",
-        "featured": true,
-        "inStock": false,
-        "specs": {
-            "Type": "Liquid AIO",
-            "Radiator": "360 mm",
-            "Fans": "3 × 120 mm",
-            "Display": "2.36\" LCD",
-            "Socket Support": "AM5 / AM4 / LGA 1700 / LGA 1851"
-        }
-    },
-    {
-        "id": 39,
-        "name": "Snowman M-T4 120mm Tower Cooler",
-        "brand": "Snowman",
-        "category": "cooling",
-        "price": 169.9,
-        "badge": "CN Value",
-        "rating": 4.0,
-        "reviews": 198,
-        "image": "images/products/snowman-mt4.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Type": "Air — Single Tower",
-            "Fan Size": "1 × 120 mm",
-            "Max TDP": "150 W",
-            "Noise": "Budget PWM",
-            "Socket Support": "AM4 / LGA 1700 / LGA 2011-3"
-        }
-    },
-
-    // =========================================================
-    // PSU
-    // =========================================================
-    {
-        "id": 13,
-        "name": "Corsair RM1000x 1000W 80+ Gold",
-        "brand": "Corsair",
-        "category": "psu",
-        "price": 1799.9,
-        "rating": 4.8,
-        "reviews": 1120,
-        "image": "images/products/corsair-rm1000x.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Wattage": "1 000 W",
-            "Efficiency": "80+ Gold",
-            "Modular": "Full",
-            "Fan": "135 mm Zero RPM",
-            "Connectors": "12V-2×6 (RTX 50 ready)"
-        }
-    },
-    {
-        "id": 14,
-        "name": "Seasonic Focus GX-850 850W",
-        "brand": "Seasonic",
-        "category": "psu",
-        "price": 1399.9,
-        "oldPrice": 1599.9,
-        "badge": "Low Stock",
-        "rating": 4.7,
-        "reviews": 2380,
-        "image": "images/products/seasonic-gx850.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "Wattage": "850 W",
-            "Efficiency": "80+ Gold",
-            "Modular": "Full",
-            "Fan": "120 mm Hybrid",
-            "Connectors": "12V-2×6 (RTX 50 ready)"
-        }
-    },
-    {
-        "id": 23,
-        "name": "Cooler Master MWE Gold 750 V2",
-        "brand": "Cooler Master",
-        "category": "psu",
-        "price": 999.9,
-        "badge": "Budget",
-        "rating": 4.5,
-        "reviews": 785,
-        "image": "images/products/mwe-gold-750-v2-atx3-600x600.jpg",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Wattage": "750 W",
-            "Efficiency": "80+ Gold",
-            "Modular": "Semi",
-            "Fan": "120 mm"
-        }
-    },
-    {
-        "id": 24,
-        "name": "Corsair RM750e 750W 80+ Gold",
-        "brand": "Corsair",
-        "category": "psu",
-        "price": 1199.9,
-        "rating": 4.6,
-        "reviews": 956,
-        "image": "images/products/rm750e_ac62522_75331.webp",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Wattage": "750 W",
-            "Efficiency": "80+ Gold",
-            "Modular": "Full",
-            "Fan": "120 mm Zero RPM"
-        }
-    },
-    {
-        "id": 38,
-        "name": "Aigo GP550 500W 80+ Bronze",
-        "brand": "Aigo",
-        "category": "psu",
-        "price": 449.9,
-        "badge": "Budget",
-        "rating": 4.0,
-        "reviews": 126,
-        "image": "images/products/aigo-gp550.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Wattage": "500 W",
-            "Efficiency": "80+ Bronze",
-            "Modular": "No",
-            "Fan": "120 mm"
-        }
-    },
-
-    // =========================================================
-    // MOTHERBOARDS — AM5
-    // =========================================================
-    {
-        "id": 25,
-        "name": "ASUS ROG Strix B650E-F Gaming WiFi",
-        "brand": "ASUS",
-        "category": "motherboard",
-        "price": 2899.9,
-        "badge": "AM5 Top",
-        "rating": 4.8,
-        "reviews": 364,
-        "image": "images/products/generic-motherboard.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "Socket": "AM5",
-            "Chipset": "B650E",
-            "Memory": "DDR5",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "ATX",
-            "M.2 Slots": "3",
-            "PCIe": "1× PCIe 5.0 x16"
-        }
-    },
-    {
-        "id": 26,
-        "name": "MSI MAG B650 Tomahawk WiFi",
-        "brand": "MSI",
-        "category": "motherboard",
-        "price": 2399.9,
-        "badge": "Value",
-        "rating": 4.7,
-        "reviews": 512,
-        "image": "images/products/mag-b650-tomahawk-wifi1.jpg",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Socket": "AM5",
-            "Chipset": "B650",
-            "Memory": "DDR5",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "ATX",
-            "M.2 Slots": "3",
-            "PCIe": "1× PCIe 4.0 x16"
-        }
-    },
-    {
-        "id": 29,
-        "name": "ASUS TUF Gaming B650-Plus WiFi",
-        "brand": "ASUS",
-        "category": "motherboard",
-        "price": 2199.9,
-        "rating": 4.7,
-        "reviews": 341,
-        "image": "images/products/asus_tuf_gaming_b650_plus_wifi_1668078327_1730807.jpg",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Socket": "AM5",
-            "Chipset": "B650",
-            "Memory": "DDR5",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "ATX",
-            "M.2 Slots": "3",
-            "PCIe": "1× PCIe 4.0 x16"
-        }
-    },
-
-    // =========================================================
-    // MOTHERBOARDS — LGA 1700
-    // =========================================================
-    {
-        "id": 27,
-        "name": "Gigabyte Z790 AORUS Elite AX",
-        "brand": "Gigabyte",
-        "category": "motherboard",
-        "price": 2799.9,
-        "badge": "Gaming",
-        "rating": 4.8,
-        "reviews": 438,
-        "image": "images/products/generic-motherboard.png",
-        "featured": true,
-        "inStock": true,
-        "specs": {
-            "Socket": "LGA 1700",
-            "Chipset": "Z790",
-            "Memory": "DDR5",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "ATX",
-            "M.2 Slots": "4",
-            "PCIe": "1× PCIe 5.0 x16"
-        }
-    },
-    {
-        "id": 28,
-        "name": "MSI MAG B760 Tomahawk WiFi DDR4",
-        "brand": "MSI",
-        "category": "motherboard",
-        "price": 1999.9,
-        "badge": "Budget",
-        "rating": 4.6,
-        "reviews": 286,
-        "image": "images/products/msi_b760tamawifid4_mag_b760_tomahawk_wifi_1746346.jpg",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Socket": "LGA 1700",
-            "Chipset": "B760",
-            "Memory": "DDR4",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "ATX",
-            "M.2 Slots": "3",
-            "PCIe": "1× PCIe 4.0 x16"
-        }
-    },
-    {
-        "id": 30,
-        "name": "Gigabyte B760M DS3H DDR4",
-        "brand": "Gigabyte",
-        "category": "motherboard",
-        "price": 1299.9,
-        "badge": "Budget",
-        "rating": 4.5,
-        "reviews": 219,
-        "image": "images/products/generic-motherboard.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Socket": "LGA 1700",
-            "Chipset": "B760",
-            "Memory": "DDR4",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "Micro-ATX",
-            "M.2 Slots": "2",
-            "PCIe": "1× PCIe 4.0 x16"
-        }
-    },
-
-    // =========================================================
-    // MOTHERBOARDS — LGA 1851 (Arrow Lake)
-    // =========================================================
-    {
-        "id": 401,
-        "name": "ASUS ROG Strix Z890-F Gaming WiFi",
-        "brand": "ASUS",
-        "category": "motherboard",
-        "price": 3499.9,
-        "badge": "New",
-        "rating": 4.7,
-        "reviews": 187,
-        "image": "images/products/generic-motherboard.png",
-        "featured": false,
-        "inStock": true,
-        "specs": {
-            "Socket": "LGA 1851",
-            "Chipset": "Z890",
-            "Memory": "DDR5",
-            "Memory Slots": "4 × DIMM",
-            "Form Factor": "ATX",
-            "M.2 Slots": "5",
-            "PCIe": "1× PCIe 5.0 x16"
-        }
-    },
-
-    // =========================================================
-    // MOTHERBOARDS — X99 / LGA 2011-3
-    // =========================================================
     {
         "id": 33,
         "name": "HUANANZHI X99 4MF Plus DDR4",
@@ -1184,10 +718,133 @@ const products = [
             "Warning": "CN clone board — BIOS updates unreliable"
         }
     },
-
-    // =========================================================
-    // MONITORS
-    // =========================================================
+    {
+        "id": 34,
+        "name": "Kllisre DDR4 ECC Registered 16 GB",
+        "brand": "Kllisre",
+        "category": "ram",
+        "price": 299.9,
+        "badge": "CN Value",
+        "rating": 4,
+        "reviews": 211,
+        "image": "images/products/generic-ram.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "16 GB (1 × 16 GB)",
+            "Type": "DDR4 ECC REG",
+            "Speed": "DDR4-2133",
+            "Latency": "Server JEDEC",
+            "Voltage": "1.20 V",
+            "Profile": "None — server memory",
+            "Compatibility": "X99 / LGA 2011-3 only"
+        }
+    },
+    {
+        "id": 35,
+        "name": "MAXSUN Radeon RX 550 4 GB",
+        "brand": "MAXSUN",
+        "category": "gpu",
+        "price": 699.9,
+        "badge": "Ultra Low",
+        "rating": 4,
+        "reviews": 176,
+        "image": "images/products/rx550.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "VRAM": "4 GB GDDR5",
+            "Stream Processors": "512",
+            "Boost Clock": "1.18 GHz",
+            "TDP": "50 W",
+            "Architecture": "Polaris",
+            "Outputs": "1× HDMI · 1× DVI · 1× DP",
+            "Recommended PSU": "400 W+"
+        }
+    },
+    {
+        "id": 36,
+        "name": "MLLSE Radeon RX 580 8 GB (2048SP)",
+        "brand": "MLLSE",
+        "category": "gpu",
+        "price": 1299.9,
+        "badge": "1080p Budget",
+        "rating": 4.1,
+        "reviews": 304,
+        "image": "images/products/rx580.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "VRAM": "8 GB GDDR5",
+            "Stream Processors": "2 048",
+            "Boost Clock": "1.28 GHz",
+            "TDP": "150 W",
+            "Architecture": "Polaris (rebadge)",
+            "Outputs": "1× HDMI · 1× DP",
+            "Recommended PSU": "500 W+",
+            "Warning": "2048SP variant — not full RX 580"
+        }
+    },
+    {
+        "id": 37,
+        "name": "KingSpec P3 SATA SSD 512 GB",
+        "brand": "KingSpec",
+        "category": "storage",
+        "price": 299.9,
+        "badge": "Ultra Low",
+        "rating": 4.1,
+        "reviews": 386,
+        "image": "images/products/kingspec-sata.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Capacity": "512 GB",
+            "Interface": "SATA III 6 Gb/s",
+            "Form Factor": "2.5\"",
+            "Seq. Read": "550 MB/s",
+            "Seq. Write": "500 MB/s",
+            "TBW": "240 TB"
+        }
+    },
+    {
+        "id": 38,
+        "name": "Aigo GP550 500W 80+ Bronze",
+        "brand": "Aigo",
+        "category": "psu",
+        "price": 449.9,
+        "badge": "Budget",
+        "rating": 4,
+        "reviews": 126,
+        "image": "images/products/aigo-gp550.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Wattage": "500 W",
+            "Efficiency": "80+ Bronze",
+            "Modular": "No",
+            "Fan": "120 mm"
+        }
+    },
+    {
+        "id": 39,
+        "name": "Snowman M-T4 120mm Tower Cooler",
+        "brand": "Snowman",
+        "category": "cooling",
+        "price": 169.9,
+        "badge": "CN Value",
+        "rating": 4,
+        "reviews": 198,
+        "image": "images/products/snowman-mt4.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Air — Single Tower",
+            "Fan Size": "1 × 120 mm",
+            "Max TDP": "150 W",
+            "Noise": "Budget PWM",
+            "Socket Support": "AM4 / LGA 1700 / LGA 2011-3"
+        }
+    },
     {
         "id": 40,
         "name": "ASUS TUF Gaming VG27AQ",
@@ -1198,7 +855,7 @@ const products = [
         "badge": "1440p",
         "rating": 4.8,
         "reviews": 1250,
-        "image": "images/products/generic-monitor.png",
+        "image": "images/products/asus-tuf-monitor.png",
         "featured": true,
         "inStock": true,
         "specs": {
@@ -1221,7 +878,7 @@ const products = [
         "badge": "Value",
         "rating": 4.6,
         "reviews": 845,
-        "image": "images/products/generic-monitor.png",
+        "image": "images/products/aoc-monitor.png",
         "featured": true,
         "inStock": true,
         "specs": {
@@ -1243,7 +900,7 @@ const products = [
         "badge": "Ultrawide",
         "rating": 4.9,
         "reviews": 310,
-        "image": "images/products/generic-monitor.png",
+        "image": "images/products/samsung-odyssey-monitor.png",
         "featured": false,
         "inStock": true,
         "specs": {
@@ -1257,10 +914,270 @@ const products = [
             "Curvature": "1000R"
         }
     },
-
-    // =========================================================
-    // ACCESSORIES
-    // =========================================================
+    {
+        "id": 101,
+        "name": "NVIDIA RTX 5090 Founders Edition",
+        "brand": "NVIDIA",
+        "category": "gpu",
+        "price": 24999.9,
+        "badge": "Flagship",
+        "rating": 4.9,
+        "reviews": 312,
+        "image": "images/products/rtx5090.png",
+        "featured": true,
+        "inStock": false,
+        "specs": {
+            "VRAM": "32 GB GDDR7",
+            "CUDA Cores": "21 760",
+            "Boost Clock": "2.41 GHz",
+            "TDP": "575 W",
+            "Architecture": "Blackwell",
+            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
+            "Recommended PSU": "1 000 W+"
+        }
+    },
+    {
+        "id": 102,
+        "name": "NVIDIA RTX 5080 Founders Edition",
+        "brand": "NVIDIA",
+        "category": "gpu",
+        "price": 15999.9,
+        "badge": "New",
+        "rating": 4.8,
+        "reviews": 487,
+        "image": "images/products/rtx5080.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "VRAM": "16 GB GDDR7",
+            "CUDA Cores": "10 752",
+            "Boost Clock": "2.62 GHz",
+            "TDP": "360 W",
+            "Architecture": "Blackwell",
+            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
+            "Recommended PSU": "850 W+"
+        }
+    },
+    {
+        "id": 103,
+        "name": "NVIDIA RTX 5070 Ti",
+        "brand": "NVIDIA",
+        "category": "gpu",
+        "price": 11999.9,
+        "badge": "New",
+        "rating": 4.8,
+        "reviews": 623,
+        "image": "images/products/rtx5070ti.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "VRAM": "16 GB GDDR7",
+            "CUDA Cores": "8 960",
+            "Boost Clock": "2.45 GHz",
+            "TDP": "300 W",
+            "Architecture": "Blackwell",
+            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
+            "Recommended PSU": "750 W+"
+        }
+    },
+    {
+        "id": 104,
+        "name": "NVIDIA RTX 5070",
+        "brand": "NVIDIA",
+        "category": "gpu",
+        "price": 7999.9,
+        "badge": "New",
+        "rating": 4.6,
+        "reviews": 891,
+        "image": "images/products/rtx5070.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "VRAM": "12 GB GDDR7",
+            "CUDA Cores": "6 144",
+            "Boost Clock": "2.51 GHz",
+            "TDP": "250 W",
+            "Architecture": "Blackwell",
+            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
+            "Recommended PSU": "650 W+"
+        }
+    },
+    {
+        "id": 105,
+        "name": "NVIDIA RTX 5060 Ti 16 GB",
+        "brand": "NVIDIA",
+        "category": "gpu",
+        "price": 5999.9,
+        "badge": "New",
+        "rating": 4.5,
+        "reviews": 234,
+        "image": "images/products/rtx5060ti.png",
+        "featured": false,
+        "inStock": false,
+        "specs": {
+            "VRAM": "16 GB GDDR7",
+            "CUDA Cores": "4 608",
+            "Boost Clock": "2.57 GHz",
+            "TDP": "180 W",
+            "Architecture": "Blackwell",
+            "Outputs": "3× DP 2.1 · 1× HDMI 2.1",
+            "Recommended PSU": "650 W+"
+        }
+    },
+    {
+        "id": 201,
+        "name": "AMD Ryzen 7 9800X3D",
+        "brand": "AMD",
+        "category": "cpu",
+        "price": 4999.9,
+        "badge": "Best Gaming",
+        "rating": 4.9,
+        "reviews": 1876,
+        "image": "images/products/ryzen7-9800x3d.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Cores": "8 / 16 threads",
+            "Boost Clock": "5.2 GHz",
+            "L3 Cache": "96 MB (3D V-Cache)",
+            "TDP": "120 W",
+            "Socket": "AM5",
+            "Architecture": "Zen 5",
+            "Memory": "DDR5-5600"
+        }
+    },
+    {
+        "id": 202,
+        "name": "AMD Ryzen 9 9950X",
+        "brand": "AMD",
+        "category": "cpu",
+        "price": 6499.9,
+        "badge": "Workstation",
+        "rating": 4.8,
+        "reviews": 542,
+        "image": "images/products/ryzen9-9950x.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Cores": "16 / 32 threads",
+            "Boost Clock": "5.7 GHz",
+            "L3 Cache": "64 MB",
+            "TDP": "170 W",
+            "Socket": "AM5",
+            "Architecture": "Zen 5",
+            "Memory": "DDR5-5600"
+        }
+    },
+    {
+        "id": 203,
+        "name": "AMD Ryzen 7 9700X",
+        "brand": "AMD",
+        "category": "cpu",
+        "price": 3499.9,
+        "badge": "Value",
+        "rating": 4.7,
+        "reviews": 734,
+        "image": "images/products/ryzen7-9700x.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Cores": "8 / 16 threads",
+            "Boost Clock": "5.5 GHz",
+            "L3 Cache": "32 MB",
+            "TDP": "65 W",
+            "Socket": "AM5",
+            "Architecture": "Zen 5",
+            "Memory": "DDR5-5600"
+        }
+    },
+    {
+        "id": 204,
+        "name": "AMD Ryzen 5 9600X",
+        "brand": "AMD",
+        "category": "cpu",
+        "price": 2699.9,
+        "badge": "Budget AM5",
+        "rating": 4.6,
+        "reviews": 612,
+        "image": "images/products/ryzen5-9600x.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Cores": "6 / 12 threads",
+            "Boost Clock": "5.4 GHz",
+            "L3 Cache": "32 MB",
+            "TDP": "65 W",
+            "Socket": "AM5",
+            "Architecture": "Zen 5",
+            "Memory": "DDR5-5600"
+        }
+    },
+    {
+        "id": 301,
+        "name": "Intel Core Ultra 9 285K",
+        "brand": "Intel",
+        "category": "cpu",
+        "price": 5999.9,
+        "badge": "New",
+        "rating": 4.5,
+        "reviews": 412,
+        "image": "images/products/core-ultra9-285k.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Cores": "24 (8P + 16E) / 24 threads",
+            "Boost Clock": "5.7 GHz",
+            "L3 Cache": "36 MB",
+            "TDP": "125 W",
+            "Socket": "LGA 1851",
+            "Architecture": "Arrow Lake",
+            "Memory": "DDR5-6400"
+        }
+    },
+    {
+        "id": 302,
+        "name": "Intel Core Ultra 7 265K",
+        "brand": "Intel",
+        "category": "cpu",
+        "price": 3999.9,
+        "badge": "New",
+        "rating": 4.5,
+        "reviews": 287,
+        "image": "images/products/core-ultra7-265k.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Cores": "20 (8P + 12E) / 20 threads",
+            "Boost Clock": "5.5 GHz",
+            "L3 Cache": "30 MB",
+            "TDP": "125 W",
+            "Socket": "LGA 1851",
+            "Architecture": "Arrow Lake",
+            "Memory": "DDR5-6400"
+        }
+    },
+    {
+        "id": 401,
+        "name": "ASUS ROG Strix Z890-F Gaming WiFi",
+        "brand": "ASUS",
+        "category": "motherboard",
+        "price": 3499.9,
+        "badge": "New",
+        "rating": 4.7,
+        "reviews": 187,
+        "image": "images/products/generic-motherboard.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Socket": "LGA 1851",
+            "Chipset": "Z890",
+            "Memory": "DDR5",
+            "Memory Slots": "4 × DIMM",
+            "Form Factor": "ATX",
+            "M.2 Slots": "5",
+            "PCIe": "1× PCIe 5.0 x16"
+        }
+    },
     {
         "id": 601,
         "name": "Noctua NT-H1 Thermal Paste 3.5g",
@@ -1449,6 +1366,608 @@ const products = [
             "Size": "140 mm",
             "Connector": "4-pin PWM",
             "Use Case": "Quiet high-airflow builds"
+        }
+    },
+    {
+        "id": 700,
+        "name": "Logitech G Pro X TKL",
+        "brand": "Logitech",
+        "category": "keyboard",
+        "price": 1699,
+        "oldPrice": 1899,
+        "badge": "Gaming",
+        "rating": 4.8,
+        "reviews": 1240,
+        "image": "images/products/logitech-g-pro-x-tkl.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "GX Brown Tactile",
+            "Layout": "TKL (87 keys)",
+            "Backlight": "RGB LIGHTSYNC",
+            "Connection": "USB-C Detachable",
+            "Weight": "830g"
+        }
+    },
+    {
+        "id": 701,
+        "name": "Razer Huntsman V3 Pro",
+        "brand": "Razer",
+        "category": "keyboard",
+        "price": 2299,
+        "oldPrice": 2499,
+        "badge": "Hot",
+        "rating": 4.9,
+        "reviews": 870,
+        "image": "images/products/razer-huntsman-v3-pro.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Razer Analog Optical",
+            "Layout": "Full Size",
+            "Backlight": "Chroma RGB",
+            "Connection": "USB-C",
+            "Weight": "1.04kg"
+        }
+    },
+    {
+        "id": 702,
+        "name": "Keychron K2 Pro",
+        "brand": "Keychron",
+        "category": "keyboard",
+        "price": 1199,
+        "badge": "Best Value",
+        "rating": 4.7,
+        "reviews": 2100,
+        "image": "images/products/keychron-k2-pro.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Gateron G Pro Brown",
+            "Layout": "75% (84 keys)",
+            "Backlight": "RGB",
+            "Connection": "Bluetooth 5.1 + USB-C",
+            "Weight": "780g"
+        }
+    },
+    {
+        "id": 703,
+        "name": "Corsair K100 RGB",
+        "brand": "Corsair",
+        "category": "keyboard",
+        "price": 2499,
+        "oldPrice": 2799,
+        "badge": "Premium",
+        "rating": 4.8,
+        "reviews": 1560,
+        "image": "images/products/corsair-k100-rgb.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Corsair OPX Optical",
+            "Layout": "Full Size + Macro Keys",
+            "Backlight": "Per-Key RGB",
+            "Connection": "USB-A Detachable",
+            "Weight": "1.32kg"
+        }
+    },
+    {
+        "id": 704,
+        "name": "SteelSeries Apex Pro",
+        "brand": "SteelSeries",
+        "category": "keyboard",
+        "price": 2199,
+        "badge": "Pro",
+        "rating": 4.7,
+        "reviews": 980,
+        "image": "images/products/steelseries-apex-pro.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "OmniPoint Adjustable Actuation",
+            "Layout": "Full Size",
+            "Backlight": "Per-Key RGB",
+            "Connection": "USB-A",
+            "Weight": "1.01kg"
+        }
+    },
+    {
+        "id": 705,
+        "name": "Logitech MX Keys S",
+        "brand": "Logitech",
+        "category": "keyboard",
+        "price": 1299,
+        "oldPrice": 1499,
+        "rating": 4.8,
+        "reviews": 3200,
+        "image": "images/products/logitech-mx-keys-s.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Membrane Scissor",
+            "Switches": "Perfect Stroke Keys",
+            "Layout": "Full Size Low-Profile",
+            "Backlight": "Smart Illumination",
+            "Connection": "Bluetooth + Logi Bolt USB",
+            "Weight": "810g"
+        }
+    },
+    {
+        "id": 706,
+        "name": "HyperX Alloy Origins 65",
+        "brand": "HyperX",
+        "category": "keyboard",
+        "price": 899,
+        "oldPrice": 1099,
+        "badge": "Sale",
+        "rating": 4.6,
+        "reviews": 1450,
+        "image": "images/products/hyperx-alloy-origins-65.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "HyperX Red Linear",
+            "Layout": "65% (Compact)",
+            "Backlight": "RGB",
+            "Connection": "USB-C Detachable",
+            "Weight": "680g"
+        }
+    },
+    {
+        "id": 707,
+        "name": "Redragon K556 Devarajas",
+        "brand": "Redragon",
+        "category": "keyboard",
+        "price": 549,
+        "badge": "Budget Pick",
+        "rating": 4.5,
+        "reviews": 4800,
+        "image": "images/products/redragon-k556.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Outemu Brown",
+            "Layout": "Full Size",
+            "Backlight": "RGB Backlit",
+            "Connection": "USB-A Braided Cable",
+            "Weight": "1.1kg"
+        }
+    },
+    {
+        "id": 708,
+        "name": "Logitech G915 TKL",
+        "brand": "Logitech",
+        "category": "keyboard",
+        "price": 2399,
+        "oldPrice": 2699,
+        "badge": "Wireless",
+        "rating": 4.8,
+        "reviews": 1890,
+        "image": "images/products/logitech-g915-tkl.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical Low-Profile",
+            "Switches": "GL Tactile",
+            "Layout": "TKL",
+            "Backlight": "LIGHTSYNC RGB",
+            "Connection": "LIGHTSPEED Wireless + Bluetooth",
+            "Weight": "810g"
+        }
+    },
+    {
+        "id": 709,
+        "name": "Ducky One 3",
+        "brand": "Ducky",
+        "category": "keyboard",
+        "price": 1599,
+        "badge": "Enthusiast",
+        "rating": 4.9,
+        "reviews": 760,
+        "image": "images/products/ducky-one-3.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Cherry MX Brown",
+            "Layout": "Full Size",
+            "Backlight": "RGB",
+            "Connection": "USB-C Detachable",
+            "Weight": "960g"
+        }
+    },
+    {
+        "id": 710,
+        "name": "Razer BlackWidow V4",
+        "brand": "Razer",
+        "category": "keyboard",
+        "price": 1499,
+        "oldPrice": 1699,
+        "rating": 4.7,
+        "reviews": 2100,
+        "image": "images/products/razer-blackwidow-v4.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Razer Green Clicky",
+            "Layout": "Full Size + Macro Keys",
+            "Backlight": "Chroma RGB",
+            "Connection": "USB-A Braided",
+            "Weight": "1.16kg"
+        }
+    },
+    {
+        "id": 711,
+        "name": "Akko 5075B",
+        "brand": "Akko",
+        "category": "keyboard",
+        "price": 699,
+        "badge": "Custom Feel",
+        "rating": 4.6,
+        "reviews": 1340,
+        "image": "images/products/akko-5075b.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Type": "Mechanical",
+            "Switches": "Akko CS Jelly Pink",
+            "Layout": "75% (82 keys)",
+            "Backlight": "RGB South-facing",
+            "Connection": "Bluetooth 5.0 + 2.4GHz + USB-C",
+            "Weight": "750g"
+        }
+    },
+    {
+        "id": 800,
+        "name": "Razer DeathAdder V3 Pro",
+        "brand": "Razer",
+        "category": "mouse",
+        "price": 1399,
+        "oldPrice": 1599,
+        "badge": "Hot",
+        "rating": 4.9,
+        "reviews": 2400,
+        "image": "images/products/razer-deathadder-v3-pro.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Sensor": "Focus Pro 30K Optical",
+            "DPI": "30000",
+            "Buttons": "8 Programmable",
+            "Weight": "63g",
+            "Connection": "HyperSpeed Wireless + Wired",
+            "Battery": "90 hours"
+        }
+    },
+    {
+        "id": 801,
+        "name": "Logitech G Pro X Superlight 2",
+        "brand": "Logitech",
+        "category": "mouse",
+        "price": 1499,
+        "badge": "Pro Choice",
+        "rating": 4.9,
+        "reviews": 3100,
+        "image": "images/products/logitech-g-pro-x-superlight-2.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Sensor": "HERO 2",
+            "DPI": "32000",
+            "Buttons": "5 Programmable",
+            "Weight": "60g",
+            "Connection": "LIGHTSPEED Wireless",
+            "Battery": "95 hours"
+        }
+    },
+    {
+        "id": 802,
+        "name": "SteelSeries Aerox 5 Wireless",
+        "brand": "SteelSeries",
+        "category": "mouse",
+        "price": 999,
+        "oldPrice": 1199,
+        "badge": "Lightweight",
+        "rating": 4.7,
+        "reviews": 890,
+        "image": "images/products/steelseries-aerox-5.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "TrueMove Air",
+            "DPI": "18000",
+            "Buttons": "9 Programmable",
+            "Weight": "74g",
+            "Connection": "2.4GHz Wireless + Bluetooth",
+            "Battery": "180 hours"
+        }
+    },
+    {
+        "id": 803,
+        "name": "Corsair Dark Core RGB Pro",
+        "brand": "Corsair",
+        "category": "mouse",
+        "price": 1199,
+        "badge": "Versatile",
+        "rating": 4.6,
+        "reviews": 1200,
+        "image": "images/products/corsair-dark-core-rgb-pro.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "PixArt PMW3392",
+            "DPI": "18000",
+            "Buttons": "9 Programmable",
+            "Weight": "133g",
+            "Connection": "Slipstream Wireless + Bluetooth + USB",
+            "Battery": "50 hours"
+        }
+    },
+    {
+        "id": 804,
+        "name": "Razer Viper V2 Pro",
+        "brand": "Razer",
+        "category": "mouse",
+        "price": 1299,
+        "badge": "Esports",
+        "rating": 4.8,
+        "reviews": 1750,
+        "image": "images/products/razer-viper-v2-pro.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "Focus Pro 30K",
+            "DPI": "30000",
+            "Buttons": "6 Programmable",
+            "Weight": "58g",
+            "Connection": "HyperSpeed Wireless",
+            "Battery": "80 hours"
+        }
+    },
+    {
+        "id": 805,
+        "name": "Logitech MX Master 3S",
+        "brand": "Logitech",
+        "category": "mouse",
+        "price": 1099,
+        "oldPrice": 1299,
+        "badge": "Best Seller",
+        "rating": 4.9,
+        "reviews": 5600,
+        "image": "images/products/logitech-mx-master-3s.png",
+        "featured": true,
+        "inStock": true,
+        "specs": {
+            "Sensor": "Darkfield 8000 DPI",
+            "DPI": "8000",
+            "Buttons": "7 + MagSpeed Scroll",
+            "Weight": "141g",
+            "Connection": "Bluetooth + Logi Bolt USB",
+            "Battery": "70 days"
+        }
+    },
+    {
+        "id": 806,
+        "name": "HyperX Pulsefire Haste 2",
+        "brand": "HyperX",
+        "category": "mouse",
+        "price": 599,
+        "oldPrice": 799,
+        "badge": "Sale",
+        "rating": 4.7,
+        "reviews": 2100,
+        "image": "images/products/hyperx-pulsefire-haste-2.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "HyperX 26K",
+            "DPI": "26000",
+            "Buttons": "6 Programmable",
+            "Weight": "53g",
+            "Connection": "USB-C Wired",
+            "Battery": "N/A (Wired)"
+        }
+    },
+    {
+        "id": 807,
+        "name": "Redragon M612 Predator",
+        "brand": "Redragon",
+        "category": "mouse",
+        "price": 349,
+        "badge": "Budget Pick",
+        "rating": 4.5,
+        "reviews": 6200,
+        "image": "images/products/redragon-m612.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "Optical",
+            "DPI": "11000",
+            "Buttons": "11 Programmable",
+            "Weight": "135g",
+            "Connection": "USB-A Wired",
+            "Battery": "N/A (Wired)"
+        }
+    },
+    {
+        "id": 808,
+        "name": "Glorious Model O 2",
+        "brand": "Glorious",
+        "category": "mouse",
+        "price": 799,
+        "badge": "Ultralight",
+        "rating": 4.8,
+        "reviews": 1450,
+        "image": "images/products/glorious-model-o-2.png",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "BAMF 2.0",
+            "DPI": "26000",
+            "Buttons": "6 Programmable",
+            "Weight": "56g",
+            "Connection": "Wireless 2.4GHz + Bluetooth",
+            "Battery": "210 hours"
+        }
+    },
+    {
+        "id": 809,
+        "name": "Razer Basilisk V3 Pro",
+        "brand": "Razer",
+        "category": "mouse",
+        "price": 1599,
+        "oldPrice": 1799,
+        "badge": "Wireless",
+        "rating": 4.8,
+        "reviews": 1100,
+        "image": "Images/products/razer-basilisk-v3-pro-1781272523.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "Focus Pro 30K",
+            "DPI": "30000",
+            "Buttons": "11 Programmable",
+            "Weight": "112g",
+            "Connection": "HyperSpeed Wireless + Bluetooth + USB",
+            "Battery": "90 hours"
+        }
+    },
+    {
+        "id": 810,
+        "name": "Logitech G502 X Plus",
+        "brand": "Logitech",
+        "category": "mouse",
+        "price": 1199,
+        "badge": "Classic",
+        "rating": 4.8,
+        "reviews": 3800,
+        "image": "Images/products/logitech-g502-x-plus-1781272479.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "HERO 25K",
+            "DPI": "25600",
+            "Buttons": "13 Programmable",
+            "Weight": "106g",
+            "Connection": "USB-A Wired",
+            "Battery": "N/A (Wired)"
+        }
+    },
+    {
+        "id": 811,
+        "name": "Zowie EC2-CW",
+        "brand": "Zowie",
+        "category": "mouse",
+        "price": 899,
+        "badge": "Esports",
+        "rating": 4.7,
+        "reviews": 980,
+        "image": "Images/products/zowie-ec2-cw-1781272436.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Sensor": "PixArt 3395",
+            "DPI": "3200",
+            "Buttons": "5",
+            "Weight": "77g",
+            "Connection": "Wireless 2.4GHz + USB-C",
+            "Battery": "70 hours"
+        }
+    },
+    {
+        "id": 900,
+        "name": "Meta Quest 3 512GB",
+        "brand": "Meta",
+        "category": "vr",
+        "price": 6999,
+        "badge": "Mixed Reality",
+        "rating": 4.8,
+        "reviews": 12500,
+        "image": "Images/products/meta-quest-3-512gb-1781272339.webp",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Display": "4K+ Infinite Display",
+            "Clarity": "25 PPD / 1218 PPI",
+            "Processor": "Snapdragon XR2 Gen 2",
+            "Storage": "512GB",
+            "Tracking": "Inside-out 6DoF + hand tracking",
+            "Connectivity": "Wi-Fi 6E, Bluetooth 5.2, USB-C",
+            "Use Case": "Standalone VR / mixed reality / PCVR"
+        }
+    },
+    {
+        "id": 901,
+        "name": "PlayStation VR2",
+        "brand": "Sony",
+        "category": "vr",
+        "price": 6499,
+        "badge": "PS5 VR",
+        "rating": 4.7,
+        "reviews": 8400,
+        "image": "Images/products/playstation-vr2-1781272372.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Display": "OLED",
+            "Resolution": "2000 x 2040 per eye",
+            "Refresh Rate": "90Hz - 120Hz",
+            "Field of View": "Approx. 110 deg",
+            "Connection": "USB-C to PS5",
+            "Tracking": "PS VR2 Sense controllers + headset tracking",
+            "Use Case": "PS5 VR gaming"
+        }
+    },
+    {
+        "id": 902,
+        "name": "TP-Link Archer BE800",
+        "brand": "TP-Link",
+        "category": "router",
+        "price": 5999,
+        "badge": "WiFi 7",
+        "rating": 4.7,
+        "reviews": 2100,
+        "image": "Images/products/tp-link-archer-be800-1781272313.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Wi-Fi Standard": "Wi-Fi 7 (802.11be)",
+            "Speed Class": "BE19000 tri-band",
+            "Bands": "6GHz 11520 Mbps, 5GHz 5760 Mbps, 2.4GHz 1376 Mbps",
+            "Ports": "2x 10G WAN/LAN, 4x 2.5G LAN, USB 3.0",
+            "Antennas": "8 internal antennas",
+            "Mesh": "EasyMesh compatible",
+            "Use Case": "Multi-gig home network / low-latency streaming"
+        }
+    },
+    {
+        "id": 903,
+        "name": "ASUS RT-BE88U",
+        "brand": "ASUS",
+        "category": "router",
+        "price": 4999,
+        "badge": "10G Ready",
+        "rating": 4.8,
+        "reviews": 1500,
+        "image": "Images/products/asus-rt-be88u-1781272177.jpg",
+        "featured": false,
+        "inStock": true,
+        "specs": {
+            "Wi-Fi Standard": "Wi-Fi 7 (802.11be)",
+            "Speed Class": "BE7200 dual-band",
+            "Bands": "5GHz 5764 Mbps, 2.4GHz 1376 Mbps",
+            "Ports": "10G WAN/LAN, 10G SFP+, 2.5G WAN/LAN, 3x 2.5G LAN, 4x 1G LAN",
+            "Processor": "2.6GHz quad-core",
+            "Memory": "256MB flash, 2GB RAM",
+            "Use Case": "10G LAN / gaming / AiMesh"
         }
     }
 ];

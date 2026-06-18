@@ -1,72 +1,80 @@
 const Wishlist = {
     items: new Set(),
-    isLoggedIn: false, // We'll infer this from if we can sync
+    isLoggedIn: false,
+    loginUrl() {
+        return `login.php?next=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+    },
 
     async init() {
-        // Load from local
-        let local = [];
-        try {
-            local = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            if (!Array.isArray(local)) local = [];
-        } catch (e) {
-            local = [];
-        }
-        this.items = new Set(local.map(Number));
+        this.items = new Set();
+        try { localStorage.removeItem('wishlist'); } catch (e) {}
 
-        // Try to sync with server
         try {
-            const res = await fetch('api/wishlist.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'sync', localWishlist: local.map(Number) })
-            });
+            const res = await fetch('api/wishlist.php', { credentials: 'same-origin' });
             const data = await res.json();
-            if (data.success && data.wishlist) {
+            if (res.ok && data.success && data.wishlist) {
                 this.isLoggedIn = true;
                 this.items = new Set(data.wishlist.map(Number));
-                this.saveLocal();
+            } else {
+                this.isLoggedIn = false;
+                this.items = new Set();
             }
         } catch (e) {
-            console.error('Failed to sync wishlist:', e);
+            this.isLoggedIn = false;
+            this.items = new Set();
+            console.error('Failed to load wishlist:', e);
         }
 
         this.updateBadges();
     },
 
-    saveLocal() {
-        localStorage.setItem('wishlist', JSON.stringify([...this.items]));
+    render() {
         this.updateBadges();
     },
 
     async toggle(productId) {
         productId = parseInt(productId);
-        
-        if (this.items.has(productId)) {
-            this.items.delete(productId);
-        } else {
-            this.items.add(productId);
-        }
-        
-        // Save optimistically
-        this.saveLocal();
 
-        if (this.isLoggedIn) {
-            try {
-                const res = await fetch('api/wishlist.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'toggle', product_id: productId })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    this.items = new Set(data.wishlist.map(Number));
-                    this.saveLocal();
-                }
-            } catch (e) {
-                console.error('Toggle wishlist failed:', e);
-            }
+        if (!this.isLoggedIn) {
+            window.location.href = this.loginUrl();
+            return null;
         }
-        
+
+        const wasActive = this.items.has(productId);
+        if (wasActive) this.items.delete(productId);
+        else this.items.add(productId);
+        this.render();
+
+        try {
+            const res = await fetch('api/wishlist.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ action: 'toggle', product_id: productId })
+            });
+            const data = await res.json();
+            if (res.status === 401) {
+                this.isLoggedIn = false;
+                this.items = new Set();
+                this.render();
+                window.location.href = this.loginUrl();
+                return null;
+            }
+            if (data.success) {
+                this.items = new Set(data.wishlist.map(Number));
+                this.render();
+            } else {
+                if (wasActive) this.items.add(productId);
+                else this.items.delete(productId);
+                this.render();
+            }
+        } catch (e) {
+            if (wasActive) this.items.add(productId);
+            else this.items.delete(productId);
+            this.render();
+            console.error('Toggle wishlist failed:', e);
+        }
+
         return this.items.has(productId);
     },
 
@@ -78,6 +86,8 @@ const Wishlist = {
         // Find all wishlist buttons and update their state based on this.items
         document.querySelectorAll('.product-wishlist').forEach(btn => {
             const id = parseInt(btn.dataset.id);
+            btn.classList.toggle('requires-login', !this.isLoggedIn);
+            btn.title = this.isLoggedIn ? '' : 'Login to use wishlist';
             if (this.has(id)) {
                 btn.classList.add('active');
                 btn.innerHTML = '<i class="fas fa-heart"></i>';
@@ -90,7 +100,7 @@ const Wishlist = {
 
     async setAlert(productId, targetPrice) {
         if (!this.isLoggedIn) {
-            alert('Please login to set price alerts.');
+            window.location.href = this.loginUrl();
             return false;
         }
 

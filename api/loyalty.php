@@ -157,7 +157,7 @@ if ($action === 'redeem') {
             jsonResponse(false, 'Invalid reward ID or points value.');
         }
         $discount = pointsToMAD($points);
-        $description = "Redeemed {$points} points for {$discount} MAD discount";
+        $description = "Redeemed {$points} points for {$discount} DH discount";
     } else {
         // Fetch reward from catalog
         $stmt = $pdo->prepare("SELECT id, title, points_required, reward_type, reward_value, stock_remaining FROM loyalty_rewards_catalog WHERE id = ? AND is_active = 1 FOR UPDATE");

@@ -95,11 +95,11 @@ class ProductRepository
                     ? "Oui, **{$item['name']}** est en stock avec {$qty} unite" . ($qty === 1 ? '' : 's') . " disponible" . ($qty === 1 ? '' : 's') . "."
                     : "**{$item['name']}** est actuellement en rupture de stock.";
                 $lines[] = $stockText . " Prix : **{$item['price']} DH**.";
-            } elseif ($language === 'darija') {
+            } elseif ($language === 'arabic') {
                 $stockText = ((int) $item['in_stock'] === 1 && $qty > 0)
-                    ? "Iyeh, **{$item['name']}** kayn f-stock khddam, bqat fiha {$qty} unit" . ($qty === 1 ? '' : 's') . "."
-                    : "**{$item['name']}** makaynach f-stock lyouma.";
-                $lines[] = $stockText . " Taman: **{$item['price']} DH**.";
+                    ? "نعم، **{$item['name']}** متوفر في المخزون، والكمية المتاحة: {$qty}."
+                    : "**{$item['name']}** غير متوفر حاليا في المخزون.";
+                $lines[] = $stockText . " السعر: **{$item['price']} DH**.";
             } else {
                 $stockText = ((int) $item['in_stock'] === 1 && $qty > 0)
                     ? "Yes, **{$item['name']}** is in stock with {$qty} unit" . ($qty === 1 ? '' : 's') . " available."
@@ -110,8 +110,8 @@ class ProductRepository
 
         if ($language === 'french') {
             $followUp = "\n\nSouhaitez-vous voir des alternatives egalement ?";
-        } elseif ($language === 'darija') {
-            $followUp = "\n\nBghiti n-wrik alternatives khrin?";
+        } elseif ($language === 'arabic') {
+            $followUp = "\n\nهل تريد أن أعرض لك بدائل أخرى؟";
         } else {
             $followUp = "\n\nWant me to show alternatives too?";
         }

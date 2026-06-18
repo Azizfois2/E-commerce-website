@@ -4,6 +4,7 @@ require_once 'admin-helpers.php';
 adminRequireAuth();
 
 $pdo = db();
+adminEnsureAdminSuiteTables($pdo);
 
 function adminRenderUsageTag($val) {
     $valLower = strtolower($val);
@@ -14,7 +15,7 @@ function adminRenderUsageTag($val) {
         'student'  => 'background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25);'
     ];
     $style = $styles[$valLower] ?? 'background: rgba(100, 116, 139, 0.12); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.25);';
-    return '<span style="font-size:0.75rem; font-weight:700; font-family:\'Space Mono\', monospace; text-transform:uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 2px 4px 2px 0; ' . $style . '">' . adminH(ucfirst($val)) . '</span>';
+    return '<span style="font-size:0.75rem; font-weight:700; font-family:\'Space Mono\', monospace; text-transform:uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 2px 4px 2px 0; ' . $style . '">' . adminH(adminStatusLabel($val)) . '</span>';
 }
 
 function adminRenderPortabilityTag($val) {
@@ -26,7 +27,13 @@ function adminRenderPortabilityTag($val) {
         'heavy'               => 'background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25);'
     ];
     $style = $styles[$valLower] ?? 'background: rgba(100, 116, 139, 0.12); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.25);';
-    $label = str_replace('_', ' ', ucfirst($val));
+    $labels = [
+        'ultralight' => 'Ultralight (<1.5kg)',
+        'standard' => 'Standard (1.5kg-2.2kg)',
+        'desktop_replacement' => 'Desktop Replacement',
+        'heavy' => 'Heavy',
+    ];
+    $label = adminPhrase($labels[$valLower] ?? str_replace('_', ' ', ucfirst($val)));
     return '<span style="font-size:0.75rem; font-weight:700; font-family:\'Space Mono\', monospace; text-transform:uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 2px 4px 2px 0; ' . $style . '">' . adminH($label) . '</span>';
 }
 
@@ -37,7 +44,7 @@ function adminRenderGpuTag($val) {
         'integrated'  => 'background: rgba(100, 116, 139, 0.12); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.25);'
     ];
     $style = $styles[$valLower] ?? 'background: rgba(100, 116, 139, 0.12); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.25);';
-    $label = ucfirst($val) . ' GPU';
+    $label = adminPhrase(ucfirst($val) . ' GPU');
     return '<span style="font-size:0.75rem; font-weight:700; font-family:\'Space Mono\', monospace; text-transform:uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 2px 4px 2px 0; ' . $style . '">' . adminH($label) . '</span>';
 }
 
@@ -58,7 +65,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
     }
 
     // Read headers
-    $headers = fgetcsv($handle);
+    $headers = fgetcsv($handle, 0, ',', '"', '\\');
     if (!$headers) {
         fclose($handle);
         adminRedirect('admin-laptops.php?error=' . urlencode('CSV file is empty or invalid.'));
@@ -85,7 +92,18 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
         'weightkg' => 'weight_kg',
         'specs' => 'specs',
         'stockquantity' => 'stock_quantity',
-        'instock' => 'in_stock'
+        'instock' => 'in_stock',
+        'category' => 'category',
+        'formfactor' => 'form_factor',
+        'dimensions' => 'dimensions',
+        'coolingtype' => 'cooling_type',
+        'maxdisplays' => 'max_displays',
+        'npumodel' => 'npu_model',
+        'nputops' => 'npu_tops',
+        'npuvendor' => 'npu_vendor',
+        'iscopilotplus' => 'is_copilot_plus',
+        'aitier' => 'ai_tier',
+        'aimarketingbadge' => 'ai_marketing_badge'
     ];
 
     // Determine column indexes
@@ -116,9 +134,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
     
     $insertStmt = $pdo->prepare('
         INSERT INTO laptops 
-        (name, brand, price, old_price, image, usage_category, portability_tier, screen_size, screen_quality, gpu_tier, battery_wh, weight_kg, specs, stock_quantity, in_stock)
+        (name, brand, price, old_price, image, usage_category, portability_tier, screen_size, screen_quality, gpu_tier, battery_wh, weight_kg, specs, stock_quantity, in_stock, category, form_factor, dimensions, cooling_type, max_displays)
         VALUES 
-        (:name, :brand, :price, :old_price, :image, :usage_category, :portability_tier, :screen_size, :screen_quality, :gpu_tier, :battery_wh, :weight_kg, :specs, :stock_quantity, :in_stock)
+        (:name, :brand, :price, :old_price, :image, :usage_category, :portability_tier, :screen_size, :screen_quality, :gpu_tier, :battery_wh, :weight_kg, :specs, :stock_quantity, :in_stock, :category, :form_factor, :dimensions, :cooling_type, :max_displays)
     ');
 
     $updateStmt = $pdo->prepare('
@@ -126,8 +144,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
         SET name = :name, brand = :brand, price = :price, old_price = :old_price, image = :image, usage_category = :usage_category,
             portability_tier = :portability_tier, screen_size = :screen_size, screen_quality = :screen_quality,
             gpu_tier = :gpu_tier, battery_wh = :battery_wh, weight_kg = :weight_kg, specs = :specs,
-            stock_quantity = :stock_quantity, in_stock = :in_stock
+            stock_quantity = :stock_quantity, in_stock = :in_stock,
+            category = :category, form_factor = :form_factor, dimensions = :dimensions,
+            cooling_type = :cooling_type, max_displays = :max_displays
         WHERE id = :id
+    ');
+
+    $deleteAiStmt = $pdo->prepare('DELETE FROM laptop_ai_specs WHERE laptop_id = ?');
+    $insertAiStmt = $pdo->prepare('
+        INSERT INTO laptop_ai_specs
+        (laptop_id, npu_model, npu_tops, npu_vendor, is_copilot_plus, ai_tier, ai_marketing_badge,
+         has_windows_studio_effects, has_live_captions, has_recall, has_paint_cocreator, has_copilot_key)
+        VALUES
+        (:laptop_id, :npu_model, :npu_tops, :npu_vendor, :is_copilot_plus, :ai_tier, :ai_marketing_badge,
+         :has_windows_studio_effects, :has_live_captions, :has_recall, :has_paint_cocreator, :has_copilot_key)
     ');
 
     $inserted = 0;
@@ -136,7 +166,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
 
     try {
         $pdo->beginTransaction();
-        while (($row = fgetcsv($handle)) !== false) {
+        while (($row = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
             $rowNum++;
             
             // Extract values safely
@@ -179,6 +209,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
             $stockQty = (int) $val('stock_quantity', '10');
             $inStockVal = $val('in_stock', '1');
             $inStock = ($inStockVal === '0' || $stockQty <= 0) ? 0 : 1;
+            $category = strtolower($val('category', 'laptop'));
+            $formFactor = $val('form_factor', null);
+            $dimensions = $val('dimensions', null);
+            $coolingType = $val('cooling_type', null);
+            $maxDisplays = max(1, (int) $val('max_displays', '1'));
+
+            $npuModel = $val('npu_model', null);
+            $npuTopsRaw = $val('npu_tops', '');
+            $npuTops = $npuTopsRaw === '' ? 0.0 : (float) $npuTopsRaw;
+            $npuVendor = $val('npu_vendor', 'None');
+            $isCopilotPlusVal = strtolower($val('is_copilot_plus', $npuTops >= 40 ? '1' : '0'));
+            $isCopilotPlus = in_array($isCopilotPlusVal, ['1', 'true', 'yes', 'y'], true) ? 1 : 0;
+            $aiTier = strtolower($val('ai_tier', $npuTops >= 80 ? 'workstation' : ($npuTops >= 40 ? 'copilot' : ($npuTops >= 10 ? 'basic' : 'none'))));
+            $aiMarketingBadge = $val('ai_marketing_badge', $isCopilotPlus ? 'Copilot+' : null);
 
             // Validate Enum values
             if (!in_array($usage, ['gaming', 'business', 'student', 'creative'], true)) {
@@ -192,6 +236,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
             }
             if (!in_array($gpu, ['integrated', 'dedicated'], true)) {
                 throw new Exception("Row {$rowNum}: Invalid gpu_tier '{$gpu}'. Must be integrated or dedicated.");
+            }
+            if (!in_array($category, ['laptop', 'mini_pc', 'workstation'], true)) {
+                throw new Exception("Row {$rowNum}: Invalid category '{$category}'. Must be laptop, mini_pc, or workstation.");
+            }
+            if (!in_array($npuVendor, ['Intel', 'AMD', 'Qualcomm', 'Apple', 'None'], true)) {
+                throw new Exception("Row {$rowNum}: Invalid npu_vendor '{$npuVendor}'. Must be Intel, AMD, Qualcomm, Apple, or None.");
+            }
+            if (!in_array($aiTier, ['none', 'basic', 'copilot', 'workstation'], true)) {
+                throw new Exception("Row {$rowNum}: Invalid ai_tier '{$aiTier}'. Must be none, basic, copilot, or workstation.");
             }
 
             // Check if existing laptop
@@ -213,15 +266,41 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_FILES['csv_file'
                 'weight_kg' => $weight,
                 'specs' => $specsJson,
                 'stock_quantity' => $stockQty,
-                'in_stock' => $inStock
+                'in_stock' => $inStock,
+                'category' => $category,
+                'form_factor' => $formFactor !== '' ? $formFactor : null,
+                'dimensions' => $dimensions !== '' ? $dimensions : null,
+                'cooling_type' => $coolingType !== '' ? $coolingType : null,
+                'max_displays' => $maxDisplays
             ];
 
             if ($existingId) {
                 $updateStmt->execute($payload + ['id' => $existingId]);
+                $laptopId = (int) $existingId;
                 $updated++;
             } else {
                 $insertStmt->execute($payload);
+                $laptopId = (int) $pdo->lastInsertId();
                 $inserted++;
+            }
+
+            if (isset($headerIndexes['npu_model']) || isset($headerIndexes['npu_tops']) || isset($headerIndexes['ai_tier'])) {
+                $deleteAiStmt->execute([$laptopId]);
+                $deleteAiStmt->closeCursor();
+                $insertAiStmt->execute([
+                    'laptop_id' => $laptopId,
+                    'npu_model' => $npuModel !== '' ? $npuModel : null,
+                    'npu_tops' => $npuTops,
+                    'npu_vendor' => $npuVendor,
+                    'is_copilot_plus' => $isCopilotPlus,
+                    'ai_tier' => $aiTier,
+                    'ai_marketing_badge' => $aiMarketingBadge !== '' ? $aiMarketingBadge : null,
+                    'has_windows_studio_effects' => $isCopilotPlus,
+                    'has_live_captions' => $isCopilotPlus,
+                    'has_recall' => $isCopilotPlus,
+                    'has_paint_cocreator' => $isCopilotPlus,
+                    'has_copilot_key' => $isCopilotPlus,
+                ]);
             }
         }
         $pdo->commit();
@@ -278,21 +357,21 @@ adminPageStart('Laptops Admin', 'laptops');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">Outcome Curator Dashboard</span>
-        <h1>Laptops Ecosystem</h1>
-        <p class="section-copy">Manage laptop catalog records, outcome mapping, specs, and bulk-load inventory.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Outcome Curator Dashboard')) ?></span>
+        <h1><?= adminH(adminPhrase('Laptops Ecosystem')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Manage laptop catalog records, outcome mapping, specs, and bulk-load inventory.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-laptop-csv-template.php"><i class="fas fa-file-csv"></i> Download Template</a>
-        <a class="button button-primary" href="admin-laptop-form.php">Add Laptop</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-laptop-csv-template.php"><i class="fas fa-file-csv"></i> <?= adminH(adminPhrase('Download Template')) ?></a>
+        <a class="button button-primary" href="admin-laptop-form.php"><?= adminH(adminPhrase('Add Laptop')) ?></a>
     </div>
 </section>
 
 <?php if (isset($_GET['saved'])): ?>
-    <div class="admin-alert success"><?= isset($_GET['msg']) ? adminH($_GET['msg']) : 'Laptop saved successfully.' ?></div>
+    <div class="admin-alert success"><?= isset($_GET['msg']) ? adminH($_GET['msg']) : adminH(adminPhrase('Laptop saved successfully.')) ?></div>
 <?php elseif (isset($_GET['deleted'])): ?>
-    <div class="admin-alert success">Laptop deleted successfully.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Laptop deleted successfully.')) ?></div>
 <?php elseif (isset($_GET['error'])): ?>
     <div class="admin-alert error"><?= adminH($_GET['error']) ?></div>
 <?php endif; ?>
@@ -302,53 +381,56 @@ adminPageStart('Laptops Admin', 'laptops');
     <div class="card-head" style="border-bottom: none; margin-bottom: 15px;">
         <div>
             <h2 style="font-size: 1.15rem; color: var(--text); display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-file-import" style="color: var(--cyan);"></i> Bulk Import Laptops (CSV)
+                <i class="fas fa-file-import" style="color: var(--cyan);"></i> <?= adminH(adminPhrase('Bulk Import Laptops (CSV)')) ?>
             </h2>
-            <p style="margin: 4px 0 0; color: var(--muted); font-size: 0.82rem;">Update or populate the entire laptop catalog using a standard CSV format.</p>
+            <p style="margin: 4px 0 0; color: var(--muted); font-size: 0.82rem;"><?= adminH(adminPhrase('Update or populate the entire laptop catalog using a standard CSV format.')) ?></p>
         </div>
     </div>
     
     <div style="padding: 20px; pt: 0; background: transparent;">
         <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
             <?= csrfField() ?>
-            <span style="display: block; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--muted); letter-spacing: 0.05em;">Upload Supplier Inventory Spreadsheet (.csv)</span>
+            <span style="display: block; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--muted); letter-spacing: 0.05em;"><?= adminH(adminPhrase('Upload Supplier Inventory Spreadsheet (.csv)')) ?></span>
             
             <div style="display: flex; gap: 16px; align-items: stretch; width: 100%; flex-wrap: wrap;">
                 <!-- Premium Custom File Upload Dropzone -->
                 <label class="custom-file-upload-zone" style="flex: 1; min-width: 300px;">
                     <i class="fas fa-file-csv" style="font-size: 2.5rem; color: var(--cyan); margin-bottom: 10px;"></i>
-                    <span style="font-family: 'Orbitron', sans-serif; font-weight: 800; color: var(--white); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;" id="csvFileNameDisplay">Select CSV Inventory File</span>
-                    <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;" id="csvSubtextDisplay">Drag & drop or click to browse</span>
+                    <span style="font-family: 'Orbitron', sans-serif; font-weight: 800; color: var(--white); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;" id="csvFileNameDisplay"><?= adminH(adminPhrase('Select CSV Inventory File')) ?></span>
+                    <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;" id="csvSubtextDisplay"><?= adminH(adminPhrase('Drag & drop or click to browse')) ?></span>
                     <input type="file" name="csv_file" accept=".csv" required style="display: none;" onchange="
                         const file = this.files[0];
+                        const t = (source) => (window.__marocPcPhraseMap && window.__marocPcPhraseMap[source]) || source;
                         if (file) {
                             document.getElementById('csvFileNameDisplay').textContent = file.name;
                             document.getElementById('csvFileNameDisplay').style.color = 'var(--cyan)';
-                            document.getElementById('csvSubtextDisplay').textContent = 'File loaded successfully';
+                            document.getElementById('csvSubtextDisplay').textContent = t('File loaded successfully');
                             document.getElementById('csvSubtextDisplay').style.color = '#00f5d4';
                         } else {
-                            document.getElementById('csvFileNameDisplay').textContent = 'Select CSV Inventory File';
+                            document.getElementById('csvFileNameDisplay').textContent = t('Select CSV Inventory File');
                             document.getElementById('csvFileNameDisplay').style.color = 'var(--white)';
-                            document.getElementById('csvSubtextDisplay').textContent = 'Drag & drop or click to browse';
+                            document.getElementById('csvSubtextDisplay').textContent = t('Drag & drop or click to browse');
                             document.getElementById('csvSubtextDisplay').style.color = 'var(--muted)';
                         }
                     ">
                 </label>
                 
                 <button class="button button-primary" type="submit" style="min-height: auto; height: auto; padding: 0 32px; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-size: 0.9rem; flex-shrink: 0; min-width: 180px;">
-                    <i class="fas fa-cloud-upload-alt" style="font-size: 1.1rem;"></i> Import & Sync
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 1.1rem;"></i> <?= adminH(adminPhrase('Import & Sync')) ?>
                 </button>
             </div>
         </form>
         <div style="margin-top: 14px; font-size: 0.85rem; color: var(--muted); line-height: 1.5;">
-            <p><strong>CSV Formatting Guideline:</strong></p>
+            <p><strong><?= adminH(adminPhrase('CSV Formatting Guideline:')) ?></strong></p>
             <ul style="margin: 6px 0 0 16px; padding: 0; list-style-type: square;">
-                <li><strong>Required columns:</strong> <code style="color: var(--cyan);">name, brand, price, usage_category, portability_tier, screen_size, screen_quality, gpu_tier, battery_wh, weight_kg</code></li>
-                <li><strong>Valid category enums:</strong> <code>gaming | business | student | creative</code></li>
-                <li><strong>Valid portability enums:</strong> <code>ultralight | standard | desktop_replacement</code></li>
-                <li><strong>Valid screen enums:</strong> <code>oled | high_refresh | standard</code></li>
-                <li><strong>Valid GPU enums:</strong> <code>integrated | dedicated</code></li>
-                <li>Laptops matching existing names will automatically merge and update inventory.</li>
+                <li><strong><?= adminH(adminPhrase('Required columns:')) ?></strong> <code style="color: var(--cyan);">name, brand, price, usage_category, portability_tier, screen_size, screen_quality, gpu_tier, battery_wh, weight_kg</code></li>
+                <li><strong><?= adminH(adminPhrase('Valid usage enums:')) ?></strong> <code>gaming | business | student | creative</code></li>
+                <li><strong><?= adminH(adminPhrase('Valid portability enums:')) ?></strong> <code>ultralight | standard | desktop_replacement</code></li>
+                <li><strong><?= adminH(adminPhrase('Valid screen enums:')) ?></strong> <code>oled | high_refresh | standard</code></li>
+                <li><strong><?= adminH(adminPhrase('Valid GPU enums:')) ?></strong> <code>integrated | dedicated</code></li>
+                <li><strong><?= adminH(adminPhrase('Optional AI columns:')) ?></strong> <code>category, form_factor, dimensions, cooling_type, max_displays, npu_model, npu_tops, npu_vendor, is_copilot_plus, ai_tier, ai_marketing_badge</code></li>
+                <li><strong><?= adminH(adminPhrase('Valid product categories:')) ?></strong> <code>laptop | mini_pc | workstation</code></li>
+                <li><?= adminH(adminPhrase('Laptops matching existing names will automatically merge and update inventory.')) ?></li>
             </ul>
         </div>
     </div>
@@ -357,58 +439,58 @@ adminPageStart('Laptops Admin', 'laptops');
 <!-- FILTERING & TABLE LISTING -->
 <section class="table-card">
     <div class="card-head">
-        <h2>Active Inventory</h2>
+        <h2><?= adminH(adminPhrase('Active Inventory')) ?></h2>
     </div>
     <form class="filter-bar" method="get">
         <label>
-            Search
-            <input type="text" name="search" value="<?= adminH($search) ?>" placeholder="Name or brand">
+            <?= adminH(adminPhrase('Search')) ?>
+            <input type="text" name="search" value="<?= adminH($search) ?>" placeholder="<?= adminH(adminPhrase('Name or brand')) ?>">
         </label>
         <label>
-            Usage
+            <?= adminH(adminPhrase('Usage')) ?>
             <select name="usage_category">
-                <option value="">All usages</option>
-                <option value="gaming" <?= $usageCategory === 'gaming' ? 'selected' : '' ?>>Gaming</option>
-                <option value="business" <?= $usageCategory === 'business' ? 'selected' : '' ?>>Business</option>
-                <option value="student" <?= $usageCategory === 'student' ? 'selected' : '' ?>>Student</option>
-                <option value="creative" <?= $usageCategory === 'creative' ? 'selected' : '' ?>>Creative</option>
+                <option value=""><?= adminH(adminPhrase('All usages')) ?></option>
+                <option value="gaming" <?= $usageCategory === 'gaming' ? 'selected' : '' ?>><?= adminH(adminPhrase('Gaming')) ?></option>
+                <option value="business" <?= $usageCategory === 'business' ? 'selected' : '' ?>><?= adminH(adminPhrase('Business')) ?></option>
+                <option value="student" <?= $usageCategory === 'student' ? 'selected' : '' ?>><?= adminH(adminPhrase('Student')) ?></option>
+                <option value="creative" <?= $usageCategory === 'creative' ? 'selected' : '' ?>><?= adminH(adminPhrase('Creative')) ?></option>
             </select>
         </label>
         <label>
-            Portability
+            <?= adminH(adminPhrase('Portability')) ?>
             <select name="portability_tier">
-                <option value="">All portability</option>
-                <option value="ultralight" <?= $portabilityTier === 'ultralight' ? 'selected' : '' ?>>Ultralight (&lt;1.5kg)</option>
-                <option value="standard" <?= $portabilityTier === 'standard' ? 'selected' : '' ?>>Standard (1.5kg-2.2kg)</option>
-                <option value="desktop_replacement" <?= $portabilityTier === 'desktop_replacement' ? 'selected' : '' ?>>Desktop Replacement</option>
+                <option value=""><?= adminH(adminPhrase('All portability')) ?></option>
+                <option value="ultralight" <?= $portabilityTier === 'ultralight' ? 'selected' : '' ?>><?= adminH(adminPhrase('Ultralight (<1.5kg)')) ?></option>
+                <option value="standard" <?= $portabilityTier === 'standard' ? 'selected' : '' ?>><?= adminH(adminPhrase('Standard (1.5kg-2.2kg)')) ?></option>
+                <option value="desktop_replacement" <?= $portabilityTier === 'desktop_replacement' ? 'selected' : '' ?>><?= adminH(adminPhrase('Desktop Replacement')) ?></option>
             </select>
         </label>
         <label>
-            Stock Status
+            <?= adminH(adminPhrase('Stock Status')) ?>
             <select name="stock_status">
-                <option value="">All statuses</option>
-                <option value="in_stock" <?= $stockStatus === 'in_stock' ? 'selected' : '' ?>>In stock</option>
-                <option value="low_stock" <?= $stockStatus === 'low_stock' ? 'selected' : '' ?>>Low stock</option>
-                <option value="out_of_stock" <?= $stockStatus === 'out_of_stock' ? 'selected' : '' ?>>Out of stock</option>
+                <option value=""><?= adminH(adminPhrase('All statuses')) ?></option>
+                <option value="in_stock" <?= $stockStatus === 'in_stock' ? 'selected' : '' ?>><?= adminH(adminPhrase('In stock')) ?></option>
+                <option value="low_stock" <?= $stockStatus === 'low_stock' ? 'selected' : '' ?>><?= adminH(adminPhrase('Low stock')) ?></option>
+                <option value="out_of_stock" <?= $stockStatus === 'out_of_stock' ? 'selected' : '' ?>><?= adminH(adminPhrase('Out of stock')) ?></option>
             </select>
         </label>
-        <button class="button button-primary" type="submit">Filter</button>
+        <button class="button button-primary" type="submit"><?= adminH(adminPhrase('Filter')) ?></button>
     </form>
 
     <table>
         <thead>
             <tr>
-                <th>Laptop Details</th>
-                <th>Outcome Traits</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Added</th>
+                <th><?= adminH(adminPhrase('Laptop Details')) ?></th>
+                <th><?= adminH(adminPhrase('Outcome Traits')) ?></th>
+                <th><?= adminH(adminPhrase('Price')) ?></th>
+                <th><?= adminH(adminPhrase('Stock')) ?></th>
+                <th><?= adminH(adminPhrase('Added')) ?></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             <?php if ($laptops === []): ?>
-                <tr><td colspan="6">No laptops match the current filters.</td></tr>
+                <tr><td colspan="6"><?= adminH(adminPhrase('No laptops match the current filters.')) ?></td></tr>
             <?php endif; ?>
             <?php foreach ($laptops as $laptop): ?>
                 <tr>
@@ -424,7 +506,7 @@ adminPageStart('Laptops Admin', 'laptops');
                     <td>
                         <?= adminMoney((float) $laptop['price']) ?>
                         <?php if (!empty($laptop['old_price'])): ?>
-                            <small class="inline-note" style="text-decoration: line-through; display: block; color: var(--muted); font-size: 0.75rem;">Old <?= adminMoney((float) $laptop['old_price']) ?></small>
+                            <small class="inline-note" style="text-decoration: line-through; display: block; color: var(--muted); font-size: 0.75rem;"><?= adminH(adminPhrase('Old {amount}', ['amount' => adminMoney((float) $laptop['old_price'])])) ?></small>
                         <?php endif; ?>
                     </td>
                     <td>
@@ -434,11 +516,11 @@ adminPageStart('Laptops Admin', 'laptops');
                     </td>
                     <td><?= adminH(substr((string) $laptop['created_at'], 0, 10)) ?></td>
                     <td class="table-actions">
-                        <a class="button button-light button-small" href="admin-laptop-form.php?id=<?= (int) $laptop['id'] ?>">Edit</a>
-                        <form method="post" action="admin-laptop-delete.php" onsubmit="return confirm('Delete this laptop from the catalog?');">
+                        <a class="button button-light button-small" href="admin-laptop-form.php?id=<?= (int) $laptop['id'] ?>"><?= adminH(adminPhrase('Edit')) ?></a>
+                        <form method="post" action="admin-laptop-delete.php" onsubmit="return confirm('<?= adminH(adminPhrase('Delete this laptop from the catalog?')) ?>');">
                             <?= csrfField() ?>
                             <input type="hidden" name="id" value="<?= (int) $laptop['id'] ?>">
-                            <button class="button button-danger button-small" type="submit">Delete</button>
+                            <button class="button button-danger button-small" type="submit"><?= adminH(adminPhrase('Delete')) ?></button>
                         </form>
                     </td>
                 </tr>

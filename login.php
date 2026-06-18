@@ -37,12 +37,12 @@ if ($requestMethod !== "POST") {
 
     if ($oauthError === 'google_auth_failed') {
         $detail = $_GET['detail'] ?? '';
-        $errors["general"] = "Google login failed. Please try again or use your email."
+        $errors["general"] = i18n_t('auth.google_login_failed', [], 'Google login failed. Please try again or use your email.')
             . ($detail !== '' ? " [Debug: " . htmlspecialchars($detail) . "]" : "");
     } elseif ($oauthError === 'provider_unavailable') {
         $provider = strtolower((string) ($_GET['provider'] ?? ''));
-        $providerName = $providerLabels[$provider] ?? 'This provider';
-        $errors["general"] = $providerName . " is not configured for login yet.";
+        $providerName = $providerLabels[$provider] ?? i18n_t('auth.this_provider', [], 'This provider');
+        $errors["general"] = $providerName . " " . i18n_t('auth.not_configured', [], 'is not configured for login yet.');
     }
 }
 
@@ -50,13 +50,13 @@ if ($requestMethod !== "POST") {
 if ($requestMethod === "POST") {
 
     if (!verifyCsrf($_POST[CSRF_TOKEN_NAME] ?? null)) {
-        $errors["general"] = "Session invalide, veuillez réessayer.";
+        $errors["general"] = i18n_t('auth.invalid_session', [], 'Invalid session, please try again.');
     }
 
     if (empty($errors) && defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== '') {
         $cfToken = $_POST['cf-turnstile-response'] ?? '';
         if (!verifyTurnstile($cfToken)) {
-            $errors["general"] = "CAPTCHA verification failed. Please try again.";
+            $errors["general"] = i18n_t('auth.captcha_failed', [], 'CAPTCHA verification failed. Please try again.');
         }
     }
 
@@ -66,11 +66,11 @@ if ($requestMethod === "POST") {
 
     // ── Validation basique ────────────────────────────────────────
     if (empty($errors) && (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))) {
-        $errors["email"] = "Invalid email address.";
+        $errors["email"] = i18n_t('auth.invalid_email', [], 'Invalid email address.');
     }
 
     if (empty($errors) && empty($pass_raw)) {
-        $errors["pass"] = "Password is required.";
+        $errors["pass"] = i18n_t('auth.password_required', [], 'Password is required.');
     }
 
     // ── Vérification en base ──────────────────────────────────────
@@ -89,7 +89,7 @@ if ($requestMethod === "POST") {
         }
 
         if ($globalLockedUntil !== null && $globalLockedUntil > new DateTime()) {
-            $errors["general"] = "Too many attempts. Try again after " . $globalLockedUntil->format('H:i') . ".";
+            $errors["general"] = i18n_t('auth.too_many_attempts', ['time' => $globalLockedUntil->format('H:i')], 'Too many attempts. Try again after ' . $globalLockedUntil->format('H:i') . '.');
         }
 
         if (empty($errors)) {
@@ -98,7 +98,7 @@ if ($requestMethod === "POST") {
         $client = $stmt->fetch();
 
         if ($client && !empty($client["is_suspended"])) {
-            $errors["general"] = "Your account has been suspended. Reason: " . ($client["suspension_reason"] ?: "Not specified");
+            $errors["general"] = i18n_t('auth.account_suspended', ['reason' => ($client["suspension_reason"] ?: i18n_t('auth.not_specified', [], 'Not specified'))], 'Your account has been suspended.') . " " . ($client["suspension_reason"] ?: i18n_t('auth.not_specified', [], 'Not specified'));
         }
 
         if (empty($errors)) {
@@ -113,34 +113,34 @@ if ($requestMethod === "POST") {
         }
 
         if ($client && $lockedUntil && $lockedUntil > $now) {
-            $errors["general"] = "Too many attempts. Try again after " . $lockedUntil->format('H:i') . ".";
+            $errors["general"] = i18n_t('auth.too_many_attempts', ['time' => $lockedUntil->format('H:i')], 'Too many attempts. Try again after ' . $lockedUntil->format('H:i') . '.');
         } elseif (!$client || !password_verify($pass_raw, $client["mot_de_passe"])) {
             registerGlobalFailedLogin($pdo, $attemptKey, $email);
             if ($client) {
                 $isNowLocked = registerFailedLogin($pdo, (int) $client["id_client"], (int) $client["failed_login_attempts"]);
                 if ($isNowLocked) {
                     $lockUntil = (new DateTime())->modify('+' . LOGIN_LOCK_MINUTES . ' minutes');
-                    $errors["general"] = "Too many attempts. Try again after " . $lockUntil->format('H:i') . ".";
+                    $errors["general"] = i18n_t('auth.too_many_attempts', ['time' => $lockUntil->format('H:i')], 'Too many attempts. Try again after ' . $lockUntil->format('H:i') . '.');
                 }
             }
             // Check global lock after registering failed attempt
             $newGlobalLockedUntil = loginLockedUntil($pdo, $attemptKey);
             if ($newGlobalLockedUntil !== null && $newGlobalLockedUntil > new DateTime()) {
-                $errors["general"] = "Too many attempts. Try again after " . $newGlobalLockedUntil->format('H:i') . ".";
+                $errors["general"] = i18n_t('auth.too_many_attempts', ['time' => $newGlobalLockedUntil->format('H:i')], 'Too many attempts. Try again after ' . $newGlobalLockedUntil->format('H:i') . '.');
             }
             if (empty($errors["general"])) {
-                $errors["general"] = "Incorrect email or password.";
+                $errors["general"] = i18n_t('auth.wrong_credentials', [], 'Incorrect email or password.');
             }
         } elseif (empty($client["email_verified"])) {
             resetFailedLogins($pdo, (int) $client["id_client"]);
-            $errors["general"] = "Your email is not verified yet. Check your inbox.";
+            $errors["general"] = i18n_t('auth.email_not_verified', [], 'Your email is not verified yet. Check your inbox.');
             $showResendLink = true;
         } elseif (!empty($client["deleted_at"])) {
             resetFailedLogins($pdo, (int) $client["id_client"]);
             $deletedAt = new DateTime($client["deleted_at"]);
             $deadline = (clone $deletedAt)->modify('+5 days');
             if ($now > $deadline) {
-                $errors["general"] = "This account has been deleted. Contact support for assistance.";
+                $errors["general"] = i18n_t('auth.account_deleted', [], 'This account has been deleted. Contact support for assistance.');
             } else {
                 // Still in grace period — allow login, redirect to account
                 if (!empty($client['two_factor_enabled'])) {
@@ -222,28 +222,7 @@ function ensureLoginLockoutColumns(PDO $pdo): void
 
 function startTwoFactorLogin(array $client, string $next, bool $remember, ?string $preferredMethod): void
 {
-    $method = twoFactorChooseMethod($client, $preferredMethod);
-    $_SESSION['two_factor_login'] = [
-        'client_id' => (int) $client['id_client'],
-        'name' => (string) $client['nom'],
-        'email' => (string) $client['email'],
-        'phone' => (string) ($client['telephone'] ?? ''),
-        'method' => $method,
-        'next' => $next,
-        'remember' => $remember,
-        'code_hash' => null,
-        'expires_at' => time() + 300,
-        'attempts' => 0,
-    ];
-
-    if ($method !== 'authenticator') {
-        $code = (string) random_int(100000, 999999);
-        $_SESSION['two_factor_login']['code_hash'] = password_hash($code, PASSWORD_DEFAULT);
-        twoFactorSendCode($method, $client, $code);
-    }
-
-    header('Location: verify-2fa.php');
-    exit();
+    twoFactorStartLoginChallenge($client, $next, $remember, $preferredMethod);
 }
 
 function registerFailedLogin(PDO $pdo, int $clientId, int $currentAttempts): bool
@@ -419,13 +398,13 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
         <div class="hero-side">
             <img src="signup.png" alt="Gaming setup workspace">
             <div class="hero-overlay">
-                <span class="hero-kicker">Account access</span>
-                <h2>Your setup is waiting</h2>
-                <p>Access saved builds, order history, and faster checkout from one secure place.</p>
+                <span class="hero-kicker"><?= i18n_t('auth.account_access', [], 'Account access') ?></span>
+                <h2><?= i18n_t('auth.your_setup_ready', [], 'Your setup is waiting') ?></h2>
+                <p><?= i18n_t('auth.hero_description', [], 'Access saved builds, order history, and faster checkout from one secure place.') ?></p>
                 <div class="hero-trust-list" aria-label="Account benefits">
-                    <span><i class="fas fa-box-open"></i> Orders</span>
-                    <span><i class="fas fa-bookmark"></i> Saved parts</span>
-                    <span><i class="fas fa-shield-halved"></i> 2FA ready</span>
+                    <span><i class="fas fa-box-open"></i> <?= i18n_t('auth.hero_orders', [], 'Orders') ?></span>
+                    <span><i class="fas fa-bookmark"></i> <?= i18n_t('auth.hero_saved_parts', [], 'Saved parts') ?></span>
+                    <span><i class="fas fa-shield-halved"></i> <?= i18n_t('auth.hero_2fa', [], '2FA ready') ?></span>
                 </div>
             </div>
         </div>
@@ -435,7 +414,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
 
             <?php if ($success): ?>
                 <div class="alert-success-toast">
-                    ✅ Login successful! Redirecting…
+                    ✅ <?= i18n_t('auth.login_successful', [], 'Login successful! Redirecting...') ?>
                 </div>
             <?php endif; ?>
 
@@ -443,7 +422,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                 <div class="alert-error">
                     ❌ <?= htmlspecialchars($errors["general"]) ?>
                     <?php if (!empty($showResendLink)): ?>
-                        <br><a href="resend-verification.php?email=<?= urlencode($email) ?>" style="color:#00f5d4;text-decoration:underline;font-size:0.85rem;">Resend verification email →</a>
+                        <br><a href="resend-verification.php?email=<?= urlencode($email) ?>" style="color:#00f5d4;text-decoration:underline;font-size:0.85rem;"><?= i18n_t('auth.resend_verification', [], 'Resend verification email →') ?></a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -453,36 +432,36 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                 <?= csrfField() ?>
                 <input type="hidden" name="next" value="<?= htmlspecialchars($next, ENT_QUOTES, 'UTF-8') ?>">
 
-                <span class="auth-kicker">Maroc PC account</span>
-                <h3 id="myH3">Welcome back</h3>
-                <p class="subtitle">Sign in to manage orders, saved builds, and account security.</p>
+                <span class="auth-kicker"><?= i18n_t('auth.account_kicker', [], 'Maroc PC account') ?></span>
+                <h3 id="myH3"><?= i18n_t('auth.welcome_back', [], 'Welcome back') ?></h3>
+                <p class="subtitle"><?= i18n_t('auth.login_subtitle', [], 'Sign in to manage orders, saved builds, and account security.') ?></p>
 
                 <!-- ── Email ──────────────────────────────────── -->
                 <div class="<?= grp('email', $errors) ?>">
-                    <label for="login-email">Email Address</label>
+                    <label for="login-email"><?= i18n_t('auth.email_label', [], 'Email Address') ?></label>
                     <input type="email" name="email" id="login-email" class="hh"
-                           placeholder="john@example.com"
+                           placeholder="<?= i18n_t('auth.email_placeholder', [], 'john@example.com') ?>"
                            value="<?= htmlspecialchars($email) ?>" required>
                     <span class="error-msg" id="err-login-email">
                         <?= isset($errors["email"])
                             ? htmlspecialchars($errors["email"])
-                            : "Please enter a valid email" ?>
+                            : i18n_t('auth.valid_email_hint', [], 'Please enter a valid email') ?>
                     </span>
                 </div>
 
                 <!-- ── Mot de passe ───────────────────────────── -->
                 <div class="<?= grp('pass', $errors) ?>">
-                    <label for="login-pass">Password</label>
+                    <label for="login-pass"><?= i18n_t('auth.password_label', [], 'Password') ?></label>
                     <div class="password-wrap">
                         <input type="password" name="pass" id="login-pass" class="hh"
-                               placeholder="••••••••" required>
+                               placeholder="<?= i18n_t('auth.password_placeholder', [], '••••••••') ?>" required>
                         <button type="button" class="toggle-pass" id="loginTogglePass"
-                                aria-label="Show password"><i class="fas fa-eye"></i></button>
+                                aria-label="<?= i18n_t('auth.show_password', [], 'Show password') ?>"><i class="fas fa-eye"></i></button>
                     </div>
                     <span class="error-msg" id="err-login-pass">
                         <?= isset($errors["pass"])
                             ? htmlspecialchars($errors["pass"])
-                            : "Password is required" ?>
+                            : i18n_t('auth.password_required_hint', [], 'Password is required') ?>
                     </span>
                 </div>
 
@@ -493,11 +472,11 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                                <?= isset($_POST["remember"]) ? "checked" : "" ?>>
                         <span class="check-box"></span>
                         <span class="remember-copy">
-                            <span class="remember-text">Remember this device</span>
-                            <small>Keep me signed in for 30 days.</small>
+                            <span class="remember-text"><?= i18n_t('auth.remember_label', [], 'Remember this device') ?></span>
+                            <small><?= i18n_t('auth.remember_sublabel', [], 'Keep me signed in for 30 days.') ?></small>
                         </span>
                     </label>
-                    <a href="forgot-password.php" class="forgot-link">Forgot password?</a>
+                    <a href="forgot-password.php" class="forgot-link"><?= i18n_t('auth.forgot_password', [], 'Forgot password?') ?></a>
                 </div>
 
                 <?php if (defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY !== ''): ?>
@@ -512,34 +491,34 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                 <?php endif; ?>
 
                 <div class="form-actions">
-                    <button type="submit" class="Bou" id="loginBtn">Sign In</button>
+                    <button type="submit" class="Bou" id="loginBtn"><?= i18n_t('auth.sign_in', [], 'Sign In') ?></button>
                 </div>
 
                 <div class="social-login">
-                    <p>Or continue with</p>
+                    <p><?= i18n_t('auth.or_continue_with', [], 'Or continue with') ?></p>
                     <div class="social-provider-grid">
                         <a href="google-callback.php?next=<?= urlencode($next) ?>" class="social-provider provider-google">
                             <i class="fab fa-google"></i>
-                            <span>Google</span>
+                            <span><?= i18n_t('auth.provider_google', [], 'Google') ?></span>
                         </a>
                         <a href="facebook-login.php?next=<?= urlencode($next) ?>" class="social-provider provider-facebook">
                             <i class="fab fa-facebook-f"></i>
-                            <span>Facebook</span>
+                            <span><?= i18n_t('auth.provider_facebook', [], 'Facebook') ?></span>
                         </a>
                         <a href="discord-login.php?next=<?= urlencode($next) ?>" class="social-provider provider-discord">
                             <i class="fab fa-discord"></i>
-                            <span>Discord</span>
+                            <span><?= i18n_t('auth.provider_discord', [], 'Discord') ?></span>
                         </a>
                         <a href="steam-login.php?next=<?= urlencode($next) ?>" class="social-provider provider-steam">
                             <i class="fab fa-steam"></i>
-                            <span>Steam</span>
+                            <span><?= i18n_t('auth.provider_steam', [], 'Steam') ?></span>
                         </a>
 
                     </div>
                 </div>
 
                 <p class="login-link" style="margin-top: 1.5rem;">
-                    New here? <a href="signup.php" data-auth-transition="signup">Create an account</a>
+                    <?= i18n_t('auth.new_here', [], 'New here?') ?> <a href="signup.php" data-auth-transition="signup"><?= i18n_t('auth.create_account', [], 'Create an account') ?></a>
                 </p>
 
             </form>
@@ -551,9 +530,9 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
         <i>⚡</i>
         <span id="loginToastMsg">
             <?php if ($success): ?>
-                Welcome, <?= htmlspecialchars($_SESSION["client_nom"]) ?>!
+                <?= i18n_t('auth.welcome_toast', ['name' => htmlspecialchars($_SESSION["client_nom"])], 'Welcome, ' . htmlspecialchars($_SESSION["client_nom"]) . '!') ?>
             <?php else: ?>
-                Welcome!
+                <?= i18n_t('auth.welcome_guest', [], 'Welcome!') ?>
             <?php endif; ?>
         </span>
     </div>
@@ -638,7 +617,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
             // Show user-friendly error message
             const errorDiv = document.getElementById('turnstileError');
             if (errorDiv) {
-                errorDiv.textContent = '⚠️ Security check failed. Please refresh the page and try again.';
+                errorDiv.textContent = <?= json_encode(i18n_t('auth.turnstile_error', [], '⚠️ Security check failed. Please refresh the page and try again.'), JSON_UNESCAPED_UNICODE) ?>;
                 errorDiv.style.display = 'block';
             }
             
@@ -663,7 +642,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
             // Show expiration message
             const errorDiv = document.getElementById('turnstileError');
             if (errorDiv) {
-                errorDiv.textContent = '⏰ Security check expired. The widget will refresh automatically.';
+                errorDiv.textContent = <?= json_encode(i18n_t('auth.turnstile_expired', [], '⏰ Security check expired. The widget will refresh automatically.'), JSON_UNESCAPED_UNICODE) ?>;
                 errorDiv.style.display = 'block';
                 
                 // Auto-hide after 3 seconds as widget auto-refreshes
@@ -689,7 +668,7 @@ function clearGlobalLoginAttempts(PDO $pdo, string $attemptKey): void
                         
                         const errorDiv = document.getElementById('turnstileError');
                         if (errorDiv) {
-                            errorDiv.textContent = '⚠️ Please complete the security check before signing in.';
+                            errorDiv.textContent = <?= json_encode(i18n_t('auth.turnstile_missing', [], '⚠️ Please complete the security check before signing in.'), JSON_UNESCAPED_UNICODE) ?>;
                             errorDiv.style.display = 'block';
                         }
                         

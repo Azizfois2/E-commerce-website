@@ -33,7 +33,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $statusPost = in_array($_POST['restock_status'] ?? '', ['needed', 'ordered', 'received'], true) ? $_POST['restock_status'] : 'needed';
     $expectedAt = trim((string) ($_POST['expected_at'] ?? ''));
     $note = trim((string) ($_POST['note'] ?? ''));
-    $notifyWaiting = isset($_POST['notify_waiting']) ? 1 : 0;
+    $waitingCustomers = (!$isLaptop && $itemId > 0)
+        ? (int) adminFetchValue($pdo, 'SELECT COUNT(*) FROM restock_notifications WHERE product_id = ? AND notified = 0', [$itemId])
+        : 0;
+    $notifyWaiting = (!$isLaptop && $waitingCustomers > 0 && ($_POST['restock_action'] ?? '') === 'notify') ? 1 : 0;
 
     if ($itemId > 0) {
         if ($isLaptop) {
@@ -62,7 +65,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $stmt->execute([$itemId, $statusPost, $expectedAt !== '' ? $expectedAt : null, $notifyWaiting, $note !== '' ? $note : null]);
 
             $sent = 0;
-            if ($statusPost === 'received' && $notifyWaiting) {
+            if ($notifyWaiting) {
                 $sent = adminSendRestockNotifications($pdo, $itemId);
             }
             adminLogActivity($pdo, 'restock_plan', 'product', $itemId, "Updated restock plan for product #{$itemId}");
@@ -75,12 +78,12 @@ $category = trim((string) ($_GET['category'] ?? ''));
 $categories = adminFetchAll($pdo, 'SELECT DISTINCT category FROM products ORDER BY category ASC');
 $categories[] = ['category' => 'Laptop'];
 
-$stats = [
-    'references' => (int) adminFetchValue($pdo, 'SELECT (SELECT COUNT(*) FROM products) + (SELECT COUNT(*) FROM laptops)'),
-    'units' => (int) adminFetchValue($pdo, 'SELECT (SELECT COALESCE(SUM(stock_quantity), 0) FROM products) + (SELECT COALESCE(SUM(stock_quantity), 0) FROM laptops)'),
-    'alerts' => (int) adminFetchValue($pdo, 'SELECT (SELECT COUNT(*) FROM products WHERE stock_quantity <= reorder_level) + (SELECT COUNT(*) FROM laptops WHERE stock_quantity <= reorder_level)'),
-    'out' => (int) adminFetchValue($pdo, 'SELECT (SELECT COUNT(*) FROM products WHERE stock_quantity <= 0 OR in_stock = 0) + (SELECT COUNT(*) FROM laptops WHERE stock_quantity <= 0 OR in_stock = 0)'),
-];
+$stats = adminGetOptimizedStats($pdo, 'stock_stats_' . date('YmdH'), [
+    'references' => 'SELECT (SELECT COUNT(*) FROM products) + (SELECT COUNT(*) FROM laptops)',
+    'units' => 'SELECT (SELECT COALESCE(SUM(stock_quantity), 0) FROM products) + (SELECT COALESCE(SUM(stock_quantity), 0) FROM laptops)',
+    'alerts' => 'SELECT (SELECT COUNT(*) FROM products WHERE stock_quantity <= reorder_level) + (SELECT COUNT(*) FROM laptops WHERE stock_quantity <= reorder_level)',
+    'out' => 'SELECT (SELECT COUNT(*) FROM products WHERE stock_quantity <= 0 OR in_stock = 0) + (SELECT COUNT(*) FROM laptops WHERE stock_quantity <= 0 OR in_stock = 0)',
+], 300);
 
 if ($category === 'Laptop') {
     $products = adminFetchAll($pdo, "
@@ -264,13 +267,13 @@ adminPageStart('Stock Monitoring', 'stock');
 }
 
 .restock-mini-form select,
-.restock-mini-form input {
+.restock-mini-form input:not([type="checkbox"]) {
     background: var(--card-bg) !important;
     border-color: var(--border) !important;
 }
 
 .restock-mini-form select:focus,
-.restock-mini-form input:focus {
+.restock-mini-form input:not([type="checkbox"]):focus {
     border-color: var(--cyan) !important;
 }
 </style>
@@ -278,37 +281,37 @@ adminPageStart('Stock Monitoring', 'stock');
 <div class="stock-admin-page">
 <section class="section-heading">
     <div>
-        <span class="eyebrow">Stock Monitoring</span>
-        <h1>Stock Section</h1>
-        <p class="section-copy">Monitor inventory pressure, log restock plans, and manage reordering thresholds for both Components & Laptops.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Stock Monitoring')) ?></span>
+        <h1><?= adminH(adminPhrase('Stock Section')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Monitor inventory pressure, log restock plans, and manage reordering thresholds for both Components & Laptops.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-products.php">Components</a>
-        <a class="button button-light" href="admin-laptops.php">Laptops</a>
-        <a class="button button-primary" href="admin-product-form.php">Add Component</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-products.php"><?= adminH(adminPhrase('Components')) ?></a>
+        <a class="button button-light" href="admin-laptops.php"><?= adminH(adminPhrase('Laptops')) ?></a>
+        <a class="button button-primary" href="admin-product-form.php"><?= adminH(adminPhrase('Add Component')) ?></a>
     </div>
 </section>
 
 <?php if (isset($_GET['restock_saved'])): ?>
-    <div class="admin-alert success">Restock workflow updated<?= isset($_GET['sent']) ? '; notified ' . (int) $_GET['sent'] . ' waiting customer(s)' : '' ?>.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Restock workflow updated')) ?><?= isset($_GET['sent']) ? '; ' . adminH(adminPhrase('notified {count} waiting customer(s)', ['count' => (int) $_GET['sent']])) : '' ?>.</div>
 <?php elseif (isset($_GET['error'])): ?>
     <div class="admin-alert error"><?= adminH($_GET['error']) ?></div>
 <?php endif; ?>
 
 <div class="stats-grid">
-    <article class="stat-card"><strong><?= $stats['references'] ?></strong><span>Total References</span></article>
-    <article class="stat-card"><strong><?= $stats['units'] ?></strong><span>Units available</span></article>
-    <article class="stat-card"><strong><?= $stats['alerts'] ?></strong><span>Reorder alerts</span></article>
-    <article class="stat-card"><strong><?= $stats['out'] ?></strong><span>Out of stock</span></article>
+    <article class="stat-card"><strong><?= $stats['references'] ?></strong><span><?= adminH(adminPhrase('Total References')) ?></span></article>
+    <article class="stat-card"><strong><?= $stats['units'] ?></strong><span><?= adminH(adminPhrase('Units available')) ?></span></article>
+    <article class="stat-card"><strong><?= $stats['alerts'] ?></strong><span><?= adminH(adminPhrase('Reorder alerts')) ?></span></article>
+    <article class="stat-card"><strong><?= $stats['out'] ?></strong><span><?= adminH(adminPhrase('Out of stock')) ?></span></article>
 </div>
 
 <section class="table-card reorder-panel">
     <div class="card-head">
-        <h2>Items to Reorder (Low Stock Thresholds)</h2>
+        <h2><?= adminH(adminPhrase('Items to Reorder (Low Stock Thresholds)')) ?></h2>
     </div>
     <?php if ($reorderProducts === []): ?>
-        <p class="empty-copy">No catalog items are currently below reorder level.</p>
+        <p class="empty-copy"><?= adminH(adminPhrase('No catalog items are currently below reorder level.')) ?></p>
     <?php else: ?>
         <div class="reorder-strip">
             <?php foreach ($reorderProducts as $product): ?>
@@ -327,25 +330,25 @@ adminPageStart('Stock Monitoring', 'stock');
 <section class="table-card inventory-panel">
     <div class="card-head">
         <div>
-            <h2>Detailed Stock Listing</h2>
-            <p class="card-copy">Unified registry displaying both components and laptop stock levels. Sorted by lowest stock first.</p>
+            <h2><?= adminH(adminPhrase('Detailed Stock Listing')) ?></h2>
+            <p class="card-copy"><?= adminH(adminPhrase('Unified registry displaying both components and laptop stock levels. Sorted by lowest stock first.')) ?></p>
         </div>
     </div>
     <form class="filter-bar stock-filter-bar" method="get">
         <label>
-            Filter Category
+            <?= adminH(adminPhrase('Filter Category')) ?>
             <select name="category">
-                <option value="">All categories & laptops</option>
+                <option value=""><?= adminH(adminPhrase('All categories & laptops')) ?></option>
                 <?php foreach ($categories as $row): ?>
                     <option value="<?= adminH($row['category']) ?>" <?= $category === $row['category'] ? 'selected' : '' ?>><?= adminH($row['category']) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <button class="button button-primary" type="submit">Filter</button>
+        <button class="button button-primary" type="submit"><?= adminH(adminPhrase('Filter')) ?></button>
     </form>
 
     <?php if ($products === []): ?>
-        <p class="empty-copy">No stock records found matching filters.</p>
+        <p class="empty-copy"><?= adminH(adminPhrase('No stock records found matching filters.')) ?></p>
     <?php else: ?>
         <div class="inventory-list">
             <?php foreach ($products as $product): ?>
@@ -366,34 +369,38 @@ adminPageStart('Stock Monitoring', 'stock');
                     </div>
                     <div class="inventory-metric">
                         <strong><?= $reorderLevel ?></strong>
-                        <small>Reorder at</small>
+                        <small><?= adminH(adminPhrase('Reorder at')) ?></small>
                     </div>
                     <div class="inventory-metric inventory-price">
                         <strong><?= adminMoney((float) $product['price']) ?></strong>
-                        <small>Unit price</small>
+                        <small><?= adminH(adminPhrase('Unit price')) ?></small>
                     </div>
                     <div class="inventory-metric inventory-value">
                         <strong><?= adminMoney((float) $product['price'] * $stock) ?></strong>
-                        <small>Stock value</small>
+                        <small><?= adminH(adminPhrase('Stock value')) ?></small>
                     </div>
                     <form method="post" class="restock-mini-form">
                         <?= csrfField() ?>
                         <input type="hidden" name="item_id" value="<?= (int) $product['id'] ?>">
                         <input type="hidden" name="is_laptop" value="<?= (int) $product['is_laptop'] ?>">
-                        <select name="restock_status" title="Restock status">
+                        <select name="restock_status" title="<?= adminH(adminPhrase('Restock status')) ?>">
                             <?php foreach (['needed' => 'Needed', 'ordered' => 'Ordered', 'received' => 'Received'] as $value => $label): ?>
-                                <option value="<?= adminH($value) ?>" <?= ($product['restock_status'] ?? 'needed') === $value ? 'selected' : '' ?>><?= adminH($label) ?></option>
+                                <option value="<?= adminH($value) ?>" <?= ($product['restock_status'] ?? 'needed') === $value ? 'selected' : '' ?>><?= adminH(adminPhrase($label)) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="date" name="expected_at" value="<?= adminH($product['expected_at'] ?? '') ?>" title="Expected restock date">
-                        <label class="restock-notify">
-                            <input type="checkbox" name="notify_waiting" <?= !empty($product['notify_waiting']) ? 'checked' : '' ?>>
-                            Notify <?= (int) $product['waitlist_count'] ?>
-                        </label>
-                        <input type="text" name="note" value="<?= adminH($product['note'] ?? '') ?>" placeholder="Supplier note">
-                        <button class="button button-primary button-small" type="submit">Save</button>
+                        <input type="date" name="expected_at" value="<?= adminH($product['expected_at'] ?? '') ?>" title="<?= adminH(adminPhrase('Expected restock date')) ?>">
+                        <?php
+                            $waitlistCount = (int) $product['waitlist_count'];
+                            $notifyUnavailable = !empty($product['is_laptop']) || $waitlistCount <= 0;
+                        ?>
+                        <button class="restock-notify <?= $notifyUnavailable ? 'is-disabled' : '' ?>" type="submit" name="restock_action" value="notify" title="<?= adminH(adminPhrase('Notify waiting customers')) ?>" <?= $notifyUnavailable ? 'disabled' : '' ?>>
+                            <i class="fas fa-bell" aria-hidden="true"></i>
+                            <span><?= adminH(adminPhrase('Notify {count} waiting', ['count' => $waitlistCount])) ?></span>
+                        </button>
+                        <input type="text" name="note" value="<?= adminH($product['note'] ?? '') ?>" placeholder="<?= adminH(adminPhrase('Supplier note')) ?>">
+                        <button class="button button-primary button-small" type="submit"><?= adminH(adminPhrase('Save')) ?></button>
                     </form>
-                    <a class="button button-light button-small" href="<?= $product['is_laptop'] ? 'admin-laptop-form.php' : 'admin-product-form.php' ?>?id=<?= (int) $product['id'] ?>">Update</a>
+                    <a class="button button-light button-small" href="<?= $product['is_laptop'] ? 'admin-laptop-form.php' : 'admin-product-form.php' ?>?id=<?= (int) $product['id'] ?>"><?= adminH(adminPhrase('Update')) ?></a>
                 </article>
             <?php endforeach; ?>
         </div>

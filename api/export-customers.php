@@ -67,7 +67,7 @@ header('Content-Disposition: attachment; filename="customers.csv"');
 $output = fopen('php://output', 'w');
 fputs($output, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
 
-fputcsv($output, ['Client ID', 'Name', 'Email', 'Phone', 'Address', 'Status', 'Order Count', 'Total Spent (MAD)', 'Joined At']);
+fputcsv($output, ['Client ID', 'Name', 'Email', 'Phone', 'Address', 'Status', 'Order Count', 'Total Spent (DH)', 'Joined At']);
 
 foreach ($customers as $row) {
     $status = $row['is_suspended'] ? 'Suspended' : 'Active';

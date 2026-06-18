@@ -9,7 +9,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 35000,
         "oldPrice": 37999,
-        "image": "images/products/rog-scar18.png",
+        "image": "images/products/asus-rog-strix-scar-18-1781269212.jpg",
         "usageCategory": "gaming",
         "portabilityTier": "desktop_replacement",
         "screenSize": 18,
@@ -25,11 +25,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 1,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 6.5
+            "performance": 7.3,
+            "portability": 4,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 2.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -38,7 +56,7 @@ const laptops = [
         "brand": "Lenovo",
         "price": 19500,
         "oldPrice": 21999,
-        "image": "images/products/x1carbon.png",
+        "image": "images/products/lenovo-thinkpad-x1-carbon-gen-12-1781269273.webp",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 14,
@@ -54,11 +72,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 11,
+        "npuVendor": "Intel",
+        "isCopilotPlus": false,
+        "aiTier": "basic",
         "scores": {
-            "portability": 8.5,
-            "performance": 7.8,
+            "performance": 6.5,
+            "portability": 10,
             "screen": 7,
-            "value": 8.6
+            "ai": 2.2,
+            "value": 4.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -85,11 +121,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 15,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 9.5,
-            "performance": 6.5,
+            "performance": 5.1,
+            "portability": 10,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 7.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -98,7 +152,7 @@ const laptops = [
         "brand": "Apple",
         "price": 39999,
         "oldPrice": null,
-        "image": "images/products/macbookpro16.png",
+        "image": "images/products/apple-macbook-pro-16-m3-max-1781269346.jpg",
         "usageCategory": "creative",
         "portabilityTier": "standard",
         "screenSize": 16.2,
@@ -116,11 +170,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 3,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.7,
-            "performance": 9.2,
-            "screen": 9.8,
-            "value": 5.7
+            "performance": 7.3,
+            "portability": 7.4,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 2.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -145,11 +217,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 7,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 7,
-            "performance": 9.6,
-            "screen": 9.8,
-            "value": 8.8
+            "performance": 7.3,
+            "portability": 8.8,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 4.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -158,7 +248,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 18500,
         "oldPrice": 19999,
-        "image": "images/products/rog-g16.png",
+        "image": "images/products/asus-rog-strix-g16-1781271570.webp",
         "usageCategory": "gaming",
         "portabilityTier": "desktop_replacement",
         "screenSize": 16,
@@ -174,11 +264,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 8,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 2.8,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.3
+            "performance": 6.5,
+            "portability": 5.8,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 4.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -187,7 +295,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 9800,
         "oldPrice": 10999,
-        "image": "images/products/tuf-a15.png",
+        "image": "images/products/asus-tuf-gaming-a15-1781271450.webp",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -203,11 +311,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 12,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.7,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 6.6,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.6
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -216,7 +342,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 9500,
         "oldPrice": null,
-        "image": "images/products/tuf-f15.png",
+        "image": "images/products/asus-tuf-gaming-f15-1781271411.jpg",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -232,11 +358,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.7,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 6.6,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.6
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -245,7 +389,7 @@ const laptops = [
         "brand": "Lenovo",
         "price": 17500,
         "oldPrice": 19000,
-        "image": "images/products/legion5pro.png",
+        "image": "images/products/lenovo-legion-5-pro-1781270504.jpg",
         "usageCategory": "gaming",
         "portabilityTier": "desktop_replacement",
         "screenSize": 16,
@@ -261,11 +405,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 8,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.1,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.4
+            "performance": 6.5,
+            "portability": 6,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 4.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -274,7 +436,7 @@ const laptops = [
         "brand": "Lenovo",
         "price": 13500,
         "oldPrice": 14999,
-        "image": "images/products/legion5i.png",
+        "image": "images/products/lenovo-legion-5i-1781271735.webp",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -290,11 +452,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 10,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.4,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 6,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 5.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -319,11 +499,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 7,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4.3,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 7.6,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 5.4
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -332,7 +530,7 @@ const laptops = [
         "brand": "MSI",
         "price": 10500,
         "oldPrice": 11999,
-        "image": "images/products/katana15.png",
+        "image": "images/products/msi-katana-15-1781271361.png",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -348,11 +546,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 9,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 6.3,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -361,7 +577,7 @@ const laptops = [
         "brand": "MSI",
         "price": 28000,
         "oldPrice": 30999,
-        "image": "images/products/stealth16.png",
+        "image": "images/products/msi-stealth-16-studio-1781271286.jpg",
         "usageCategory": "creative",
         "portabilityTier": "desktop_replacement",
         "screenSize": 16,
@@ -377,11 +593,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 4,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4,
-            "performance": 9.2,
-            "screen": 9.8,
-            "value": 7.7
+            "performance": 7.3,
+            "portability": 7.6,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 3.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -390,7 +624,7 @@ const laptops = [
         "brand": "MSI",
         "price": 19000,
         "oldPrice": 20999,
-        "image": "images/products/creator-m16.png",
+        "image": "images/products/msi-creator-m16-1781271251.jpg",
         "usageCategory": "creative",
         "portabilityTier": "standard",
         "screenSize": 16,
@@ -406,11 +640,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4.6,
-            "performance": 9.2,
-            "screen": 9.8,
-            "value": 9.2
+            "performance": 7.3,
+            "portability": 8.4,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 4.8
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -419,7 +671,7 @@ const laptops = [
         "brand": "HP",
         "price": 16500,
         "oldPrice": 18000,
-        "image": "images/products/omen16.png",
+        "image": "images/products/hp-omen-16-1781270339.png",
         "usageCategory": "gaming",
         "portabilityTier": "desktop_replacement",
         "screenSize": 16.1,
@@ -435,11 +687,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 7,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.6
+            "performance": 6.5,
+            "portability": 6.1,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 4.8
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -448,7 +718,7 @@ const laptops = [
         "brand": "HP",
         "price": 9700,
         "oldPrice": 10500,
-        "image": "images/products/victus15.png",
+        "image": "images/products/hp-victus-15-1781269938.webp",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -464,11 +734,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 13,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.8,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 5.8,
+            "portability": 6.2,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -493,11 +781,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 8,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 7.8,
-            "performance": 7.8,
+            "performance": 5.1,
+            "portability": 9.5,
             "screen": 7,
-            "value": 9.8
+            "ai": 1,
+            "value": 5.9
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -506,7 +812,7 @@ const laptops = [
         "brand": "HP",
         "price": 18000,
         "oldPrice": 19999,
-        "image": "images/products/elitebook1040.png",
+        "image": "images/products/hp-elitebook-1040-g10-1781271209.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 14,
@@ -522,11 +828,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 8,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.2
+            "performance": 6.2,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -535,7 +859,7 @@ const laptops = [
         "brand": "Dell",
         "price": 7500,
         "oldPrice": null,
-        "image": "images/products/inspiron15.png",
+        "image": "images/products/dell-inspiron-15-1781271067.jpg",
         "usageCategory": "student",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -551,11 +875,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 15,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4.9,
-            "performance": 6.5,
+            "performance": 4.7,
+            "portability": 7.4,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 6.7
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -564,7 +906,7 @@ const laptops = [
         "brand": "Dell",
         "price": 11000,
         "oldPrice": 12500,
-        "image": "images/products/inspiron16plus.png",
+        "image": "images/products/dell-inspiron-16-plus-1781271104.jpg",
         "usageCategory": "creative",
         "portabilityTier": "standard",
         "screenSize": 16,
@@ -580,11 +922,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 9,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4.3,
-            "performance": 9.2,
-            "screen": 9.8,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 7.7,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 7.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -593,7 +953,7 @@ const laptops = [
         "brand": "Dell",
         "price": 16000,
         "oldPrice": 17500,
-        "image": "images/products/xps13.png",
+        "image": "images/products/dell-xps-13-1781271021.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 13.4,
@@ -609,11 +969,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 11,
+        "npuVendor": "Intel",
+        "isCopilotPlus": false,
+        "aiTier": "basic",
         "scores": {
-            "portability": 8.9,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.5
+            "performance": 5.4,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 2.2,
+            "value": 5.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -622,7 +1000,7 @@ const laptops = [
         "brand": "Dell",
         "price": 22000,
         "oldPrice": 24999,
-        "image": "images/products/xps15.png",
+        "image": "images/products/dell-xps-15-1781270562.webp",
         "usageCategory": "creative",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -638,11 +1016,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5,
-            "performance": 9.2,
-            "screen": 9.8,
-            "value": 8.7
+            "performance": 7.3,
+            "portability": 8.3,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 4.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -651,7 +1047,7 @@ const laptops = [
         "brand": "Dell",
         "price": 11500,
         "oldPrice": 12999,
-        "image": "images/products/latitude5540.png",
+        "image": "images/products/dell-latitude-5540-1781270946.jpg",
         "usageCategory": "business",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -667,11 +1063,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 8,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5.4,
-            "performance": 7.8,
+            "performance": 5.1,
+            "portability": 8.2,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 6.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -680,7 +1094,7 @@ const laptops = [
         "brand": "Lenovo",
         "price": 9500,
         "oldPrice": 10500,
-        "image": "images/products/thinkpad-e14.png",
+        "image": "images/products/lenovo-thinkpad-e14-gen-5-1781270599.jpg",
         "usageCategory": "business",
         "portabilityTier": "standard",
         "screenSize": 14,
@@ -696,11 +1110,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 11,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 7,
-            "performance": 7.8,
+            "performance": 5.1,
+            "portability": 8.6,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 7.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -709,7 +1141,7 @@ const laptops = [
         "brand": "Lenovo",
         "price": 4500,
         "oldPrice": null,
-        "image": "images/products/ideapad-slim3.png",
+        "image": "images/products/lenovo-ideapad-slim-3-1781270405.jpg",
         "usageCategory": "student",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -725,11 +1157,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 18,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5.5,
-            "performance": 6.5,
+            "performance": 4.5,
+            "portability": 8,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 6.6
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -738,7 +1188,7 @@ const laptops = [
         "brand": "Lenovo",
         "price": 8500,
         "oldPrice": 9500,
-        "image": "images/products/ideapad-gaming3.png",
+        "image": "images/products/lenovo-ideapad-gaming-3-1781270030.webp",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -754,11 +1204,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 14,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 4,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 5.8,
+            "portability": 6.1,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -783,11 +1251,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 20,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5.2,
-            "performance": 6.5,
+            "performance": 4.5,
+            "portability": 7.6,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 6.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -796,7 +1282,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 12000,
         "oldPrice": 13500,
-        "image": "images/products/vivobook-pro15.png",
+        "image": "images/products/asus-vivobook-pro-15-oled-1781269848.jpg",
         "usageCategory": "creative",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -812,11 +1298,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 9,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5.2,
-            "performance": 9.2,
-            "screen": 9.8,
-            "value": 9.9
+            "performance": 6.2,
+            "portability": 8.2,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 6.8
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -825,7 +1329,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 13500,
         "oldPrice": 14999,
-        "image": "images/products/zenbook14.png",
+        "image": "images/products/asus-zenbook-14-oled-1781269820.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 14,
@@ -841,11 +1345,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 10,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 11,
+        "npuVendor": "Intel",
+        "isCopilotPlus": false,
+        "aiTier": "basic",
         "scores": {
-            "portability": 7.7,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.9
+            "performance": 5.4,
+            "portability": 9.9,
+            "screen": 9.5,
+            "ai": 2.2,
+            "value": 6.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -854,7 +1376,7 @@ const laptops = [
         "brand": "ASUS",
         "price": 16000,
         "oldPrice": 17500,
-        "image": "images/products/zenbook-s13.png",
+        "image": "images/products/asus-zenbook-s-13-oled-1781269705.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 13.3,
@@ -870,11 +1392,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 9.5,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.5
+            "performance": 5.4,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 5.4
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -883,7 +1423,7 @@ const laptops = [
         "brand": "Acer",
         "price": 9200,
         "oldPrice": 10500,
-        "image": "images/products/nitro5.png",
+        "image": "images/products/acer-nitro-5-1781271962.webp",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -899,11 +1439,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 14,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.1,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 5.8,
+            "portability": 5.1,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -912,7 +1470,7 @@ const laptops = [
         "brand": "Acer",
         "price": 8800,
         "oldPrice": 9800,
-        "image": "images/products/nitro-v15.png",
+        "image": "images/products/acer-nitro-v-15-1781269115.jpg",
         "usageCategory": "gaming",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -928,11 +1486,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 11,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.4,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 9.9
+            "performance": 5.8,
+            "portability": 5.5,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 7.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -941,7 +1517,7 @@ const laptops = [
         "brand": "Acer",
         "price": 5200,
         "oldPrice": null,
-        "image": "images/products/aspire5.png",
+        "image": "images/products/acer-aspire-5-1781269611.jpg",
         "usageCategory": "student",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -957,11 +1533,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 17,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5.2,
-            "performance": 6.5,
+            "performance": 4.5,
+            "portability": 7.8,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 6.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -970,7 +1564,7 @@ const laptops = [
         "brand": "Acer",
         "price": 8500,
         "oldPrice": 9500,
-        "image": "images/products/swift-go14.png",
+        "image": "images/products/acer-swift-go-14-1781269400.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 14,
@@ -986,11 +1580,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 9,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 7.7,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.9
+            "performance": 5.1,
+            "portability": 9.7,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 8.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -999,7 +1611,7 @@ const laptops = [
         "brand": "Acer",
         "price": 22000,
         "oldPrice": 24500,
-        "image": "images/products/predator-helios16.png",
+        "image": "images/products/acer-predator-helios-16-1781266296.jpg",
         "usageCategory": "gaming",
         "portabilityTier": "desktop_replacement",
         "screenSize": 16,
@@ -1015,11 +1627,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 4,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 2.5,
-            "performance": 9.6,
-            "screen": 9,
-            "value": 8.7
+            "performance": 7.3,
+            "portability": 5.4,
+            "screen": 8.7,
+            "ai": 1,
+            "value": 3.7
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1028,7 +1658,7 @@ const laptops = [
         "brand": "HP",
         "price": 5500,
         "oldPrice": null,
-        "image": "images/products/pavilion15.png",
+        "image": "images/products/hp-pavilion-15-1781266088.webp",
         "usageCategory": "student",
         "portabilityTier": "standard",
         "screenSize": 15.6,
@@ -1044,11 +1674,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 16,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 5.4,
-            "performance": 6.5,
+            "performance": 4.5,
+            "portability": 7.8,
             "screen": 7,
-            "value": 9.9
+            "ai": 1,
+            "value": 6.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1057,7 +1705,7 @@ const laptops = [
         "brand": "HP",
         "price": 8800,
         "oldPrice": 9500,
-        "image": "images/products/pavilion-plus14.png",
+        "image": "images/products/hp-pavilion-plus-14-1781266019.jpg",
         "usageCategory": "student",
         "portabilityTier": "ultralight",
         "screenSize": 14,
@@ -1073,11 +1721,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 10,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 7.6,
-            "performance": 6.5,
-            "screen": 9.8,
-            "value": 9.9
+            "performance": 5.1,
+            "portability": 9.3,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 8
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1086,7 +1752,7 @@ const laptops = [
         "brand": "Apple",
         "price": 16000,
         "oldPrice": 17500,
-        "image": "images/products/macbook-air-m3-13.png",
+        "image": "images/products/macbook-air-m3-13-1781265943.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 13.6,
@@ -1102,11 +1768,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 10,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 8.5,
-            "performance": 7.8,
+            "performance": 5.1,
+            "portability": 10,
             "screen": 7,
-            "value": 9.2
+            "ai": 1,
+            "value": 4.7
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1115,7 +1799,7 @@ const laptops = [
         "brand": "Apple",
         "price": 19500,
         "oldPrice": 21000,
-        "image": "images/products/macbook-air-m3-15.png",
+        "image": "images/products/macbook-air-m3-15-1781265861.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 15.3,
@@ -1131,11 +1815,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 8,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 6.3,
-            "performance": 7.8,
+            "performance": 5.1,
+            "portability": 9.3,
             "screen": 7,
-            "value": 8.6
+            "ai": 1,
+            "value": 3.8
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1144,7 +1846,7 @@ const laptops = [
         "brand": "Apple",
         "price": 22000,
         "oldPrice": 23999,
-        "image": "images/products/macbook-pro-m4-14.png",
+        "image": "images/products/macbook-pro-m4-14-1781265695.webp",
         "usageCategory": "creative",
         "portabilityTier": "ultralight",
         "screenSize": 14.2,
@@ -1160,11 +1862,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 7,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 7.1,
-            "performance": 7.5,
-            "screen": 9.8,
-            "value": 8.4
+            "performance": 5.1,
+            "portability": 9.2,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 3.6
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1173,7 +1893,7 @@ const laptops = [
         "brand": "Apple",
         "price": 34000,
         "oldPrice": 36999,
-        "image": "images/products/macbook-pro-m4-16.png",
+        "image": "images/products/macbook-pro-m4-pro-16-1781265621.jpg",
         "usageCategory": "creative",
         "portabilityTier": "standard",
         "screenSize": 16.2,
@@ -1189,11 +1909,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": null,
+        "npuTops": 0,
+        "npuVendor": "None",
+        "isCopilotPlus": false,
+        "aiTier": "none",
         "scores": {
-            "portability": 3.7,
-            "performance": 7.5,
-            "screen": 9.8,
-            "value": 6.4
+            "performance": 5.5,
+            "portability": 7.2,
+            "screen": 9.5,
+            "ai": 1,
+            "value": 2.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1202,7 +1940,7 @@ const laptops = [
         "brand": "Samsung",
         "price": 17000,
         "oldPrice": 18500,
-        "image": "images/products/galaxy-book4-pro.png",
+        "image": "images/products/samsung-galaxy-book4-pro-1781265514.webp",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 14,
@@ -1218,11 +1956,29 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 11,
+        "npuVendor": "Intel",
+        "isCopilotPlus": false,
+        "aiTier": "basic",
         "scores": {
-            "portability": 8.4,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.3
+            "performance": 5.4,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 2.2,
+            "value": 5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     },
     {
@@ -1231,7 +1987,7 @@ const laptops = [
         "brand": "Samsung",
         "price": 13500,
         "oldPrice": 14999,
-        "image": "images/products/galaxy-book4-360.png",
+        "image": "images/products/samsung-galaxy-book4-360-1781265427.jpg",
         "usageCategory": "business",
         "portabilityTier": "ultralight",
         "screenSize": 15.6,
@@ -1247,11 +2003,673 @@ const laptops = [
         },
         "inStock": true,
         "stockQuantity": 7,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 11,
+        "npuVendor": "Intel",
+        "isCopilotPlus": false,
+        "aiTier": "basic",
         "scores": {
-            "portability": 5.9,
-            "performance": 7.8,
-            "screen": 9.8,
-            "value": 9.9
+            "performance": 5.2,
+            "portability": 9,
+            "screen": 9.5,
+            "ai": 2.2,
+            "value": 5.9
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 44,
+        "name": "ASUS TUF Gaming A14 AI",
+        "brand": "ASUS",
+        "price": 21500,
+        "oldPrice": 23500,
+        "image": "images/products/asus-tuf-gaming-a14-ai-1781265334.webp",
+        "usageCategory": "gaming",
+        "portabilityTier": "ultralight",
+        "screenSize": 14,
+        "screenQuality": "high_refresh",
+        "gpuTier": "dedicated",
+        "batteryWh": 73,
+        "weightKg": 1.46,
+        "specs": {
+            "CPU": "AMD Ryzen AI 9 HX 370",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe Gen4 SSD",
+            "GPU": "NVIDIA GeForce RTX 4060 8GB",
+            "NPU": "AMD XDNA2 up to 50 TOPS",
+            "Source": "ASUS TUF Gaming A14 official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 9.6,
+            "portability": 9.6,
+            "screen": 8.7,
+            "ai": 10,
+            "value": 5.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 45,
+        "name": "ASUS ROG Zephyrus G16 AI GA605",
+        "brand": "ASUS",
+        "price": 28900,
+        "oldPrice": 30900,
+        "image": "images/products/asus-rog-zephyrus-g16-ai-ga605-1781265235.jpg",
+        "usageCategory": "gaming",
+        "portabilityTier": "ultralight",
+        "screenSize": 16,
+        "screenQuality": "oled",
+        "gpuTier": "dedicated",
+        "batteryWh": 90,
+        "weightKg": 1.85,
+        "specs": {
+            "CPU": "AMD Ryzen AI 9 HX 370",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe Gen4 SSD",
+            "GPU": "NVIDIA GeForce RTX 4070 Laptop GPU",
+            "Display": "16-inch OLED 2.5K 240Hz",
+            "NPU": "AMD XDNA2 up to 50 TOPS",
+            "Source": "ROG Zephyrus G16 GA605 official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 4,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 9.6,
+            "portability": 8.4,
+            "screen": 9.5,
+            "ai": 10,
+            "value": 4.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 46,
+        "name": "ASUS ProArt P16 H7606",
+        "brand": "ASUS",
+        "price": 34900,
+        "oldPrice": 37900,
+        "image": "images/products/asus-proart-p16-h7606-1781265038.jpg",
+        "usageCategory": "creative",
+        "portabilityTier": "standard",
+        "screenSize": 16,
+        "screenQuality": "oled",
+        "gpuTier": "dedicated",
+        "batteryWh": 90,
+        "weightKg": 1.85,
+        "specs": {
+            "CPU": "AMD Ryzen AI 9 HX 370",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe Gen4 SSD",
+            "GPU": "NVIDIA GeForce RTX 4070 Laptop GPU",
+            "Display": "16-inch 4K OLED touchscreen",
+            "NPU": "AMD XDNA2 up to 50 TOPS",
+            "Source": "ASUS ProArt P16 official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 3,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 9.6,
+            "portability": 8.4,
+            "screen": 9.5,
+            "ai": 10,
+            "value": 3.4
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 47,
+        "name": "ASUS Vivobook S 15 S5507 Copilot+",
+        "brand": "ASUS",
+        "price": 18500,
+        "oldPrice": 20500,
+        "image": "images/products/asus-vivobook-s-15-s5507-copilot-1781264758.jpg",
+        "usageCategory": "business",
+        "portabilityTier": "ultralight",
+        "screenSize": 15.6,
+        "screenQuality": "oled",
+        "gpuTier": "integrated",
+        "batteryWh": 70,
+        "weightKg": 1.42,
+        "specs": {
+            "CPU": "Snapdragon X Elite X1E-78-100",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe SSD",
+            "GPU": "Qualcomm Adreno",
+            "NPU": "Qualcomm Hexagon up to 45 TOPS",
+            "Source": "ASUS Vivobook S 15 S5507 official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 8,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Qualcomm Hexagon",
+        "npuTops": 45,
+        "npuVendor": "Qualcomm",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 8.2,
+            "portability": 9.7,
+            "screen": 9.5,
+            "ai": 9,
+            "value": 6.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 48,
+        "name": "Lenovo Yoga Slim 7x 14Q8X9",
+        "brand": "Lenovo",
+        "price": 21500,
+        "oldPrice": 23500,
+        "image": "images/products/lenovo-yoga-slim-7x-14q8x9-1781264548.webp",
+        "usageCategory": "business",
+        "portabilityTier": "ultralight",
+        "screenSize": 14.5,
+        "screenQuality": "oled",
+        "gpuTier": "integrated",
+        "batteryWh": 70,
+        "weightKg": 1.28,
+        "specs": {
+            "CPU": "Snapdragon X Elite",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe SSD",
+            "GPU": "Qualcomm Adreno",
+            "NPU": "Qualcomm Hexagon up to 45 TOPS",
+            "Source": "Lenovo PSREF Yoga Slim 7x"
+        },
+        "inStock": true,
+        "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Qualcomm Hexagon",
+        "npuTops": 45,
+        "npuVendor": "Qualcomm",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 8.2,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 9,
+            "value": 5.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 49,
+        "name": "HP OmniBook X 14 AI",
+        "brand": "HP",
+        "price": 19500,
+        "oldPrice": 21500,
+        "image": "images/products/hp-omnibook-x-14-ai-1781264475.webp",
+        "usageCategory": "business",
+        "portabilityTier": "ultralight",
+        "screenSize": 14,
+        "screenQuality": "standard",
+        "gpuTier": "integrated",
+        "batteryWh": 59,
+        "weightKg": 1.34,
+        "specs": {
+            "CPU": "Snapdragon X Elite X1E-78-100",
+            "RAM": "16GB LPDDR5X",
+            "Storage": "1TB PCIe SSD",
+            "GPU": "Qualcomm Adreno",
+            "NPU": "Qualcomm Hexagon",
+            "Source": "HP OmniBook X 14 official support specs"
+        },
+        "inStock": true,
+        "stockQuantity": 6,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Qualcomm Hexagon",
+        "npuTops": 45,
+        "npuVendor": "Qualcomm",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 7.4,
+            "portability": 9.8,
+            "screen": 7,
+            "ai": 9,
+            "value": 5.3
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 50,
+        "name": "Dell XPS 13 9345 Copilot+",
+        "brand": "Dell",
+        "price": 20500,
+        "oldPrice": 22500,
+        "image": "images/products/dell-xps-13-9345-copilot-1781264354.jpg",
+        "usageCategory": "business",
+        "portabilityTier": "ultralight",
+        "screenSize": 13.4,
+        "screenQuality": "oled",
+        "gpuTier": "integrated",
+        "batteryWh": 55,
+        "weightKg": 1.18,
+        "specs": {
+            "CPU": "Snapdragon X Elite X1E-80-100",
+            "RAM": "16GB LPDDR5X",
+            "Storage": "512GB PCIe SSD",
+            "GPU": "Qualcomm Adreno",
+            "NPU": "Qualcomm Hexagon up to 45 TOPS",
+            "Source": "Dell XPS 13 9345 official configuration"
+        },
+        "inStock": true,
+        "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "Qualcomm Hexagon",
+        "npuTops": 45,
+        "npuVendor": "Qualcomm",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 7.1,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 9,
+            "value": 5.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 51,
+        "name": "ASUS Zenbook S 16 UM5606",
+        "brand": "ASUS",
+        "price": 24500,
+        "oldPrice": 26500,
+        "image": "images/products/asus-zenbook-s-16-um5606-1781264285.png",
+        "usageCategory": "creative",
+        "portabilityTier": "ultralight",
+        "screenSize": 16,
+        "screenQuality": "oled",
+        "gpuTier": "integrated",
+        "batteryWh": 78,
+        "weightKg": 1.5,
+        "specs": {
+            "CPU": "AMD Ryzen AI 9 HX 370",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe Gen4 SSD",
+            "GPU": "AMD Radeon 890M",
+            "Display": "16-inch 3K OLED",
+            "NPU": "AMD XDNA2 up to 50 TOPS",
+            "Source": "ASUS Zenbook S 16 official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 5,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 8.4,
+            "portability": 9.6,
+            "screen": 9.5,
+            "ai": 10,
+            "value": 4.7
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 52,
+        "name": "Acer Swift 14 AI AMD",
+        "brand": "Acer",
+        "price": 16500,
+        "oldPrice": 18500,
+        "image": "images/products/acer-swift-14-ai-amd-1781264085.jpg",
+        "usageCategory": "business",
+        "portabilityTier": "ultralight",
+        "screenSize": 14,
+        "screenQuality": "oled",
+        "gpuTier": "integrated",
+        "batteryWh": 75,
+        "weightKg": 1.32,
+        "specs": {
+            "CPU": "AMD Ryzen AI 9 365",
+            "RAM": "32GB LPDDR5X",
+            "Storage": "1TB PCIe SSD",
+            "GPU": "AMD Radeon 880M",
+            "NPU": "Ryzen AI up to 50 TOPS",
+            "Source": "Acer Swift 14 AI AMD official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 7,
+        "category": "laptop",
+        "formFactor": null,
+        "dimensions": null,
+        "coolingType": null,
+        "maxDisplays": 1,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 8.4,
+            "portability": 10,
+            "screen": 9.5,
+            "ai": 10,
+            "value": 7.1
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 53,
+        "name": "ASUS NUC 14 Pro AI",
+        "brand": "ASUS",
+        "price": 14500,
+        "oldPrice": 15900,
+        "image": "images/products/asus-nuc-14-pro-ai-1781263906.jpg",
+        "usageCategory": "business",
+        "portabilityTier": "desktop_replacement",
+        "screenSize": 0,
+        "screenQuality": "standard",
+        "gpuTier": "integrated",
+        "batteryWh": 0,
+        "weightKg": 0.5,
+        "specs": {
+            "CPU": "Intel Core Ultra 9 288V",
+            "RAM": "32GB LPDDR5X-8533",
+            "Storage": "1TB M.2 PCIe 4.0 SSD",
+            "GPU": "Intel Arc 140V",
+            "Network": "Wi-Fi 7, 2.5G LAN",
+            "NPU": "Intel AI Boost up to 48 TOPS",
+            "Source": "ASUS NUC 14 Pro AI official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 8,
+        "category": "mini_pc",
+        "formFactor": "Mini PC",
+        "dimensions": "130 x 130 x 34 mm",
+        "coolingType": "active",
+        "maxDisplays": 3,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 48,
+        "npuVendor": "Intel",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 8.3,
+            "portability": 10,
+            "screen": 1,
+            "ai": 9.6,
+            "value": 6.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 54,
+        "name": "ASUS ExpertCenter PN54",
+        "brand": "ASUS",
+        "price": 16800,
+        "oldPrice": 18500,
+        "image": "images/products/asus-expertcenter-pn54-1781263807.jpg",
+        "usageCategory": "business",
+        "portabilityTier": "desktop_replacement",
+        "screenSize": 0,
+        "screenQuality": "standard",
+        "gpuTier": "integrated",
+        "batteryWh": 0,
+        "weightKg": 0.7,
+        "specs": {
+            "CPU": "AMD Ryzen AI 7 350",
+            "RAM": "32GB DDR5",
+            "Storage": "1TB PCIe SSD",
+            "GPU": "AMD Radeon 860M",
+            "Network": "Wi-Fi 7, optional dual 2.5G LAN",
+            "NPU": "AMD XDNA2 up to 50 TOPS",
+            "Source": "ASUS ExpertCenter PN54 official press/specs"
+        },
+        "inStock": true,
+        "stockQuantity": 6,
+        "category": "mini_pc",
+        "formFactor": "Mini PC",
+        "dimensions": "130 x 130 x 34 mm",
+        "coolingType": "active",
+        "maxDisplays": 4,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "copilot",
+        "scores": {
+            "performance": 8.4,
+            "portability": 10,
+            "screen": 1,
+            "ai": 10,
+            "value": 5.7
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 55,
+        "name": "MSI Cubi NUC AI 1UMG",
+        "brand": "MSI",
+        "price": 13200,
+        "oldPrice": 14500,
+        "image": "images/products/msi-cubi-nuc-ai-1umg-1781263729.jpg",
+        "usageCategory": "business",
+        "portabilityTier": "desktop_replacement",
+        "screenSize": 0,
+        "screenQuality": "standard",
+        "gpuTier": "integrated",
+        "batteryWh": 0,
+        "weightKg": 0.51,
+        "specs": {
+            "CPU": "Intel Core Ultra 7 155H",
+            "RAM": "32GB DDR5",
+            "Storage": "1TB M.2 SSD",
+            "GPU": "Intel Arc Graphics",
+            "Network": "Dual 2.5G LAN",
+            "NPU": "Intel AI Boost",
+            "Source": "MSI Cubi NUC AI 1UMG official specs"
+        },
+        "inStock": true,
+        "stockQuantity": 10,
+        "category": "mini_pc",
+        "formFactor": "Mini PC",
+        "dimensions": "0.51 L chassis",
+        "coolingType": "active",
+        "maxDisplays": 3,
+        "npuModel": "Intel AI Boost",
+        "npuTops": 11,
+        "npuVendor": "Intel",
+        "isCopilotPlus": false,
+        "aiTier": "basic",
+        "scores": {
+            "performance": 6.5,
+            "portability": 10,
+            "screen": 1,
+            "ai": 2.2,
+            "value": 5.5
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
+        }
+    },
+    {
+        "id": 56,
+        "name": "MINIX Elite ER939-AI",
+        "brand": "MINIX",
+        "price": 42000,
+        "oldPrice": 45500,
+        "image": "images/products/minix-elite-er939-ai-1781263534.jpg",
+        "usageCategory": "creative",
+        "portabilityTier": "desktop_replacement",
+        "screenSize": 0,
+        "screenQuality": "standard",
+        "gpuTier": "integrated",
+        "batteryWh": 0,
+        "weightKg": 1.2,
+        "specs": {
+            "CPU": "AMD Ryzen AI Max+ 395",
+            "RAM": "128GB LPDDR5X",
+            "Storage": "2TB NVMe SSD",
+            "GPU": "AMD Radeon 8060S",
+            "NPU": "AMD XDNA2 NPU up to 50 TOPS",
+            "Total AI TOPS": "126",
+            "Source": "MINIX ER939-AI launch coverage and listed specifications"
+        },
+        "inStock": true,
+        "stockQuantity": 2,
+        "category": "workstation",
+        "formFactor": "AI Mini Workstation",
+        "dimensions": "Compact desktop",
+        "coolingType": "active",
+        "maxDisplays": 4,
+        "npuModel": "AMD XDNA2",
+        "npuTops": 50,
+        "npuVendor": "AMD",
+        "isCopilotPlus": true,
+        "aiTier": "workstation",
+        "scores": {
+            "performance": 8.4,
+            "portability": 9.2,
+            "screen": 1,
+            "ai": 10,
+            "value": 2.2
+        },
+        "scoreBasis": {
+            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
+            "portability": "Weight, battery Wh, and screen size from catalog specs",
+            "screen": "Stored screen class: OLED, high refresh, or standard",
+            "ai": "NPU TOPS from researched product/spec data",
+            "value": "Catalog fact score divided by stored Maroc PC price"
         }
     }
 ];

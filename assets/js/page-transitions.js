@@ -112,25 +112,32 @@
       <div class="pt-door pt-door-bottom"></div>
       <div class="pt-terminal">
         <div class="pt-core"></div>
-        <div class="pt-boot-text">> INITIALIZING...</div>
+        <div class="pt-boot-text" id="pt-boot-text-init"></div>
       </div>
     `;
     document.body.appendChild(overlay);
 
     const bootTextEl = overlay.querySelector('.pt-boot-text');
     
+    // Set initial text with translation
+    const i18nInit = window.__marocPcI18n || {};
+    bootTextEl.textContent = i18nInit.ptInitializing || "> INITIALIZING...";
+    
+    // Get translations from global i18n object
+    const i18n = window.__marocPcI18n || {};
+    
     const bootMessages = [
-      "> MOUNTING KERNEL...",
-      "> ALLOCATING MEMORY...",
-      "> ESTABLISHING SECURE UPLINK...",
-      "> LOADING MAROC PC PROTOCOLS...",
-      "> SYSTEM READY."
+      i18n.ptMountingKernel || "> MOUNTING KERNEL...",
+      i18n.ptAllocatingMemory || "> ALLOCATING MEMORY...",
+      i18n.ptEstablishingUplink || "> ESTABLISHING SECURE UPLINK...",
+      i18n.ptLoadingProtocols || "> LOADING MAROC PC PROTOCOLS...",
+      i18n.ptSystemReady || "> SYSTEM READY."
     ];
 
     // Show transition (close doors)
     function showTransition() {
       overlay.classList.remove('hidden');
-      bootTextEl.textContent = "> REBOOTING...";
+      bootTextEl.textContent = i18n.ptRebooting || "> REBOOTING...";
     }
 
     // Hide transition (open blast doors)

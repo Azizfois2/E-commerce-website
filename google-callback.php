@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/two-factor-helpers.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (GOOGLE_CLIENT_ID === '' || GOOGLE_CLIENT_SECRET === '') {
@@ -7,7 +8,7 @@ if (GOOGLE_CLIENT_ID === '' || GOOGLE_CLIENT_SECRET === '') {
     exit();
 }
 
-function safeRedirectTarget(?string $target, string $fallback = 'index.html'): string
+function safeRedirectTarget(?string $target, string $fallback = 'index.php'): string
 {
     $target = trim((string) $target);
     if ($target === '') {
@@ -75,6 +76,7 @@ if (isset($_GET['code'])) {
         $google_id = $payload['sub']; // 'sub' is the unique Google ID
         
         $pdo = db();
+        twoFactorEnsureColumns($pdo);
         
         // Check if user exists by google_id
         $stmt = $pdo->prepare("SELECT * FROM Client WHERE google_id = ?");
@@ -104,6 +106,10 @@ if (isset($_GET['code'])) {
             }
         }
         
+        if (!empty($user['two_factor_enabled'])) {
+            twoFactorStartLoginChallenge($user, $next, false, null);
+        }
+
         // Log in the user
         session_regenerate_id(true);
         $_SESSION["client_id"] = $user["id_client"];
@@ -122,7 +128,7 @@ if (isset($_GET['code'])) {
     }
 } else {
     // Generate auth URL and redirect
-    $next = safeRedirectTarget($_GET['next'] ?? $_GET['state'] ?? 'index.html');
+    $next = safeRedirectTarget($_GET['next'] ?? $_GET['state'] ?? 'index.php');
     $_SESSION['google_oauth_state'] = bin2hex(random_bytes(24));
     $_SESSION['google_oauth_next'] = $next;
     $client->setState($_SESSION['google_oauth_state']);

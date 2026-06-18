@@ -26,7 +26,7 @@ $success = '';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!verifyCsrf($_POST[CSRF_TOKEN_NAME] ?? null)) {
-        $error = 'Invalid session token.';
+        $error = adminPhrase('Invalid session token.');
     } else {
         $action = trim((string) ($_POST['action'] ?? ''));
 
@@ -35,7 +35,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if ($reportId > 0) {
                 $pdo->prepare("DELETE FROM hardware_diagnostic_reports WHERE id = ?")->execute([$reportId]);
                 adminLogActivity($pdo, 'delete', 'diagnostic_report', $reportId, "Deleted hardware diagnostic report #{$reportId}");
-                $success = 'Diagnostic report deleted successfully.';
+                $success = adminPhrase('Diagnostic report deleted successfully.');
             }
         }
     }
@@ -64,13 +64,13 @@ adminPageStart('Hardware Diagnostics', 'diagnostics');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">Quality Assurance & Testing</span>
-        <h1>Hardware Diagnostics</h1>
-        <p class="section-copy">Upload benchmark specs, temperature thresholds, and detailed diagnostics profiles for high-end custom built rigs.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Quality Assurance & Testing')) ?></span>
+        <h1><?= adminH(adminPhrase('Hardware Diagnostics')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Upload benchmark specs, temperature thresholds, and detailed diagnostics profiles for high-end custom built rigs.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-orders.php">Active Orders</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-orders.php"><?= adminH(adminPhrase('Active Orders')) ?></a>
     </div>
 </section>
 
@@ -80,84 +80,84 @@ adminPageStart('Hardware Diagnostics', 'diagnostics');
 <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:24px;margin-bottom:24px">
     <!-- Upload Form -->
     <section class="table-card" style="margin-bottom:0">
-        <div class="card-head"><h2>Upload Diagnostic Report</h2></div>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Upload Diagnostic Report')) ?></h2></div>
         <form id="diagnosticsUploadForm" style="padding:20px;display:flex;flex-direction:column;gap:16px">
             <label>
-                Select Active Build Order
+                <?= adminH(adminPhrase('Select Active Build Order')) ?>
                 <select id="diagOrderId" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
-                    <option value="">-- Choose Build Order --</option>
+                    <option value=""><?= adminH(adminPhrase('-- Choose Build Order --')) ?></option>
                     <?php foreach ($orders as $o): ?>
-                        <option value="<?= (int)$o['id'] ?>">Order #<?= (int)$o['id'] ?> - <?= adminH($o['client_name'] ?: 'Unknown Client') ?> (Status: <?= adminH($o['assembly_status']) ?>)</option>
+                        <option value="<?= (int)$o['id'] ?>"><?= adminH(adminPhrase('Order #{id} - {client} (Status: {status})', ['id' => (int) $o['id'], 'client' => $o['client_name'] ?: adminPhrase('Unknown Client'), 'status' => adminStatusLabel($o['assembly_status'])])) ?></option>
                     <?php endforeach; ?>
                 </select>
             </label>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <label>
-                    Component Type
+                    <?= adminH(adminPhrase('Component Type')) ?>
                     <select id="diagComponent" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
-                        <option value="system">System (Overall)</option>
-                        <option value="cpu">Processor (CPU)</option>
-                        <option value="gpu">Graphics Card (GPU)</option>
-                        <option value="ram">Memory (RAM)</option>
-                        <option value="storage">Storage SSD</option>
+                        <option value="system"><?= adminH(adminPhrase('System (Overall)')) ?></option>
+                        <option value="cpu"><?= adminH(adminPhrase('Processor (CPU)')) ?></option>
+                        <option value="gpu"><?= adminH(adminPhrase('Graphics Card (GPU)')) ?></option>
+                        <option value="ram"><?= adminH(adminPhrase('Memory (RAM)')) ?></option>
+                        <option value="storage"><?= adminH(adminPhrase('Storage SSD')) ?></option>
                     </select>
                 </label>
 
                 <label>
-                    Test / Benchmark Name
-                    <input type="text" id="diagTestName" placeholder="e.g. 3DMark TimeSpy" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
+                    <?= adminH(adminPhrase('Test / Benchmark Name')) ?>
+                    <input type="text" id="diagTestName" placeholder="<?= adminH(adminPhrase('e.g. 3DMark TimeSpy')) ?>" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <label>
-                    Benchmark Score (Optional)
-                    <input type="number" id="diagScore" placeholder="e.g. 18200" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
+                    <?= adminH(adminPhrase('Benchmark Score (Optional)')) ?>
+                    <input type="number" id="diagScore" placeholder="<?= adminH(adminPhrase('e.g. 18200')) ?>" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
 
                 <label>
-                    Max Temperature reached (°C)
-                    <input type="number" id="diagTemp" placeholder="e.g. 74" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
+                    <?= adminH(adminPhrase('Max Temperature reached (°C)')) ?>
+                    <input type="number" id="diagTemp" placeholder="<?= adminH(adminPhrase('e.g. 74')) ?>" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text)">
                 </label>
             </div>
 
             <label>
-                Diagnostic Logs / Notes
-                <textarea id="diagDetails" placeholder="Add specific hardware metrics or notes..." rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text);font-family:inherit"></textarea>
+                <?= adminH(adminPhrase('Diagnostic Logs / Notes')) ?>
+                <textarea id="diagDetails" placeholder="<?= adminH(adminPhrase('Add specific hardware metrics or notes...')) ?>" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--page-bg);color:var(--text);font-family:inherit"></textarea>
             </label>
 
             <button type="button" onclick="uploadDiagnosticReport()" class="button button-primary" style="margin-top:8px">
-                <i class="fas fa-upload"></i> Upload Diagnostic Profile
+                <i class="fas fa-upload"></i> <?= adminH(adminPhrase('Upload Diagnostic Profile')) ?>
             </button>
         </form>
     </section>
 
     <!-- Uploaded Reports List -->
     <section class="table-card" style="margin-bottom:0">
-        <div class="card-head"><h2>Recent Diagnostics Reports</h2></div>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Recent Diagnostics Reports')) ?></h2></div>
         <div style="padding:16px;max-height:600px;overflow-y:auto">
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Order</th>
-                        <th>Component</th>
-                        <th>Test / Score</th>
-                        <th>Max Temp</th>
-                        <th>Actions</th>
+                        <th><?= adminH(adminPhrase('ID')) ?></th>
+                        <th><?= adminH(adminPhrase('Order')) ?></th>
+                        <th><?= adminH(adminPhrase('Component')) ?></th>
+                        <th><?= adminH(adminPhrase('Test / Score')) ?></th>
+                        <th><?= adminH(adminPhrase('Max Temp')) ?></th>
+                        <th><?= adminH(adminPhrase('Actions')) ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($reports === []): ?>
-                        <tr><td colspan="6">No diagnostic reports uploaded yet.</td></tr>
+                        <tr><td colspan="6"><?= adminH(adminPhrase('No diagnostic reports uploaded yet.')) ?></td></tr>
                     <?php endif; ?>
                     <?php foreach ($reports as $r): ?>
                         <tr id="report-row-<?= (int)$r['id'] ?>">
                             <td>#<?= (int)$r['id'] ?></td>
                             <td>
-                                <strong>Order #<?= (int)$r['order_id'] ?></strong>
-                                <small style="display:block"><?= adminH($r['client_name'] ?: 'Anonymous') ?></small>
+                                <strong><?= adminH(adminPhrase('Order #{id}', ['id' => (int) $r['order_id']])) ?></strong>
+                                <small style="display:block"><?= adminH($r['client_name'] ?: adminPhrase('Anonymous')) ?></small>
                             </td>
                             <td><span class="status-badge is-info"><?= adminH(strtoupper($r['component_type'])) ?></span></td>
                             <td>
@@ -170,7 +170,7 @@ adminPageStart('Hardware Diagnostics', 'diagnostics');
                                 </span>
                             </td>
                             <td>
-                                <form method="post" style="display:inline-block" onsubmit="return confirm('Delete this diagnostic report?')">
+                                <form method="post" style="display:inline-block" onsubmit="return confirm(<?= i18n_script_json(adminPhrase('Delete this diagnostic report?')) ?>)">
                                     <?= csrfField() ?>
                                     <input type="hidden" name="action" value="delete_report">
                                     <input type="hidden" name="report_id" value="<?= (int)$r['id'] ?>">
@@ -195,7 +195,7 @@ async function uploadDiagnosticReport() {
     const details = document.getElementById('diagDetails').value;
 
     if (!orderId || !testName) {
-        alert('Please select an active order and enter a test name.');
+        alert(<?= i18n_script_json(adminPhrase('Please select an active order and enter a test name.')) ?>);
         return;
     }
 
@@ -216,14 +216,14 @@ async function uploadDiagnosticReport() {
 
         const data = await res.json();
         if (data.success) {
-            alert('Diagnostic report uploaded successfully! 🎉');
+            alert(<?= i18n_script_json(adminPhrase('Diagnostic report uploaded successfully!')) ?>);
             location.reload();
         } else {
-            alert(data.error || 'Failed to upload diagnostic report.');
+            alert(data.error || <?= i18n_script_json(adminPhrase('Failed to upload diagnostic report.')) ?>);
         }
     } catch (e) {
         console.error(e);
-        alert('An error occurred during upload.');
+        alert(<?= i18n_script_json(adminPhrase('An error occurred during upload.')) ?>);
     }
 }
 </script>

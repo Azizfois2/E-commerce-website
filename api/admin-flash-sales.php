@@ -2,7 +2,7 @@
 /**
  * api/admin-flash-sales.php — Admin CRUD for flash sales.
  *
- * POST { action: "create", product_id, sale_price, starts_at, ends_at, max_quantity? }
+ * POST { action: "create", product_id, sale_price, starts_at, ends_at, max_quantity?, event_name?, event_badge?, event_note? }
  * POST { action: "delete", id }
  * GET  → list all flash sales (active + upcoming + expired)
  */
@@ -11,11 +11,7 @@ require_once dirname(__DIR__) . '/admin-helpers.php';
 
 header('Content-Type: application/json');
 
-if (empty($_SESSION['admin_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Admin authentication required']);
-    exit;
-}
+adminRequireJsonAuth();
 
 $pdo = db();
 adminEnsureFlashSalesTable($pdo);
@@ -48,6 +44,9 @@ switch ($action) {
         $startsAt = $input['starts_at'] ?? '';
         $endsAt = $input['ends_at'] ?? '';
         $maxQty = !empty($input['max_quantity']) ? (int) $input['max_quantity'] : null;
+        $eventName = trim((string) ($input['event_name'] ?? ''));
+        $eventBadge = trim((string) ($input['event_badge'] ?? ''));
+        $eventNote = trim((string) ($input['event_note'] ?? ''));
 
         if (!$productId || !$salePrice || !$startsAt || !$endsAt) {
             echo json_encode(['success' => false, 'error' => 'Missing required fields.']);
@@ -70,10 +69,20 @@ switch ($action) {
         }
 
         $stmt = $pdo->prepare("
-            INSERT INTO flash_sales (product_id, sale_price, original_price, max_quantity, starts_at, ends_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO flash_sales (product_id, sale_price, original_price, max_quantity, event_name, event_badge, event_note, starts_at, ends_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$productId, $salePrice, $product['price'], $maxQty, $startsAt, $endsAt]);
+        $stmt->execute([
+            $productId,
+            $salePrice,
+            $product['price'],
+            $maxQty,
+            $eventName !== '' ? $eventName : null,
+            $eventBadge !== '' ? $eventBadge : null,
+            $eventNote !== '' ? $eventNote : null,
+            $startsAt,
+            $endsAt,
+        ]);
 
         echo json_encode(['success' => true, 'message' => 'Flash sale created!', 'id' => $pdo->lastInsertId()]);
         break;

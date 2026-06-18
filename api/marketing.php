@@ -8,6 +8,7 @@
  * POST { action: "save_template", ... } (admin)
  */
 require_once dirname(__DIR__) . '/bootstrap.php';
+require_once dirname(__DIR__) . '/admin-helpers.php';
 header('Content-Type: application/json');
 
 $pdo = db();
@@ -33,11 +34,7 @@ if ($method === 'GET') {
     }
 
     // Admin routes
-    if (empty($_SESSION['admin_id'])) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Unauthorized']);
-        exit;
-    }
+    adminRequireJsonAuth();
 
     if ($action === 'newsletter_templates') {
         $stmt = $pdo->query("SELECT * FROM newsletter_campaign_templates ORDER BY created_at DESC");
@@ -50,11 +47,7 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
-    if (empty($_SESSION['admin_id'])) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Unauthorized']);
-        exit;
-    }
+    adminRequireJsonAuth();
 
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? '';

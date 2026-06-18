@@ -57,12 +57,13 @@ const CommunityBuilds = (() => {
     }
 
     async function loadShowcases(page = 1) {
+        const t = (key, fallback) => window.__marocPcI18n?.[key] || fallback;
         currentPage = page;
         const grid = document.getElementById('communityBuildsGrid');
         const pagination = document.getElementById('communityBuildsPagination');
         if (!grid) return;
 
-        grid.innerHTML = '<div class="cb-loading"><i class="fas fa-spinner fa-spin"></i> Loading community builds...</div>';
+        grid.innerHTML = `<div class="cb-loading"><i class="fas fa-spinner fa-spin"></i> ${t('cbLoading', 'Loading community builds...')}</div>`;
 
         try {
             const res = await fetch(`${API}?action=list&sort=${currentSort}&page=${page}`, { credentials: 'same-origin' });
@@ -117,31 +118,33 @@ const CommunityBuilds = (() => {
     }
 
     function renderShowcaseCard(showcase) {
+        const t = (key, fallback) => window.__marocPcI18n?.[key] || fallback;
         const gallery = showcase.image_gallery || [];
         const thumb = gallery[0] || 'logo.png';
-        const date = new Date(showcase.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const locale = document.documentElement.lang || 'en';
+        const date = new Date(showcase.created_at).toLocaleDateString(locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
         const upvoteActive = showcase.user_upvoted ? 'active' : '';
         const favoriteActive = showcase.user_favorited ? 'active' : '';
 
         return `
-            <div class="cb-card">
+            <div class="cb-card" onclick="CommunityBuilds.showDetail(${showcase.id})">
                 <div class="cb-card-thumb">
-                    <img src="${thumb}" alt="${showcase.title}" onerror="this.src='logo.png'">
+                    <img src="${thumb}" alt="${escapeHTML(showcase.title)}" onerror="this.src='logo.png'">
                     <span class="cb-card-views"><i class="fas fa-eye"></i> ${showcase.view_count || 0}</span>
                 </div>
                 <div class="cb-card-body">
-                    <h3 class="cb-card-title">${escapeHTML(showcase.title)}</h3>
-                    <p class="cb-card-desc">${escapeHTML(showcase.description || 'No description provided.')}</p>
+                    <h3 class="cb-card-title notranslate" translate="no">${escapeHTML(showcase.title)}</h3>
+                    <p class="cb-card-desc notranslate" translate="no">${escapeHTML(showcase.description || t('cbNoDescription', 'No description provided.'))}</p>
                     <div class="cb-card-meta">
-                        <span class="cb-card-author"><i class="fas fa-user"></i> ${escapeHTML(showcase.author_name || 'Anonymous')}</span>
-                        <span class="cb-card-date"><i class="fas fa-calendar"></i> ${date}</span>
+                        <span class="cb-card-author notranslate" translate="no"><i class="fas fa-user"></i> ${escapeHTML(showcase.author_name || t('cbAnonymous', 'Anonymous'))}</span>
+                        <span class="cb-card-date notranslate" translate="no"><i class="fas fa-calendar"></i> ${date}</span>
                     </div>
                     <div class="cb-card-actions">
-                        <button class="cb-action-btn ${upvoteActive}" data-cb-upvote="${showcase.id}" title="Upvote">
+                        <button class="cb-action-btn ${upvoteActive}" onclick="event.stopPropagation(); CommunityBuilds.handleInteract(${showcase.id}, 'upvote', this)" title="${t('cbUpvote', 'Upvote')}">
                             <i class="fas fa-arrow-up"></i> <span>${showcase.upvotes || 0}</span>
                         </button>
-                        <button class="cb-action-btn ${favoriteActive}" data-cb-favorite="${showcase.id}" title="Favorite">
+                        <button class="cb-action-btn ${favoriteActive}" onclick="event.stopPropagation(); CommunityBuilds.handleInteract(${showcase.id}, 'favorite', this)" title="${t('cbFavorite', 'Favorite')}">
                             <i class="fas fa-heart"></i> <span>${showcase.favorites || 0}</span>
                         </button>
                     </div>
@@ -150,7 +153,118 @@ const CommunityBuilds = (() => {
         `;
     }
 
+    async function showDetail(showcaseId) {
+        const t = (key, fallback) => window.__marocPcI18n?.[key] || fallback;
+        const formatPrice = (price) => {
+            const locale = document.documentElement.lang || 'en';
+            const currency = locale === 'ar' ? 'د.م.' : locale === 'fr' ? 'DH' : 'DH';
+            return price ? price.toLocaleString() + ' ' + currency : '';
+        };
+        const translateCategory = (cat) => {
+            const categoryMap = {
+                'cpu': t('catCpu', 'CPU'),
+                'motherboard': t('catMotherboard', 'MOTHERBOARD'),
+                'gpu': t('catGpu', 'GPU'),
+                'ram': t('catRam', 'RAM'),
+                'storage': t('catStorage', 'STORAGE'),
+                'psu': t('catPsu', 'PSU'),
+                'case': t('catCase', 'CASE'),
+                'cooling': t('catCooling', 'COOLING'),
+                'monitor': t('catMonitor', 'MONITOR'),
+                'accessories': t('catAccessories', 'ACCESSORIES')
+            };
+            return categoryMap[cat.toLowerCase()] || cat.toUpperCase();
+        };
+        
+        try {
+            const res = await fetch(`${API}?action=view&id=${showcaseId}`, { credentials: 'same-origin' });
+            const data = await res.json();
+
+            if (data.error || !data.success || !data.showcase) {
+                if (typeof showToast === 'function') showToast(data.error || t('cbFailedLoad', 'Failed to load build details.'), 'error');
+                return;
+            }
+
+            const showcase = data.showcase;
+            const config = showcase.config_json || showcase.config || {};
+            
+            // Check if config is empty
+            if (Object.keys(config).length === 0) {
+                if (typeof showToast === 'function') showToast(t('cbNoComponents', 'This build has no components.'), 'error');
+                return;
+            }
+            
+            // Create modal HTML
+            const modalHTML = `
+                <div class="cb-detail-modal" id="cbDetailModal" onclick="CommunityBuilds.closeDetail(event)">
+                    <div class="cb-detail-content" onclick="event.stopPropagation()">
+                        <button class="cb-detail-close" onclick="CommunityBuilds.closeDetail()"><i class="fas fa-times"></i></button>
+                        <div class="cb-detail-header">
+                            <h2 class="notranslate" translate="no">${escapeHTML(showcase.title)}</h2>
+                            <p class="notranslate" translate="no">${escapeHTML(showcase.description || '')}</p>
+                            <div class="cb-detail-meta">
+                                <span class="notranslate" translate="no"><i class="fas fa-user"></i> ${escapeHTML(showcase.author_name || 'Anonymous')}</span>
+                                <span><i class="fas fa-eye"></i> ${showcase.view_count || 0} ${t('cbViews', 'views')}</span>
+                                <span><i class="fas fa-arrow-up"></i> ${showcase.upvotes || 0} ${t('cbUpvotes', 'upvotes')}</span>
+                                <span><i class="fas fa-heart"></i> ${showcase.favorites || 0} ${t('cbFavorites', 'favorites')}</span>
+                            </div>
+                        </div>
+                        <div class="cb-detail-body">
+                            <h3><i class="fas fa-list"></i> ${t('cbBuildComponents', 'Build Components')}</h3>
+                            <div class="cb-components-list">
+                                ${Object.entries(config).map(([category, component]) => `
+                                    <div class="cb-component-item">
+                                        <div class="cb-component-category">${translateCategory(category)}</div>
+                                        <div class="cb-component-details">
+                                            <strong class="notranslate" translate="no">${escapeHTML(component.name)}</strong>
+                                            <span class="notranslate" translate="no">${component.brand || ''}</span>
+                                        </div>
+                                        <div class="cb-component-price notranslate" translate="no">${formatPrice(component.price)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="cb-detail-total">
+                                <strong>${t('cbTotalPrice', 'Total Price:')}</strong>
+                                <span class="notranslate" translate="no">${formatPrice(Object.values(config).reduce((sum, c) => sum + (c.price || 0), 0))}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing modal if any
+            const existingModal = document.getElementById('cbDetailModal');
+            if (existingModal) existingModal.remove();
+
+            // Add new modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Show modal with animation
+            setTimeout(() => {
+                const modal = document.getElementById('cbDetailModal');
+                if (modal) modal.classList.add('show');
+            }, 10);
+
+        } catch (e) {
+            console.error('Failed to load build detail:', e);
+            if (typeof showToast === 'function') showToast(t('cbFailedLoad', 'Failed to load build details.'), 'error');
+        }
+    }
+
+    function closeDetail(event) {
+        const modal = document.getElementById('cbDetailModal');
+        if (!modal) return;
+        
+        // Only close if clicking the overlay or close button
+        if (!event || event.target === modal || event.target.closest('.cb-detail-close')) {
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+        }
+    }
+
     async function interact(showcaseId, type, btn) {
+        const t = (key, fallback) => window.__marocPcI18n?.[key] || fallback;
+        
         try {
             const res = await fetch(API, {
                 method: 'POST',
@@ -161,9 +275,9 @@ const CommunityBuilds = (() => {
 
             if (res.status === 401) {
                 if (typeof showToast === 'function') {
-                    showToast('Please log in to upvote or favorite community builds.', 'error');
+                    showToast(t('cbPleaseLoginInteract', 'Please log in to upvote or favorite community builds.'), 'error');
                 } else {
-                    alert('Please log in to upvote or favorite community builds.');
+                    alert(t('cbPleaseLoginInteract', 'Please log in to upvote or favorite community builds.'));
                 }
                 const modal = document.getElementById('roleModal');
                 if (modal) modal.style.display = 'flex';
@@ -180,7 +294,10 @@ const CommunityBuilds = (() => {
                 if (countSpan) countSpan.textContent = data.count;
                 btn.classList.toggle('active', data.status === 'added');
                 if (typeof showToast === 'function') {
-                    showToast(data.status === 'added' ? `${type === 'upvote' ? 'Upvote' : 'Favorite'} added!` : `${type === 'upvote' ? 'Upvote' : 'Favorite'} removed.`, 'success');
+                    const msg = data.status === 'added' 
+                        ? (type === 'upvote' ? t('cbUpvoteAdded', 'Upvote added!') : t('cbFavoriteAdded', 'Favorite added!'))
+                        : (type === 'upvote' ? t('cbUpvoteRemoved', 'Upvote removed.') : t('cbFavoriteRemoved', 'Favorite removed.'));
+                    showToast(msg, 'success');
                 }
             }
         } catch (e) {
@@ -188,7 +305,32 @@ const CommunityBuilds = (() => {
         }
     }
 
-    function openPublishModal() {
+    async function openPublishModal() {
+        const t = (key, fallback) => window.__marocPcI18n?.[key] || fallback;
+        
+        // Check if user is logged in first
+        try {
+            const checkRes = await fetch('auth-status.php', { credentials: 'same-origin' });
+            const authData = await checkRes.json();
+            console.log('Auth check response:', authData);
+            
+            if (!authData.loggedIn) {
+                console.log('User not logged in, showing login modal');
+                if (typeof showToast === 'function') {
+                    showToast(t('cbPleaseLogin', 'Please log in to publish your build.'), 'error');
+                } else {
+                    alert(t('cbPleaseLogin', 'Please log in to publish your build.'));
+                }
+                const modal = document.getElementById('roleModal');
+                if (modal) modal.style.display = 'flex';
+                return;
+            }
+            console.log('User is logged in, opening publish modal');
+        } catch (e) {
+            console.error('Auth check failed:', e);
+            // If auth check fails, allow modal to open anyway
+        }
+        
         const modal = document.getElementById('cbPublishModal');
         if (!modal) return;
 
@@ -198,22 +340,23 @@ const CommunityBuilds = (() => {
         if (titleInput) titleInput.value = buildName;
 
         modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('show'), 10);
+        setTimeout(() => modal.classList.add('is-open'), 10);
     }
 
     function closePublishModal() {
         const modal = document.getElementById('cbPublishModal');
         if (!modal) return;
-        modal.classList.remove('show');
+        modal.classList.remove('is-open');
         setTimeout(() => modal.style.display = 'none', 300);
     }
 
     async function publish() {
+        const t = (key, fallback) => window.__marocPcI18n?.[key] || fallback;
         const title = document.getElementById('cbPublishTitle')?.value?.trim();
         const description = document.getElementById('cbPublishDesc')?.value?.trim() || '';
 
         if (!title) {
-            if (typeof showToast === 'function') showToast('Please give your build a name.', 'error');
+            if (typeof showToast === 'function') showToast(t('cbPleaseGiveName', 'Please give your build a name.'), 'error');
             return;
         }
 
@@ -227,7 +370,7 @@ const CommunityBuilds = (() => {
         });
 
         if (Object.keys(config).length === 0) {
-            if (typeof showToast === 'function') showToast('Select at least one component before publishing.', 'error');
+            if (typeof showToast === 'function') showToast(t('cbSelectComponent', 'Select at least one component before publishing.'), 'error');
             return;
         }
 
@@ -238,6 +381,19 @@ const CommunityBuilds = (() => {
                 credentials: 'same-origin',
                 body: JSON.stringify({ action: 'publish', title, description, config })
             });
+
+            if (res.status === 401) {
+                if (typeof showToast === 'function') {
+                    showToast(t('cbPleaseLogin', 'Please log in to publish your build.'), 'error');
+                } else {
+                    alert(t('cbPleaseLogin', 'Please log in to publish your build.'));
+                }
+                closePublishModal();
+                const modal = document.getElementById('roleModal');
+                if (modal) modal.style.display = 'flex';
+                return;
+            }
+
             const data = await res.json();
 
             if (data.error) {
@@ -247,13 +403,13 @@ const CommunityBuilds = (() => {
 
             if (data.success) {
                 closePublishModal();
-                if (typeof showToast === 'function') showToast('Your build has been published! 🎉', 'success');
+                if (typeof showToast === 'function') showToast(t('cbPublished', 'Your build has been published! 🎉'), 'success');
                 loaded = false; // Force reload
                 loadShowcases(1);
             }
         } catch (e) {
             console.error('Publish failed:', e);
-            if (typeof showToast === 'function') showToast('Failed to publish build.', 'error');
+            if (typeof showToast === 'function') showToast(t('cbPublishFailed', 'Failed to publish build.'), 'error');
         }
     }
 
@@ -269,5 +425,5 @@ const CommunityBuilds = (() => {
         init();
     }
 
-    return { loadShowcases, openPublishModal, closePublishModal, publish };
+    return { loadShowcases, openPublishModal, closePublishModal, publish, showDetail, closeDetail, handleInteract: interact };
 })();

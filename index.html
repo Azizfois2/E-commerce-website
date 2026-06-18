@@ -28,9 +28,10 @@
     
     <title>Maroc PC | Engineering-Grade Hardware</title>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&family=Syne:wght@400;700&display=swap"
-        rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono&family=Syne:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/auth-nav.css">
@@ -42,6 +43,7 @@
         document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
         
         document.addEventListener('DOMContentLoaded', () => {
+            // Hero video theme switching
             const heroVideo = document.getElementById('heroVideo');
             if (heroVideo) {
                 const updateVideoSource = () => {
@@ -58,6 +60,24 @@
                 
                 updateVideoSource();
                 const observer = new MutationObserver(updateVideoSource);
+                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+            }
+            
+            // Laptop image theme switching
+            const laptopImage = document.getElementById('laptopImage');
+            if (laptopImage) {
+                const updateLaptopImage = () => {
+                    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+                    const newSrc = theme === 'light' ? 'laptop-light.png' : 'laptop.png';
+                    
+                    const currentSrc = laptopImage.getAttribute('src');
+                    if (currentSrc !== newSrc) {
+                        laptopImage.setAttribute('src', newSrc);
+                    }
+                };
+                
+                updateLaptopImage();
+                const observer = new MutationObserver(updateLaptopImage);
                 observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
             }
         });
@@ -92,13 +112,13 @@
       ]
     }
     </script>
-    <link rel="stylesheet" href="assets/css/cinematic-enhancements.css?v=cursor-fix-2">
+    <link rel="stylesheet" href="assets/css/cinematic-enhancements.css?v=cursor-layer-1">
 </head>
 <script src="assets/js/wishlist.js"></script>
 <script src="assets/js/data.js"></script>
-<script src="assets/js/products.js"></script>
+<script src="assets/js/products.js?v=notify-toast-1"></script>
 <script src="assets/js/performance-optimizer.js"></script>
-<script src="assets/js/cinematic-enhancements.js?v=cursor-fix-2"></script>
+<script src="assets/js/cinematic-enhancements.js?v=cursor-layer-1"></script>
 <script src="assets/js/advanced-search.js"></script>
 <script src="assets/js/page-transitions.js"></script>
 
@@ -221,7 +241,7 @@
                 <!-- HERO STATS — fixed semantic structure with icons -->
                 <div class="hero-stats">
                     <div class="hero-stat-card">
-                        <i class="fas fa-shield-check hero-stat-icon"></i>
+                        <i class="fas fa-shield-alt hero-stat-icon"></i>
                         <strong class="hero-stat-title">Authenticity Guaranteed</strong>
                         <p class="hero-stat-desc">100% genuine products from official brands.</p>
                     </div>
@@ -259,6 +279,10 @@
                     <h2>Pre-Built Lifestyle Curations</h2>
                     <p>Skip the manual builder. Surface elite outcome-mapped laptops verified by engineering experts.</p>
                 </header>
+
+                <figure class="laptop-promo-visual" aria-label="Curated laptop finder preview">
+                    <img id="laptopImage" src="laptop.png" alt="Premium laptop on an engineering workbench" loading="lazy">
+                </figure>
 
                 <div class="laptop-promo-grid">
                     <!-- 1. The Road Warrior -->
@@ -306,7 +330,7 @@
             <div class="featured-inner">
                 <div>
                     <div class="featured-tag">⚡ Deal of the Month</div>
-                    <h2>Intel Core i9<br>14900KS</h2>
+                    <h2>Intel Core i9<br>14900K</h2>
                     <p>The world's fastest desktop processor. 24 cores, 32 threads, 6.2 GHz max boost.
                         Engineered for extreme multitasking and content creation without compromise.</p>
 
@@ -343,30 +367,20 @@
                                 document.addEventListener('DOMContentLoaded', () => {
                                     const heroProduct = products.find(p => p.id === 4);
                                     const ctaContainer = document.getElementById('featuredHeroCta');
+                                    const formatMAD = (value) => Number(value).toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }) + ' MAD';
+
                                     if (heroProduct && heroProduct.inStock) {
-                                        ctaContainer.innerHTML = `<button class="btn-primary" onclick="Cart.add(products.find(p => p.id === 4))">ADD TO CART — 5,499.90 MAD</button>`;
-                                    } else {
-                                        ctaContainer.innerHTML = `<button class="btn-secondary notify-restock-btn" style="padding: 12px 24px; border-radius: 8px; font-weight: bold;" data-id="4" data-name="Intel Core i9-14900K"><i class="fas fa-bell"></i> Notify Me When Available</button>`;
-                                        
-                                        // Bind event logic specifically for this dynamic button
-                                        setTimeout(() => {
-                                            const btn = ctaContainer.querySelector('.notify-restock-btn');
-                                            if (btn) {
-                                                btn.addEventListener('click', () => {
-                                                    const email = prompt('Notify me when "Intel Core i9-14900K" is back in stock:\n\nPlease enter your email address:');
-                                                    if (email && email.trim() !== '') {
-                                                        fetch('api/restock-notify.php', {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ product_id: 4, email: email.trim() })
-                                                        }).then(res => res.json()).then(data => {
-                                                            if (typeof showToast !== 'undefined') showToast(data.success ? data.message : (data.error || 'Failed to subscribe'), data.success ? 'success' : 'error');
-                                                            else alert(data.success ? data.message : (data.error || 'Failed to subscribe'));
-                                                        });
-                                                    }
-                                                });
+                                        ctaContainer.innerHTML = `<button type="button" class="btn btn-primary featured-add-to-cart">ADD TO CART — ${formatMAD(heroProduct.price)}</button>`;
+                                        ctaContainer.querySelector('.featured-add-to-cart').addEventListener('click', () => {
+                                            if (window.Cart && typeof Cart.add === 'function') {
+                                                Cart.add(heroProduct);
                                             }
-                                        }, 100);
+                                        });
+                                    } else {
+                                        ctaContainer.innerHTML = `<button type="button" class="btn-secondary notify-restock-btn" style="padding: 12px 24px; border-radius: 8px; font-weight: bold;" data-id="4" data-name="Intel Core i9-14900K"><i class="fas fa-bell"></i> Notify Me When Available</button>`;
                                     }
                                 });
                             </script>
@@ -376,117 +390,358 @@
 
                 <div class="featured-visual">
                     <div class="featured-glow"></div>
-                    <div class="featured-img-box">
-                        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:80%">
-                            <rect x="40" y="40" width="120" height="120" rx="6" fill="#0c0d10" stroke="#1e2229"
-                                stroke-width="2" />
-                            <rect x="55" y="55" width="90" height="90" rx="3" fill="#13151a" stroke="#ff6b35"
-                                stroke-width="0.8" />
-                            <rect x="70" y="70" width="60" height="60" rx="2" fill="#0c0d10" stroke="#ff6b35"
-                                stroke-width="0.5" opacity="0.6" />
-                            <rect x="82" y="82" width="36" height="36" rx="2" fill="#ff6b35" opacity="0.15" />
-                            <text x="100" y="102" text-anchor="middle" font-family="monospace" font-size="7"
-                                fill="#ff6b35">i9-14900KS</text>
-                            <text x="100" y="112" text-anchor="middle" font-family="monospace" font-size="5"
-                                fill="#5a6170">INTEL CORE</text>
-                            <g fill="#ff6b35" opacity="0.5">
-                                <rect x="48" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="54" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="60" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="66" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="72" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="78" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="84" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="90" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="96" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="102" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="108" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="114" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="120" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="126" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="132" y="35" width="2" height="8" rx="0.5" />
-                                <rect x="48" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="54" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="60" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="66" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="72" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="78" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="84" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="90" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="96" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="102" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="108" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="114" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="120" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="126" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="132" y="157" width="2" height="8" rx="0.5" />
-                                <rect x="35" y="48" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="54" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="60" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="66" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="72" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="78" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="84" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="90" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="96" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="102" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="108" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="114" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="120" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="126" width="8" height="2" rx="0.5" />
-                                <rect x="35" y="132" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="48" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="54" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="60" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="66" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="72" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="78" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="84" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="90" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="96" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="102" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="108" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="114" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="120" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="126" width="8" height="2" rx="0.5" />
-                                <rect x="157" y="132" width="8" height="2" rx="0.5" />
-                            </g>
-                        </svg>
+                     <div class="featured-img-box">
+                         <!-- Dark Mode CPU SVG -->
+                         <svg class="cpu-svg cpu-svg-dark" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:80%">
+                             <!-- Transparent background for seamless integration -->
+                             <rect width="100%" height="100%" fill="transparent"/>
+                             
+                             <!-- Main CPU body layers - matching light mode positions -->
+                             <rect class="cpu-body" x="30" y="30" width="140" height="140" rx="9" stroke-width="1" fill="none" />
+                             <rect class="cpu-layer-1" x="45" y="45" width="110" height="110" rx="5" stroke-width="0.7" fill="none" />
+                             <rect class="cpu-layer-2" x="58" y="58" width="84" height="84" rx="3" stroke-width="0.8" fill="none" />
+                             
+                             <!-- Text branding - matching light mode positions -->
+                             <text class="cpu-text-primary" x="100" y="97" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="700" letter-spacing="0.5">i9-14900K</text>
+                             <text class="cpu-text-secondary" x="100" y="113" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="5.5" font-weight="600" letter-spacing="1.3">INTEL CORE</text>
+                           
+                           <!-- Gold pins - matching light mode positions -->
+                           <g class="cpu-pins" stroke="#b8860b" stroke-width="0.5" fill="#b8860b">
+                             <!-- Top pins (17 pins) -->
+                             <rect x="44" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="51" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="58" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="65" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="72" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="79" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="86" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="93" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="100" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="107" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="114" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="121" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="128" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="135" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="142" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="149" y="25" width="2" height="8" rx="0.6" />
+                             <rect x="156" y="25" width="2" height="8" rx="0.6" />
+                             
+                             <!-- Bottom pins (17 pins) -->
+                             <rect x="44" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="51" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="58" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="65" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="72" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="79" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="86" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="93" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="100" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="107" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="114" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="121" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="128" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="135" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="142" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="149" y="167" width="2" height="8" rx="0.6" />
+                             <rect x="156" y="167" width="2" height="8" rx="0.6" />
+                             
+                             <!-- Left pins (17 pins) -->
+                             <rect x="25" y="44" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="51" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="58" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="65" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="72" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="79" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="86" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="93" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="100" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="107" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="114" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="121" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="128" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="135" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="142" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="149" width="8" height="2" rx="0.6" />
+                             <rect x="25" y="156" width="8" height="2" rx="0.6" />
+                             
+                             <!-- Right pins (17 pins) -->
+                             <rect x="167" y="44" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="51" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="58" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="65" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="72" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="79" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="86" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="93" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="100" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="107" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="114" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="121" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="128" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="135" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="142" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="149" width="8" height="2" rx="0.6" />
+                             <rect x="167" y="156" width="8" height="2" rx="0.6" />
+                           </g>
+                         </svg>
+                         
+                         <!-- Light Mode CPU SVG - Realistic with heat glow and shadows -->
+                         <svg class="cpu-svg cpu-svg-light" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 80%;">
+                           <defs>
+                             <!-- Grid pattern -->
+                             <pattern id="grid-light" width="13" height="13" patternUnits="userSpaceOnUse">
+                               <path d="M 13 0 L 0 0 0 13" fill="none" stroke="#E5E9F0" stroke-width="0.3"/>
+                             </pattern>
+                             
+                             <!-- Filters -->
+                             <filter id="heat-glow-light" x="-50%" y="-50%" width="200%" height="200%">
+                               <feGaussianBlur stdDeviation="5" result="blur"/>
+                               <feComponentTransfer in="blur" result="boost">
+                                 <feFuncA type="linear" slope="1.2"/>
+                               </feComponentTransfer>
+                               <feMerge>
+                                 <feMergeNode in="boost"/>
+                                 <feMergeNode in="SourceGraphic"/>
+                               </feMerge>
+                             </filter>
+                             <filter id="pin-shadow-light" x="-50%" y="-50%" width="200%" height="200%">
+                               <feDropShadow dx="0.3" dy="0.6" stdDeviation="0.6" flood-color="#000000" flood-opacity="0.25"/>
+                             </filter>
+                             <filter id="body-shadow-light" x="-20%" y="-20%" width="140%" height="140%">
+                               <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.15"/>
+                             </filter>
+                             
+                             <!-- Gradients -->
+                             <radialGradient id="ambient-glow-light" cx="50%" cy="50%" r="50%">
+                               <stop offset="40%" stop-color="#FF6B35" stop-opacity="0.15"/>
+                               <stop offset="80%" stop-color="#FFAD60" stop-opacity="0.03"/>
+                               <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+                             </radialGradient>
+                             <linearGradient id="substrate-grad-light" x1="0%" y1="0%" x2="100%" y2="100%">
+                               <stop offset="0%" stop-color="#7B889B"/>
+                               <stop offset="50%" stop-color="#94A1B5"/>
+                               <stop offset="100%" stop-color="#5C677D"/>
+                             </linearGradient>
+                             <linearGradient id="ihs-base-light" x1="0%" y1="0%" x2="100%" y2="100%">
+                               <stop offset="0%" stop-color="#D9DDE3"/>
+                               <stop offset="30%" stop-color="#F1F3F5"/>
+                               <stop offset="70%" stop-color="#CFD5DC"/>
+                               <stop offset="100%" stop-color="#A3ABB7"/>
+                             </linearGradient>
+                             <linearGradient id="ihs-cap-light" x1="100%" y1="100%" x2="0%" y2="0%">
+                               <stop offset="0%" stop-color="#C2C9D2"/>
+                               <stop offset="50%" stop-color="#E2E6EA"/>
+                               <stop offset="100%" stop-color="#F8FAFC"/>
+                             </linearGradient>
+                             <linearGradient id="gold-pin-v-light" x1="0%" y1="0%" x2="100%" y2="0%">
+                               <stop offset="0%" stop-color="#D4AF37"/>
+                               <stop offset="40%" stop-color="#FFF3A8"/>
+                               <stop offset="70%" stop-color="#AA7C11"/>
+                               <stop offset="100%" stop-color="#805B00"/>
+                             </linearGradient>
+                             <linearGradient id="gold-pin-h-light" x1="0%" y1="0%" x2="0%" y2="100%">
+                               <stop offset="0%" stop-color="#D4AF37"/>
+                               <stop offset="40%" stop-color="#FFF3A8"/>
+                               <stop offset="70%" stop-color="#AA7C11"/>
+                               <stop offset="100%" stop-color="#805B00"/>
+                             </linearGradient>
+                           </defs>
+                           
+                           <!-- Transparent background for seamless integration -->
+                           <!-- Grid overlay removed for cleaner look -->
+                           <rect width="100%" height="100%" fill="transparent"/>
+                           
+                           <!-- Ambient glow -->
+                           <circle cx="100" cy="100" r="85" fill="url(#ambient-glow-light)"/>
+                           
+                           <g filter="url(#heat-glow-light)">
+                             <!-- Gold pins with shadows -->
+                             <g filter="url(#pin-shadow-light)">
+                               <!-- Top pins (17 pins) -->
+                               <rect x="44" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="51" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="58" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="65" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="72" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="79" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="86" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="93" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="100" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="107" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="114" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="121" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="128" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="135" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="142" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="149" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="156" y="25" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               
+                               <!-- Bottom pins (17 pins) -->
+                               <rect x="44" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="51" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="58" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="65" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="72" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="79" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="86" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="93" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="100" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="107" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="114" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="121" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="128" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="135" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="142" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="149" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               <rect x="156" y="167" width="2" height="8" rx="0.6" fill="url(#gold-pin-v-light)"/>
+                               
+                               <!-- Left pins (17 pins) -->
+                               <rect x="25" y="44" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="51" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="58" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="65" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="72" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="79" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="86" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="93" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="100" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="107" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="114" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="121" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="128" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="135" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="142" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="149" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="25" y="156" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               
+                               <!-- Right pins (17 pins) -->
+                               <rect x="167" y="44" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="51" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="58" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="65" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="72" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="79" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="86" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="93" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="100" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="107" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="114" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="121" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="128" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="135" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="142" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="149" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                               <rect x="167" y="156" width="8" height="2" rx="0.6" fill="url(#gold-pin-h-light)"/>
+                             </g>
+                             
+                             <!-- Substrate (PCB green layer) -->
+                             <rect x="30" y="30" width="140" height="140" rx="9" fill="url(#substrate-grad-light)" stroke="#4A5262" stroke-width="1" filter="url(#body-shadow-light)"/>
+                             <rect x="32" y="32" width="136" height="136" rx="8" fill="none" stroke="#A3ABB7" stroke-width="0.5" opacity="0.6"/>
+                             
+                             <!-- IHS Base (silver metal) -->
+                             <rect x="45" y="45" width="110" height="110" rx="5" fill="url(#ihs-base-light)" stroke="#6C757D" stroke-width="0.7"/>
+                             <rect x="46" y="46" width="108" height="108" rx="4.5" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.7"/>
+                             <rect x="45" y="45" width="110" height="110" rx="5" fill="none" stroke="#333333" stroke-width="0.3" opacity="0.4"/>
+                             
+                             <!-- IHS Cap (top polished surface) -->
+                             <rect x="58" y="58" width="84" height="84" rx="3" fill="url(#ihs-cap-light)" stroke="#8B95A5" stroke-width="0.8"/>
+                             <rect x="59" y="59" width="82" height="82" rx="2" fill="none" stroke="#495057" stroke-width="0.3" opacity="0.3"/>
+                             
+                             <!-- Text branding -->
+                             <text x="100" y="97" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="700" fill="#D64527" letter-spacing="0.5">i9-14900K</text>
+                             <text x="100" y="113" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="5.5" font-weight="600" fill="#5A6578" letter-spacing="1.3">INTEL CORE</text>
+                             
+                             <!-- Corner highlight -->
+                             <polygon points="35,38 40,33 35,33" fill="#E2E8F0" opacity="0.6"/>
+                           </g>
+                         </svg>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAYMENT BANNER -->
-        <section class="payment-banner animate-on-scroll" aria-label="Payment methods">
-            <h2 class="text-center">We Accept</h2>
-            <ul class="payment-methods">
-                <li class="payment-icon" title="Visa"><i class="fab fa-cc-visa"></i></li>
-                <li class="payment-icon" title="Mastercard"><i class="fab fa-cc-mastercard"></i></li>
-                <li class="payment-icon" title="PayPal"><i class="fab fa-cc-paypal"></i></li>
-                <li class="payment-icon" title="Bitcoin"><i class="fab fa-bitcoin"></i></li>
-                <li class="payment-icon" title="Apple Pay"><i class="fab fa-apple-pay"></i></li>
-                <li class="payment-icon" title="Google Pay"><i class="fab fa-google-pay"></i></li>
-            </ul>
-            <p class="text-center">Secure checkout with SSL encryption</p>
-            
-            <!-- Trust Badges -->
-            <div class="trust-badges" style="display: flex; justify-content: center; gap: 32px; margin-top: 32px; flex-wrap: wrap;">
-                <div class="trust-badge" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <i class="fas fa-shield-halved" style="font-size: 2.5rem; color: var(--cyan);"></i>
-                    <p style="font-size: 0.85rem; color: var(--muted); margin: 0;"><strong style="color: var(--white); display: block;">100% Secure</strong>SSL Encrypted</p>
+        <!-- PAYMENT & TRUST SECTION -->
+        <section class="payment-trust-section animate-on-scroll" aria-label="Payment methods and trust indicators">
+            <div class="payment-trust-container">
+                <!-- Payment Methods -->
+                <div class="payment-methods-wrapper">
+                    <h2 class="section-eyebrow">Flexible Payment Options</h2>
+                    <div class="payment-grid">
+                        <div class="payment-card" title="Visa">
+                            <i class="fab fa-cc-visa"></i>
+                            <span>Visa</span>
+                        </div>
+                        <div class="payment-card" title="Mastercard">
+                            <i class="fab fa-cc-mastercard"></i>
+                            <span>Mastercard</span>
+                        </div>
+                        <div class="payment-card" title="PayPal">
+                            <i class="fab fa-cc-paypal"></i>
+                            <span>PayPal</span>
+                        </div>
+                        <div class="payment-card" title="Bitcoin">
+                            <i class="fab fa-bitcoin"></i>
+                            <span>Bitcoin</span>
+                        </div>
+                        <div class="payment-card" title="Apple Pay">
+                            <i class="fab fa-apple-pay"></i>
+                            <span>Apple Pay</span>
+                        </div>
+                        <div class="payment-card" title="Google Pay">
+                            <i class="fab fa-google-pay"></i>
+                            <span>Google Pay</span>
+                        </div>
+                    </div>
+                    <p class="payment-security-note">
+                        <i class="fas fa-lock"></i>
+                        All transactions secured with 256-bit SSL encryption
+                    </p>
                 </div>
-                <div class="trust-badge" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <i class="fas fa-award" style="font-size: 2.5rem; color: var(--orange);"></i>
-                    <p style="font-size: 0.85rem; color: var(--muted); margin: 0;"><strong style="color: var(--white); display: block;">Certified Seller</strong>Official Partner</p>
-                </div>
-                <div class="trust-badge" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <i class="fas fa-users" style="font-size: 2.5rem; color: var(--cyan);"></i>
-                    <p style="font-size: 0.85rem; color: var(--muted); margin: 0;"><strong style="color: var(--white); display: block;">10,000+ Customers</strong>Trusted Nationwide</p>
-                </div>
-                <div class="trust-badge" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <i class="fas fa-star" style="font-size: 2.5rem; color: var(--orange);"></i>
-                    <p style="font-size: 0.85rem; color: var(--muted); margin: 0;"><strong style="color: var(--white); display: block;">4.8/5 Rating</strong>Excellent Reviews</p>
+
+                <!-- Trust Indicators -->
+                <div class="trust-indicators-wrapper">
+                    <h2 class="section-eyebrow">Why Choose Maroc PC</h2>
+                    <div class="trust-grid">
+                        <div class="trust-card trust-card-cyan">
+                            <div class="trust-icon-wrapper">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="trust-content">
+                                <h3>100% Secure</h3>
+                                <p>Bank-grade SSL encryption protects every transaction</p>
+                            </div>
+                        </div>
+                        
+                        <div class="trust-card trust-card-orange">
+                            <div class="trust-icon-wrapper">
+                                <i class="fas fa-award"></i>
+                            </div>
+                            <div class="trust-content">
+                                <h3>Certified Seller</h3>
+                                <p>Official partner with all major hardware brands</p>
+                            </div>
+                        </div>
+                        
+                        <div class="trust-card trust-card-cyan">
+                            <div class="trust-icon-wrapper">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="trust-content">
+                                <h3>10,000+ Customers</h3>
+                                <p>Trusted by builders nationwide since 2020</p>
+                            </div>
+                        </div>
+                        
+                        <div class="trust-card trust-card-orange">
+                            <div class="trust-icon-wrapper">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="trust-content">
+                                <h3>4.8/5 Rating</h3>
+                                <p>Excellent reviews across all platforms</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -559,6 +814,30 @@
                     <p>Build essentials</p>
                     <small>10 Products</small>
                 </a>
+                <a href="products.html?category=keyboard" class="category-card">
+                    <i class="fas fa-keyboard category-icon"></i>
+                    <h3>Keyboards</h3>
+                    <p>Gaming & productivity</p>
+                    <small>12 Products</small>
+                </a>
+                <a href="products.html?category=mouse" class="category-card">
+                    <i class="fas fa-computer-mouse category-icon"></i>
+                    <h3>Mice</h3>
+                    <p>Gaming & ergonomic</p>
+                    <small>12 Products</small>
+                </a>
+                <a href="products.html?category=vr" class="category-card">
+                    <i class="fas fa-vr-cardboard category-icon"></i>
+                    <h3>VR Headsets</h3>
+                    <p>Standalone & PC VR</p>
+                    <small>2 Products</small>
+                </a>
+                <a href="products.html?category=router" class="category-card">
+                    <i class="fas fa-wifi category-icon"></i>
+                    <h3>Routers</h3>
+                    <p>Wi-Fi & network gear</p>
+                    <small>2 Products</small>
+                </a>
             </nav>
         </section>
 
@@ -614,186 +893,142 @@
         </section>
         
         <!-- TESTIMONIALS -->
-        <section class="testimonials-section animate-on-scroll">
-            <header>
-                <h2 class="text-center">Trusted by Gamers</h2>
-                <p class="text-center">See what our community has to say about their Maroc PC experience</p>
-            </header>
+        <!-- TESTIMONIALS SECTION -->
+        <section class="testimonials-premium animate-on-scroll">
+            <div class="testimonials-container">
+                <header class="testimonials-header">
+                    <span class="section-eyebrow">
+                        <i class="fas fa-quote-left"></i>
+                        Customer Stories
+                    </span>
+                    <h2>Trusted by Gamers & Creators</h2>
+                    <p>See what our community has to say about their Maroc PC experience</p>
+                </header>
 
-            <div class="testimonials-track">
-                <div class="testimonials-group">
-                    <!-- Review 1: English -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">AE</div>
-                            <div class="user-info">
+                <div class="testimonials-grid">
+                    <!-- Review 1 -->
+                    <article class="testimonial-premium-card">
+                        <div class="testimonial-quote-icon">
+                            <i class="fas fa-quote-right"></i>
+                        </div>
+                        <div class="testimonial-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-premium-text">"The AI PC Builder is a game changer. It perfectly balanced my Ryzen 7 and RTX 4070 build without bottlenecking. Delivered to Marrakech in 2 days!"</p>
+                        <div class="testimonial-premium-author">
+                            <div class="author-avatar">AE</div>
+                            <div class="author-info">
                                 <h4>Abdelkrim El Cherifi</h4>
                                 <span>Verified Customer</span>
                             </div>
                         </div>
-                        <div class="testimonial-rating">
+                    </article>
+
+                    <!-- Review 2 -->
+                    <article class="testimonial-premium-card">
+                        <div class="testimonial-quote-icon">
+                            <i class="fas fa-quote-right"></i>
+                        </div>
+                        <div class="testimonial-stars">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                         </div>
-                        <p class="testimonial-text">"The AI PC Builder is a game changer. It perfectly balanced my Ryzen 7 and RTX 4070 build without bottlenecking. Delivered to Marrakech in 2 days!"</p>
-                    </article>
-                    <!-- Review 2: Darija -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">SL</div>
-                            <div class="user-info">
+                        <p class="testimonial-premium-text">"Setup nadi bezaf! Les prix homa hadok w l'emballage ja m9ad. Service client jawboni f blassa mli swlthom 3la l'alimentation. Top!"</p>
+                        <div class="testimonial-premium-author">
+                            <div class="author-avatar">SL</div>
+                            <div class="author-info">
                                 <h4>Sami L.</h4>
                                 <span>Content Creator</span>
                             </div>
                         </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"Setup nadi bezaf! Les prix homa hadok w l'emballage ja m9ad. Service client jawboni f blassa mli swlthom 3la l'alimentation. Top!"</p>
                     </article>
-                    <!-- Review 3: French -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">YB</div>
-                            <div class="user-info">
+
+                    <!-- Review 3 -->
+                    <article class="testimonial-premium-card">
+                        <div class="testimonial-quote-icon">
+                            <i class="fas fa-quote-right"></i>
+                        </div>
+                        <div class="testimonial-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="testimonial-premium-text">"Montage très propre et câble management impeccable. J'ai commandé une workstation pour le rendu 3D et les températures sont excellentes."</p>
+                        <div class="testimonial-premium-author">
+                            <div class="author-avatar">YB</div>
+                            <div class="author-info">
                                 <h4>Yassine B.</h4>
                                 <span>3D Artist</span>
                             </div>
                         </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <p class="testimonial-text">"Montage très propre et câble management impeccable. J'ai commandé une workstation pour le rendu 3D et les températures sont excellentes."</p>
                     </article>
-                    <!-- Review 4: English -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">LR</div>
-                            <div class="user-info">
+
+                    <!-- Review 4 -->
+                    <article class="testimonial-premium-card">
+                        <div class="testimonial-quote-icon">
+                            <i class="fas fa-quote-right"></i>
+                        </div>
+                        <div class="testimonial-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-premium-text">"Finally, a Moroccan hardware store that updates stock in real-time. Got my hands on the new OLED monitor before it sold out everywhere else."</p>
+                        <div class="testimonial-premium-author">
+                            <div class="author-avatar">LR</div>
+                            <div class="author-info">
                                 <h4>Lina R.</h4>
                                 <span>Tech Enthusiast</span>
                             </div>
                         </div>
-                        <div class="testimonial-rating">
+                    </article>
+
+                    <!-- Review 5 -->
+                    <article class="testimonial-premium-card">
+                        <div class="testimonial-quote-icon">
+                            <i class="fas fa-quote-right"></i>
+                        </div>
+                        <div class="testimonial-stars">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                         </div>
-                        <p class="testimonial-text">"Finally, a Moroccan hardware store that updates stock in real-time. Got my hands on the new OLED monitor before it sold out everywhere else."</p>
-                    </article>
-                    <!-- Review 5: Darija/French -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">AZ</div>
-                            <div class="user-info">
+                        <p class="testimonial-premium-text">"Tawsil srie3 w les composants kolhom originaux b garantie. Le setup kamel wsalni l Tanger f a9al mn 48h. Chokran Maroc PC!"</p>
+                        <div class="testimonial-premium-author">
+                            <div class="author-avatar">AZ</div>
+                            <div class="author-info">
                                 <h4>Ali Z.</h4>
                                 <span>Software Engineer</span>
                             </div>
                         </div>
-                        <div class="testimonial-rating">
+                    </article>
+
+                    <!-- Review 6 -->
+                    <article class="testimonial-premium-card">
+                        <div class="testimonial-quote-icon">
+                            <i class="fas fa-quote-right"></i>
+                        </div>
+                        <div class="testimonial-stars">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                         </div>
-                        <p class="testimonial-text">"Tawsil srie3 w les composants kolhom originaux b garantie. Le setup kamel wsalni l Tanger f a9al mn 48h. Chokran Maroc PC!"</p>
-                    </article>
-                    <!-- Review 6: English/French mix -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">ST</div>
-                            <div class="user-info">
+                        <p class="testimonial-premium-text">"Best gaming store in Morocco, hands down. Le service après-vente est incroyable, they helped me troubleshoot a RAM issue via WhatsApp instantly."</p>
+                        <div class="testimonial-premium-author">
+                            <div class="author-avatar">ST</div>
+                            <div class="author-info">
                                 <h4>Sofia T.</h4>
                                 <span>E-sports Pro</span>
                             </div>
                         </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"Best gaming store in Morocco, hands down. Le service après-vente est incroyable, they helped me troubleshoot a RAM issue via WhatsApp instantly."</p>
                     </article>
                 </div>
-                
-                <!-- Duplicate for seamless scroll (MUST exactly match group 1) -->
-                <div class="testimonials-group" aria-hidden="true">
-                    <!-- Review 1: English -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">AE</div>
-                            <div class="user-info">
-                                <h4>Abdelkrim El Cherifi</h4>
-                                <span>Verified Customer</span>
-                            </div>
-                        </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"The AI PC Builder is a game changer. It perfectly balanced my Ryzen 7 and RTX 4070 build without bottlenecking. Delivered to Marrakech in 2 days!"</p>
-                    </article>
-                    <!-- Review 2: Darija -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">SL</div>
-                            <div class="user-info">
-                                <h4>Sami L.</h4>
-                                <span>Content Creator</span>
-                            </div>
-                        </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"Setup nadi bezaf! Les prix homa hadok w l'emballage ja m9ad. Service client jawboni f blassa mli swlthom 3la l'alimentation. Top!"</p>
-                    </article>
-                    <!-- Review 3: French -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">YB</div>
-                            <div class="user-info">
-                                <h4>Yassine B.</h4>
-                                <span>3D Artist</span>
-                            </div>
-                        </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <p class="testimonial-text">"Montage très propre et câble management impeccable. J'ai commandé une workstation pour le rendu 3D et les températures sont excellentes."</p>
-                    </article>
-                    <!-- Review 4: English -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">LR</div>
-                            <div class="user-info">
-                                <h4>Lina R.</h4>
-                                <span>Tech Enthusiast</span>
-                            </div>
-                        </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"Finally, a Moroccan hardware store that updates stock in real-time. Got my hands on the new OLED monitor before it sold out everywhere else."</p>
-                    </article>
-                    <!-- Review 5: Darija/French -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">AZ</div>
-                            <div class="user-info">
-                                <h4>Ali Z.</h4>
-                                <span>Software Engineer</span>
-                            </div>
-                        </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"Tawsil srie3 w les composants kolhom originaux b garantie. Le setup kamel wsalni l Tanger f a9al mn 48h. Chokran Maroc PC!"</p>
-                    </article>
-                    <!-- Review 6: English/French mix -->
-                    <article class="testimonial-card">
-                        <div class="testimonial-user">
-                            <div class="user-avatar">ST</div>
-                            <div class="user-info">
-                                <h4>Sofia T.</h4>
-                                <span>E-sports Pro</span>
-                            </div>
-                        </div>
-                        <div class="testimonial-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <p class="testimonial-text">"Best gaming store in Morocco, hands down. Le service après-vente est incroyable, they helped me troubleshoot a RAM issue via WhatsApp instantly."</p>
-                    </article>
+
+                <!-- Trust Stats -->
+                <div class="testimonials-stats">
+                    <div class="testimonial-stat">
+                        <div class="stat-value">4.8<span class="stat-max">/5</span></div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                    <div class="testimonial-stat">
+                        <div class="stat-value">10,000<span class="stat-plus">+</span></div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                    <div class="testimonial-stat">
+                        <div class="stat-value">98<span class="stat-percent">%</span></div>
+                        <div class="stat-label">Satisfaction Rate</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1252,46 +1487,79 @@
             </div>
         </section>
 
-        <!-- DEALS -->
-        <section class="deals-section animate-on-scroll" id="deals" aria-label="Special deals">
-            <mark class="deals-badge">Limited Time Offer</mark>
-            <h2 id="titre">Up to 40% Off on Selected Items</h2>
-            <p>Don't miss out on incredible savings on processors, graphics cards, and more. Offer ends soon!</p>
+        <!-- FLASH DEALS SECTION -->
+        <section class="flash-deals-section animate-on-scroll" id="deals" aria-label="Flash sale deals">
+            <div class="flash-deals-container">
+                <!-- Left Content -->
+                <div class="flash-deals-content">
+                    <div class="flash-deals-header">
+                        <span class="flash-badge">
+                            <i class="fas fa-bolt"></i>
+                            Limited Time Offer
+                        </span>
+                        <h2 class="flash-title">
+                            Up to <span class="highlight-gradient">40% Off</span><br>
+                            on Selected Items
+                        </h2>
+                        <p class="flash-description">
+                            Don't miss out on incredible savings on processors, graphics cards, and more. 
+                            <strong>Offer ends soon!</strong>
+                        </p>
+                    </div>
 
-            <!-- Flip-card countdown timer -->
-            <div class="deals-timer" aria-label="Countdown timer">
-                <div class="flip-unit">
-                    <div class="flip-card" id="days-flip">
-                        <span class="flip-top" id="days">02</span>
+                    <!-- Countdown Timer -->
+                    <div class="flash-countdown" aria-label="Countdown timer">
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="days">02</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="hours">18</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="minutes">43</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-unit">
+                            <div class="countdown-value" id="seconds">42</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
                     </div>
-                    <small class="sghir">Days</small>
+
+                    <div class="flash-deals-actions">
+                        <a href="products.html?sale=true" class="btn btn-primary flash-cta">
+                            <i class="fas fa-tags"></i>
+                            Shop Flash Deals
+                        </a>
+                        <div class="flash-stats">
+                            <div class="flash-stat">
+                                <i class="fas fa-fire"></i>
+                                <span><strong>127</strong> items on sale</span>
+                            </div>
+                            <div class="flash-stat">
+                                <i class="fas fa-users"></i>
+                                <span><strong>2,341</strong> shoppers viewing</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flip-unit">
-                    <div class="flip-card" id="hours-flip">
-                        <span class="flip-top" id="hours">18</span>
+
+                <!-- Right Visual -->
+                <div class="flash-deals-visual">
+                    <div class="discount-badge-large">
+                        <div class="badge-content">
+                            <span class="badge-percent">40</span>
+                            <span class="badge-symbol">%</span>
+                            <span class="badge-text">OFF</span>
+                        </div>
                     </div>
-                    <small class="sghir">Hours</small>
-                </div>
-                <div class="flip-unit">
-                    <div class="flip-card" id="minutes-flip">
-                        <span class="flip-top" id="minutes">45</span>
-                    </div>
-                    <small class="sghir">Minutes</small>
-                </div>
-                <div class="flip-unit">
-                    <div class="flip-card" id="seconds-flip">
-                        <span class="flip-top" id="seconds">30</span>
-                    </div>
-                    <small class="sghir">Seconds</small>
+                    <div class="visual-glow"></div>
                 </div>
             </div>
-
-            <a href="products.html?sale=true" class="btn btn-primary"
-                style="display:inline-block; margin-top: 10px;">Shop Deals</a>
-
-            <aside class="deals-image" aria-hidden="true">
-                <strong class="deal-badge-large">-40%</strong>
-            </aside>
         </section>
 
         <!-- WHY CHOOSE -->
@@ -1347,7 +1615,7 @@
 
                     <div class="faq-item">
                         <button class="faq-question" type="button" id="faq-question-genuine" aria-expanded="false" aria-controls="faq-answer-genuine">
-                            <span><i class="fas fa-shield-check"></i> Are all products genuine?</span>
+                            <span><i class="fas fa-shield-alt"></i> Are all products genuine?</span>
                             <i class="fas fa-chevron-down" aria-hidden="true"></i>
                         </button>
                         <div class="faq-answer" id="faq-answer-genuine" role="region" aria-labelledby="faq-question-genuine">
@@ -1668,6 +1936,24 @@
         .whatsapp-float i {
             animation: waPulse 2s infinite;
         }
+        
+        /* Light mode styling - industrial aesthetic */
+        [data-theme="light"] .whatsapp-float {
+            background: #25D366;
+            box-shadow: 
+                0 4px 12px rgba(37, 211, 102, 0.25),
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(37, 211, 102, 0.3);
+        }
+        [data-theme="light"] .whatsapp-float:hover {
+            box-shadow: 
+                0 6px 20px rgba(37, 211, 102, 0.35),
+                0 4px 8px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            border-color: rgba(37, 211, 102, 0.5);
+        }
+        
         @keyframes waPulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
@@ -1757,6 +2043,10 @@
                     <li><a href="products.html?category=power" class="sidebar-sublink">Power Supplies</a></li>
                     <li><a href="products.html?category=cases" class="sidebar-sublink">PC Cases</a></li>
                     <li><a href="products.html?category=accessories" class="sidebar-sublink">Accessories</a></li>
+                    <li><a href="products.html?category=keyboard" class="sidebar-sublink">Keyboards</a></li>
+                    <li><a href="products.html?category=mouse" class="sidebar-sublink">Mice</a></li>
+                    <li><a href="products.html?category=vr" class="sidebar-sublink">VR Headsets</a></li>
+                    <li><a href="products.html?category=router" class="sidebar-sublink">Routers</a></li>
                 </ul>
             </li>
 
@@ -1772,9 +2062,9 @@
         </ul>
     </nav>
 
-    <script src="assets/js/app.js"></script>
-    <script src="assets/js/cart.js"></script>
-    <script src="assets/js/translate.js"></script>
+    <script src="assets/js/app.js?v=chat-ui-1"></script>
+    <script src="assets/js/cart.js?v=notify-toast-2"></script>
+    <script src="assets/js/translate.js?v=shared-translate-1"></script>
     <script src="assets/js/script.js"></script>
     <script src="assets/js/auth-nav.js"></script>
     <script src="assets/js/theme.js"></script>

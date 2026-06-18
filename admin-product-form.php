@@ -18,7 +18,7 @@ if ($editing && !$product) {
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!verifyCsrf($_POST[CSRF_TOKEN_NAME] ?? null)) {
-        adminRedirect('admin-products.php?error=' . urlencode('Invalid session token.'));
+        adminRedirect('admin-products.php?error=' . urlencode(adminPhrase('Invalid session token.')));
     }
 
     $uploadedImagePath = null;
@@ -26,10 +26,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/svg+xml' => 'svg'];
         $mime = mime_content_type($_FILES['product_image']['tmp_name']) ?: '';
         if (!isset($allowed[$mime])) {
-            adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode('Image must be JPG, PNG, WEBP, or SVG.'));
+            adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode(adminPhrase('Image must be JPG, PNG, WEBP, or SVG.')));
         }
         if ((int) $_FILES['product_image']['size'] > 4 * 1024 * 1024) {
-            adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode('Image must be smaller than 4 MB.'));
+            adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode(adminPhrase('Image must be smaller than 4 MB.')));
         }
         $base = preg_replace('/[^a-z0-9]+/i', '-', strtolower((string) ($_POST['name'] ?? 'product')));
         $base = trim($base, '-') ?: 'product';
@@ -40,7 +40,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         }
         $targetPath = $targetDir . '/' . $fileName;
         if (!move_uploaded_file($_FILES['product_image']['tmp_name'], $targetPath)) {
-            adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode('Image upload failed.'));
+            adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode(adminPhrase('Image upload failed.')));
         }
         $uploadedImagePath = 'Images/products/' . $fileName;
     }
@@ -66,12 +66,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 
     if ($payload['name'] === '' || $payload['brand'] === '' || $payload['category'] === '' || $payload['price'] <= 0) {
-        adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode('Name, brand, category, and price are required.'));
+        adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode(adminPhrase('Name, brand, category, and price are required.')));
     }
 
     $specs = $payload['specs'] === '' ? [] : json_decode($payload['specs'], true);
     if ($payload['specs'] !== '' && json_last_error() !== JSON_ERROR_NONE) {
-        adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode('Specs must be valid JSON.'));
+        adminRedirect('admin-product-form.php' . ($editing ? '?id=' . $productId . '&' : '?') . 'error=' . urlencode(adminPhrase('Specs must be valid JSON.')));
     }
     $payload['specs'] = json_encode($specs, JSON_UNESCAPED_SLASHES);
     $payload['badge'] = $payload['badge'] === '' ? null : $payload['badge'];
@@ -113,13 +113,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             } catch (Throwable $e) { /* Never block the save */ }
         }
 
-        // Trigger restock notifications if stock went from 0 to >0
+        // Trigger real restock notifications if stock went from 0 to >0.
         if ($oldStock === 0 && $payload['stock_quantity'] > 0) {
-            $notifs = adminFetchAll($pdo, "SELECT id, email FROM restock_notifications WHERE product_id = ? AND notified = 0", [$productId]);
-            foreach ($notifs as $n) {
-                error_log("RESTOCK NOTIFICATION: Product '{$payload['name']}' is back in stock. Email sent to: {$n['email']}");
-                $pdo->prepare("UPDATE restock_notifications SET notified = 1 WHERE id = ?")->execute([$n['id']]);
-            }
+            adminSendRestockNotifications($pdo, $productId);
         }
     } else {
         $nextId = (int) adminFetchValue($pdo, 'SELECT COALESCE(MAX(id), 0) + 1 FROM products', [], 1);
@@ -139,6 +135,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         adminRedirect('admin-products.php?error=' . urlencode('Product saved, but js/data.js could not be updated.'));
     }
 
+    // Clear related caches
+    adminClearCache('dashboard_stats');
+    adminClearCache('all_products');
+    adminClearCache('flash_sales');
+
     adminRedirect('admin-products.php?saved=1');
 }
 
@@ -150,12 +151,12 @@ adminPageStart($editing ? 'Edit Product' : 'Add Product', 'products');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">CRUD Product</span>
-        <h1><?= $editing ? 'Edit Product' : 'Add Product' ?></h1>
-        <p class="section-copy">Keep product data, pricing, visibility, and stock thresholds accurate.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('CRUD Product')) ?></span>
+        <h1><?= adminH(adminPhrase($editing ? 'Edit Product' : 'Add Product')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Keep product data, pricing, visibility, and stock thresholds accurate.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="admin-products.php">Back to Products</a>
+        <a class="button button-light" href="admin-products.php"><?= adminH(adminPhrase('Back to Products')) ?></a>
     </div>
 </section>
 
@@ -169,28 +170,28 @@ adminPageStart($editing ? 'Edit Product' : 'Add Product', 'products');
         <input type="hidden" name="id" value="<?= (int) ($product['id'] ?? 0) ?>">
 
         <label>
-            Product name
+            <?= adminH(adminPhrase('Product name')) ?>
             <input type="text" name="name" value="<?= adminH($product['name'] ?? '') ?>" required>
         </label>
         <label>
-            Brand
+            <?= adminH(adminPhrase('Brand')) ?>
             <input type="text" name="brand" value="<?= adminH($product['brand'] ?? '') ?>" required>
         </label>
         <label>
-            Category
+            <?= adminH(adminPhrase('Category')) ?>
             <input type="text" name="category" value="<?= adminH($product['category'] ?? '') ?>" required>
         </label>
         <label>
-            Image path
-            <input type="text" name="image" id="imagePathInput" value="<?= adminH($product['image'] ?? '') ?>" placeholder="Images/products/item.png">
+            <?= adminH(adminPhrase('Image path')) ?>
+            <input type="text" name="image" id="imagePathInput" value="<?= adminH($product['image'] ?? '') ?>" placeholder="<?= adminH(adminPhrase('Images/products/item.png')) ?>">
         </label>
         <label style="display: block;">
-            Upload / replace image
+            <?= adminH(adminPhrase('Upload / replace image')) ?>
             <label class="custom-file-upload" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed rgba(0, 245, 212, 0.25); border-radius: 12px; padding: 20px; background: rgba(20, 22, 28, 0.5); cursor: pointer; transition: all 0.2s ease; margin-top: 6px; text-align: center;">
                 <i class="fas fa-image" style="font-size: 1.8rem; color: var(--cyan); margin-bottom: 6px;"></i>
-                <span style="font-weight: 700; color: var(--text); font-size: 0.85rem;" id="productUploadNameDisplay">Select Product Image</span>
-                <span style="font-size: 0.7rem; color: var(--muted); margin-top: 2px;">PNG, JPG, WEBP, SVG</span>
-                <input type="file" name="product_image" id="productImageUpload" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display: none;" onchange="document.getElementById('productUploadNameDisplay').textContent = this.files[0] ? this.files[0].name : 'Select Product Image'">
+                <span style="font-weight: 700; color: var(--text); font-size: 0.85rem;" id="productUploadNameDisplay"><?= adminH(adminPhrase('Select Product Image')) ?></span>
+                <span style="font-size: 0.7rem; color: var(--muted); margin-top: 2px;"><?= adminH(adminPhrase('PNG, JPG, WEBP, SVG')) ?></span>
+                <input type="file" name="product_image" id="productImageUpload" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display: none;" onchange="document.getElementById('productUploadNameDisplay').textContent = this.files[0] ? this.files[0].name : <?= i18n_script_json(adminPhrase('Select Product Image')) ?>">
             </label>
         </label>
         <div class="image-manager full-span">
@@ -198,48 +199,48 @@ adminPageStart($editing ? 'Edit Product' : 'Add Product', 'products');
                 <img id="productImagePreview" src="<?= adminH($product['image'] ?? 'Images/products/placeholder-storage.svg') ?>" alt="Product preview" onerror="this.src='Images/products/placeholder-storage.svg'">
             </div>
             <div>
-                <strong>Image manager</strong>
-                <small>Upload a product image or paste an existing path. Saving updates the database and exported data.js.</small>
+                <strong><?= adminH(adminPhrase('Image manager')) ?></strong>
+                <small><?= adminH(adminPhrase('Upload a product image or paste an existing path. Saving updates the database and exported data.js.')) ?></small>
             </div>
         </div>
         <label>
-            Price
+            <?= adminH(adminPhrase('Price')) ?>
             <input type="number" step="0.01" min="0" name="price" value="<?= adminH($product['price'] ?? '') ?>" required>
         </label>
         <label>
-            Old price
+            <?= adminH(adminPhrase('Old price')) ?>
             <input type="number" step="0.01" min="0" name="old_price" value="<?= adminH($product['old_price'] ?? '') ?>">
         </label>
         <label>
-            Stock quantity
+            <?= adminH(adminPhrase('Stock quantity')) ?>
             <input type="number" min="0" name="stock_quantity" value="<?= adminH($product['stock_quantity'] ?? 10) ?>">
         </label>
         <label>
-            Reorder level
+            <?= adminH(adminPhrase('Reorder level')) ?>
             <input type="number" min="0" name="reorder_level" value="<?= adminH($product['reorder_level'] ?? 5) ?>">
         </label>
         <label>
-            Rating
+            <?= adminH(adminPhrase('Rating')) ?>
             <input type="number" step="0.1" min="0" max="5" name="rating" value="<?= adminH($product['rating'] ?? '') ?>">
         </label>
         <label>
-            Reviews
+            <?= adminH(adminPhrase('Reviews')) ?>
             <input type="number" min="0" name="reviews" value="<?= adminH($product['reviews'] ?? 0) ?>">
         </label>
         <label>
-            Badge
-            <input type="text" name="badge" value="<?= adminH($product['badge'] ?? '') ?>" placeholder="Sale, New, Hot">
+            <?= adminH(adminPhrase('Badge')) ?>
+            <input type="text" name="badge" value="<?= adminH($product['badge'] ?? '') ?>" placeholder="<?= adminH(adminPhrase('Sale, New, Hot')) ?>">
         </label>
         <div class="check-row">
-            <label><input type="checkbox" name="featured" <?= !empty($product['featured']) ? 'checked' : '' ?>> Featured</label>
-            <label><input type="checkbox" name="in_stock" <?= !$product || !empty($product['in_stock']) ? 'checked' : '' ?>> In stock</label>
+            <label><input type="checkbox" name="featured" <?= !empty($product['featured']) ? 'checked' : '' ?>> <?= adminH(adminPhrase('Featured')) ?></label>
+            <label><input type="checkbox" name="in_stock" <?= !$product || !empty($product['in_stock']) ? 'checked' : '' ?>> <?= adminH(adminPhrase('In stock')) ?></label>
         </div>
         <label class="full-span">
-            Specs JSON
+            <?= adminH(adminPhrase('Specs JSON')) ?>
             <textarea name="specs" rows="8"><?= adminH($specsValue) ?></textarea>
         </label>
         <div class="full-span form-actions">
-            <button class="button button-primary" type="submit"><?= $editing ? 'Save Changes' : 'Create Product' ?></button>
+            <button class="button button-primary" type="submit"><?= adminH(adminPhrase($editing ? 'Save Changes' : 'Create Product')) ?></button>
         </div>
     </form>
 </section>

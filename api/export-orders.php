@@ -40,7 +40,7 @@ $output = fopen('php://output', 'w');
 fputs($output, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
 
 // Header row
-fputcsv($output, ['Order ID', 'Client Name', 'Client Email', 'Status', 'Total (MAD)', 'Payment Status', 'Payment Method', 'Date']);
+fputcsv($output, ['Order ID', 'Client Name', 'Client Email', 'Status', 'Total (DH)', 'Payment Status', 'Payment Method', 'Date']);
 
 foreach ($orders as $row) {
     fputcsv($output, [

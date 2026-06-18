@@ -5,17 +5,13 @@
  * POST { action: "upload", order_id: 123, component_type: "gpu", test_name: "TimeSpy", score: 18000, max_temp_c: 75, result_details: {...} }
  */
 require_once dirname(__DIR__) . '/bootstrap.php';
+require_once dirname(__DIR__) . '/admin-helpers.php';
 header('Content-Type: application/json');
 
 $pdo = db();
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Ensure admin/technician access
-if (empty($_SESSION['admin_id'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+adminRequireJsonAuth();
 $technicianId = (int)$_SESSION['admin_id'];
 
 if ($method === 'POST') {

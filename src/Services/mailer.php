@@ -202,10 +202,10 @@ function sendOrderConfirmationEmail(string $to, string $name, int $orderId, floa
     $itemsList = '';
     foreach ($items as $item) {
         $price = number_format((float)$item['price'], 2);
-        $itemsList .= "<li><strong>" . htmlspecialchars($item['name']) . "</strong> x" . $item['quantity'] . " — {$price} MAD</li>";
+        $itemsList .= "<li><strong>" . htmlspecialchars($item['name']) . "</strong> x" . $item['quantity'] . " — {$price} DH</li>";
     }
 
-    $formattedTotal = number_format($total, 2) . ' MAD';
+    $formattedTotal = number_format($total, 2) . ' DH';
     $methodLabel = ucwords(str_replace('-', ' ', $paymentMethod));
 
     $body = emailTemplate('Order Confirmed! 📦', '

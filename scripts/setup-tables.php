@@ -205,12 +205,49 @@ $pdo->exec("
     original_price  DECIMAL(10,2) NOT NULL,
     max_quantity    INT DEFAULT NULL,
     sold_count      INT DEFAULT 0,
+    event_name      VARCHAR(120) DEFAULT NULL,
+    event_badge     VARCHAR(80) DEFAULT NULL,
+    event_note      VARCHAR(255) DEFAULT NULL,
     starts_at       DATETIME NOT NULL,
     ends_at         DATETIME NOT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
+
+// Homepage gamer reviews shown in the Trusted by Gamers section
+$pdo->exec("
+  CREATE TABLE IF NOT EXISTS homepage_gamer_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reviewer_name VARCHAR(120) NOT NULL,
+    reviewer_name_ar VARCHAR(120) DEFAULT NULL,
+    reviewer_name_fr VARCHAR(120) DEFAULT NULL,
+    reviewer_name_es VARCHAR(120) DEFAULT NULL,
+    reviewer_role VARCHAR(120) NOT NULL DEFAULT 'Verified gamer',
+    reviewer_role_ar VARCHAR(120) DEFAULT NULL,
+    reviewer_role_fr VARCHAR(120) DEFAULT NULL,
+    reviewer_role_es VARCHAR(120) DEFAULT NULL,
+    quote TEXT NOT NULL,
+    quote_ar TEXT DEFAULT NULL,
+    quote_fr TEXT DEFAULT NULL,
+    quote_es TEXT DEFAULT NULL,
+    avatar_initials VARCHAR(8) DEFAULT NULL,
+    rating DECIMAL(2,1) NOT NULL DEFAULT 5.0,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_homepage_gamer_reviews_active (is_active, sort_order)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+// Add translation columns for existing installations
+foreach (['ar', 'fr', 'es'] as $lang) {
+    foreach (['reviewer_name', 'reviewer_role', 'quote'] as $col) {
+        $type = $col === 'quote' ? 'TEXT DEFAULT NULL' : 'VARCHAR(120) DEFAULT NULL';
+        try { $pdo->exec("ALTER TABLE homepage_gamer_reviews ADD COLUMN IF NOT EXISTS {$col}_{$lang} {$type}"); } catch (Throwable $_) {}
+    }
+}
 
 // Phase 2: Product Reviews & Verified Badges
 $pdo->exec("

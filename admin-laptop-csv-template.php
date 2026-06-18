@@ -25,7 +25,18 @@ fputcsv($output, [
     'weight_kg',
     'specs',
     'stock_quantity',
-    'in_stock'
+    'in_stock',
+    'category',
+    'form_factor',
+    'dimensions',
+    'cooling_type',
+    'max_displays',
+    'npu_model',
+    'npu_tops',
+    'npu_vendor',
+    'is_copilot_plus',
+    'ai_tier',
+    'ai_marketing_badge'
 ]);
 
 // Write sample rows
@@ -44,7 +55,18 @@ fputcsv($output, [
     '1.85',
     '{"CPU": "Intel Core Ultra 9", "RAM": "32GB", "Storage": "1TB SSD", "GPU": "RTX 4070"}',
     '10',
-    '1'
+    '1',
+    'laptop',
+    '',
+    '',
+    '',
+    '1',
+    'Intel AI Boost',
+    '48',
+    'Intel',
+    '1',
+    'copilot',
+    'Copilot+'
 ]);
 
 fputcsv($output, [
@@ -62,7 +84,18 @@ fputcsv($output, [
     '1.19',
     '{"CPU": "Intel Core Ultra 5", "RAM": "16GB", "Storage": "512GB SSD", "GPU": "Intel Graphics"}',
     '8',
-    '1'
+    '1',
+    'laptop',
+    '',
+    '',
+    '',
+    '1',
+    'Intel AI Boost',
+    '40',
+    'Intel',
+    '1',
+    'copilot',
+    'Copilot+'
 ]);
 
 fclose($output);

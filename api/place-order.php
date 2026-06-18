@@ -34,6 +34,46 @@ $notes = trim($input['notes'] ?? '');
 $transactionId = trim($input['transaction_id'] ?? '');
 $paypalOrderId = trim($input['paypal_order_id'] ?? '');
 $promoCode = trim((string) ($input['promo_code'] ?? ''));
+$pickupStore = is_array($input['pickup_store'] ?? null) ? $input['pickup_store'] : [];
+$pickupVerificationCode = strtoupper(trim((string) ($input['pickup_verification_code'] ?? '')));
+
+if ($shippingMethod === 'pickup') {
+    $cleanPickupValue = static fn($value, int $limit = 180): string => trim(mb_substr(strip_tags((string) $value), 0, $limit));
+    $pickupName = $cleanPickupValue($pickupStore['name'] ?? '', 120);
+    $pickupAddress = $cleanPickupValue($pickupStore['address'] ?? '', 180);
+    $pickupHours = $cleanPickupValue($pickupStore['hours'] ?? '', 80);
+    $pickupPhone = $cleanPickupValue($pickupStore['phone'] ?? '', 40);
+
+    if ($pickupName === '' || $pickupAddress === '' || $pickupHours === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Please select a pickup location.']);
+        exit;
+    }
+
+    if (!preg_match('/^PICKUP-[A-Z0-9]{4}-[A-Z0-9]{4}$/', $pickupVerificationCode)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid pickup verification code.']);
+        exit;
+    }
+
+    $shippingAddress = implode("\n", array_filter([
+        adminPhrase('Store Pickup'),
+        adminPhrase('Store: {name}', ['name' => $pickupName]),
+        adminPhrase('Address: {address}', ['address' => $pickupAddress]),
+        adminPhrase('Hours: {hours}', ['hours' => $pickupHours]),
+        $pickupPhone !== '' ? adminPhrase('Phone: {phone}', ['phone' => $pickupPhone]) : '',
+    ]));
+
+    $pickupNote = implode("\n", array_filter([
+        adminPhrase('Pickup authorization'),
+        adminPhrase('Verification code: {code}', ['code' => $pickupVerificationCode]),
+        adminPhrase('Pickup store: {name}', ['name' => $pickupName]),
+        adminPhrase('Pickup address: {address}', ['address' => $pickupAddress]),
+        adminPhrase('Pickup hours: {hours}', ['hours' => $pickupHours]),
+        $pickupPhone !== '' ? adminPhrase('Pickup phone: {phone}', ['phone' => $pickupPhone]) : '',
+    ]));
+    $notes = trim($notes === '' ? $pickupNote : "{$notes}\n\n{$pickupNote}");
+}
 
 if (empty($items) || empty($shippingMethod) || empty($paymentMethod) || empty($shippingAddress)) {
     http_response_code(400);
@@ -162,8 +202,13 @@ try {
             }
         }
 
-        $updateStmt = $pdo->prepare('UPDATE Client SET nom = ?, telephone = ?, adresse = ? WHERE id_client = ?');
-        $updateStmt->execute([$fullName, $phone !== '' ? $phone : null, $shippingAddress, $clientId]);
+        if ($shippingMethod === 'pickup') {
+            $updateStmt = $pdo->prepare('UPDATE Client SET nom = ?, telephone = ? WHERE id_client = ?');
+            $updateStmt->execute([$fullName, $phone !== '' ? $phone : null, $clientId]);
+        } else {
+            $updateStmt = $pdo->prepare('UPDATE Client SET nom = ?, telephone = ?, adresse = ? WHERE id_client = ?');
+            $updateStmt->execute([$fullName, $phone !== '' ? $phone : null, $shippingAddress, $clientId]);
+        }
     }
 
     // ── Newsletter subscription ──────────────────────────────

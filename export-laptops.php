@@ -6,10 +6,13 @@ require_once __DIR__ . '/bootstrap.php';
 function adminExportLaptopsToDataJs(PDO $pdo): void
 {
     $stmt = $pdo->query('
-        SELECT id, name, brand, price, old_price, image, usage_category, portability_tier,
-               screen_size, screen_quality, gpu_tier, battery_wh, weight_kg, specs, in_stock, stock_quantity
-        FROM laptops
-        ORDER BY id ASC
+        SELECT l.id, l.name, l.brand, l.price, l.old_price, l.image, l.usage_category, l.portability_tier,
+               l.screen_size, l.screen_quality, l.gpu_tier, l.battery_wh, l.weight_kg, l.specs, l.in_stock, l.stock_quantity,
+               l.category, l.form_factor, l.dimensions, l.cooling_type, l.max_displays,
+               a.npu_model, a.npu_tops, a.npu_vendor, a.is_copilot_plus, a.ai_tier
+        FROM laptops l
+        LEFT JOIN laptop_ai_specs a ON a.laptop_id = l.id
+        ORDER BY l.id ASC
     ');
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -27,37 +30,39 @@ function adminExportLaptopsToDataJs(PDO $pdo): void
         $weight = (float) $row['weight_kg'];
         $screenSize = (float) $row['screen_size'];
         $battery = (int) $row['battery_wh'];
+        $npuTops = $row['npu_tops'] !== null ? (float) $row['npu_tops'] : 0.0;
 
-        // Compute Portability Score (bounded between 1.0 and 10.0)
-        // Less weight and smaller screen = more portable.
-        $portabilityScore = round(10.0 - (($weight - 0.9) * 3.0 + ($screenSize - 13.0) * 0.8), 1);
-        $portabilityScore = max(1.0, min(10.0, $portabilityScore));
-
-        // Compute Performance Score (bounded between 1.0 and 10.0)
-        $perfScore = 5.0;
-        if ($row['usage_category'] === 'gaming') {
-            $perfScore = ($row['gpu_tier'] === 'dedicated') ? 9.6 : 7.0;
-        } elseif ($row['usage_category'] === 'creative') {
-            $perfScore = ($row['gpu_tier'] === 'dedicated') ? 9.2 : 7.5;
-        } elseif ($row['usage_category'] === 'business') {
-            $perfScore = ($row['gpu_tier'] === 'dedicated') ? 8.5 : 7.8;
-        } elseif ($row['usage_category'] === 'student') {
-            $perfScore = ($row['gpu_tier'] === 'dedicated') ? 8.0 : 6.5;
+        $ramGb = 0;
+        if (isset($specs['RAM']) && preg_match('/(\d+)\s*GB/i', (string) $specs['RAM'], $m)) {
+            $ramGb = (int) $m[1];
+        }
+        $storageGb = 0;
+        if (isset($specs['Storage']) && preg_match('/(\d+(?:\.\d+)?)\s*(TB|GB)/i', (string) $specs['Storage'], $m)) {
+            $storageGb = (float) $m[1] * (strtoupper($m[2]) === 'TB' ? 1024 : 1);
         }
 
-        // Compute Screen Clarity Score
-        $screenScore = 7.0;
-        if ($row['screen_quality'] === 'oled') {
-            $screenScore = 9.8;
-        } elseif ($row['screen_quality'] === 'high_refresh') {
-            $screenScore = 9.0;
-        }
-
-        // Compute Value Score (ratio of specs vs price)
-        // Lower price and higher performance increases value
-        $baseValue = 10.0 - ($price / 6000.0);
-        $valueScore = round($baseValue + ($perfScore * 0.15) + ($screenScore * 0.1), 1);
-        $valueScore = max(4.0, min(9.9, $valueScore));
+        $clampScore = static fn (float $value): float => round(max(1.0, min(10.0, $value)), 1);
+        $gpuScore = match ((string) $row['gpu_tier']) {
+            'dedicated' => 9.0,
+            'integrated' => 6.5,
+            default => 5.0,
+        };
+        $screenScore = match ((string) $row['screen_quality']) {
+            'oled' => 9.5,
+            'high_refresh' => 8.7,
+            default => $screenSize > 0 ? 7.0 : 1.0,
+        };
+        $aiScore = $npuTops > 0 ? $clampScore(($npuTops / 50.0) * 10.0) : 1.0;
+        $memoryScore = $ramGb > 0 ? $clampScore(($ramGb / 32.0) * 8.0 + 2.0) : 5.0;
+        $storageScore = $storageGb > 0 ? $clampScore(($storageGb / 1024.0) * 6.0 + 4.0) : 5.0;
+        $performanceScore = $clampScore(($gpuScore * 0.45) + ($aiScore * 0.25) + ($memoryScore * 0.20) + ($storageScore * 0.10));
+        $portabilityScore = $clampScore(
+            ($weight > 0 ? max(0.0, 10.0 - (($weight - 1.0) * 4.0)) : 4.0)
+            + ($battery > 0 ? min(2.0, $battery / 50.0) : 0.0)
+            - ($screenSize >= 17 ? 1.0 : 0.0)
+        );
+        $factScore = ($performanceScore * 0.35) + ($portabilityScore * 0.20) + ($screenScore * 0.20) + ($aiScore * 0.15) + ($storageScore * 0.10);
+        $valueScore = $clampScore(($factScore / max(1.0, $price / 10000.0)) * 1.25);
 
         $laptops[] = [
             'id' => (int) $row['id'],
@@ -76,11 +81,29 @@ function adminExportLaptopsToDataJs(PDO $pdo): void
             'specs' => $specs,
             'inStock' => !empty($row['in_stock']) && (int) $row['stock_quantity'] > 0,
             'stockQuantity' => (int) $row['stock_quantity'],
+            'category' => (string) ($row['category'] ?? 'laptop'),
+            'formFactor' => $row['form_factor'] ?? null,
+            'dimensions' => $row['dimensions'] ?? null,
+            'coolingType' => $row['cooling_type'] ?? null,
+            'maxDisplays' => $row['max_displays'] !== null ? (int) $row['max_displays'] : null,
+            'npuModel' => $row['npu_model'] ?? null,
+            'npuTops' => $row['npu_tops'] !== null ? (float) $row['npu_tops'] : 0,
+            'npuVendor' => $row['npu_vendor'] ?? 'None',
+            'isCopilotPlus' => !empty($row['is_copilot_plus']),
+            'aiTier' => $row['ai_tier'] ?? 'none',
             'scores' => [
+                'performance' => $performanceScore,
                 'portability' => $portabilityScore,
-                'performance' => $perfScore,
                 'screen' => $screenScore,
-                'value' => $valueScore
+                'ai' => $aiScore,
+                'value' => $valueScore,
+            ],
+            'scoreBasis' => [
+                'performance' => 'GPU tier, NPU TOPS, RAM, and storage from catalog specs',
+                'portability' => 'Weight, battery Wh, and screen size from catalog specs',
+                'screen' => 'Stored screen class: OLED, high refresh, or standard',
+                'ai' => 'NPU TOPS from researched product/spec data',
+                'value' => 'Catalog fact score divided by stored Maroc PC price',
             ]
         ];
     }
@@ -103,9 +126,12 @@ function adminExportLaptopsToDataJs(PDO $pdo): void
 }
 
 // Run if accessed directly or via CLI
-if (php_sapi_name() === 'cli' || realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
+if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
     try {
         $pdo = db();
+        if (function_exists('adminEnsureAdminSuiteTables')) {
+            adminEnsureAdminSuiteTables($pdo);
+        }
         adminExportLaptopsToDataJs($pdo);
         echo "Successfully exported laptops to assets/js/laptop_data.js\n";
     } catch (Throwable $e) {

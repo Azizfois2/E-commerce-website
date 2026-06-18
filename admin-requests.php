@@ -21,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'community_builds' => ['pending', 'approved', 'rejected'],
         'trade_in_requests' => ['new', 'quoted', 'accepted', 'declined'],
         'bank_transfer_receipts' => ['new', 'verified', 'rejected'],
+        'repair_service_requests' => ['new', 'quoting', 'in-progress', 'repaired', 'declined'],
+        'after_sales_requests' => ['submitted', 'reviewing', 'approved', 'awaiting_item', 'inspecting', 'resolved', 'rejected'],
     ];
     if ($id > 0 && isset($allowed[$table]) && in_array($status, $allowed[$table], true)) {
         $stmt = $pdo->prepare("UPDATE {$table} SET status = ? WHERE id = ?");
@@ -65,20 +67,32 @@ $referrals = requestRows($pdo, 'referral_codes', "
     ORDER BY rc.created_at DESC
     LIMIT 25
 ");
+$repairs = requestRows($pdo, 'repair_service_requests', "
+    SELECT *
+    FROM repair_service_requests
+    ORDER BY created_at DESC
+    LIMIT 25
+");
+$rmas = requestRows($pdo, 'after_sales_requests', "
+    SELECT *
+    FROM after_sales_requests
+    ORDER BY created_at DESC
+    LIMIT 25
+");
 
 function statusForm(string $table, int $id, string $current, array $statuses): string
 {
     $options = '';
     foreach ($statuses as $status) {
         $selected = $status === $current ? ' selected' : '';
-        $options .= '<option value="' . adminH($status) . '"' . $selected . '>' . adminH($status) . '</option>';
+        $options .= '<option value="' . adminH($status) . '"' . $selected . '>' . adminH(adminStatusLabel($status)) . '</option>';
     }
     return '
         <form method="post" class="request-status-form">
             <input type="hidden" name="table" value="' . adminH($table) . '">
             <input type="hidden" name="id" value="' . $id . '">
             <select name="status">' . $options . '</select>
-            <button type="submit">Save</button>
+            <button type="submit">' . adminH(adminPhrase('Save')) . '</button>
         </form>
     ';
 }
@@ -102,91 +116,134 @@ adminPageStart('Request Queues', 'requests');
 
 <div class="dashboard-header">
     <div>
-        <p class="eyebrow">New.md Workflows</p>
-        <h1>Request Queues</h1>
-        <p>Price matches, community showcases, trade-ins, bank receipts, and referral codes.</p>
+        <p class="eyebrow"><?= adminH(adminPhrase('New.md Workflows')) ?></p>
+        <h1><?= adminH(adminPhrase('Request Queues')) ?></h1>
+        <p><?= adminH(adminPhrase('Price matches, community showcases, trade-ins, repairs, bank receipts, and referral codes.')) ?></p>
     </div>
 </div>
 
 <div class="request-board">
     <section class="request-section">
-        <h2><i class="fas fa-scale-balanced"></i> Price Match Requests</h2>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Price Match Queue')) ?></h2></div>
         <?php if ($priceMatches): ?>
-        <table class="request-table"><thead><tr><th>Product</th><th>Competitor</th><th>Contact</th><th>Status</th></tr></thead><tbody>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Product')) ?></th><th><?= adminH(adminPhrase('Competitor')) ?></th><th><?= adminH(adminPhrase('Contact')) ?></th><th><?= adminH(adminPhrase('Status')) ?></th></tr></thead><tbody>
             <?php foreach ($priceMatches as $row): ?>
             <tr>
-                <td><?= adminH($row['product_name']) ?><small>Catalog: <?= $row['catalog_price'] !== null ? adminMoney((float) $row['catalog_price']) : 'N/A' ?></small></td>
-                <td><?= adminH($row['competitor_url'] ?: 'No URL') ?><small><?= $row['competitor_price'] ? adminMoney((float) $row['competitor_price']) : 'No price' ?></small></td>
-                <td><?= adminH($row['contact_email'] ?: 'No email') ?><small><?= adminH($row['contact_phone'] ?: 'No phone') ?></small></td>
+                <td><?= adminH($row['product_name']) ?><small><?= adminH(adminPhrase('Catalog')) ?>: <?= $row['catalog_price'] !== null ? adminMoney((float) $row['catalog_price']) : adminH(adminPhrase('N/A')) ?></small></td>
+                <td><?= adminH($row['competitor_url'] ?: adminPhrase('No URL')) ?><small><?= $row['competitor_price'] ? adminMoney((float) $row['competitor_price']) : adminH(adminPhrase('No price')) ?></small></td>
+                <td><?= adminH($row['contact_email'] ?: adminPhrase('No email')) ?><small><?= adminH($row['contact_phone'] ?: adminPhrase('No phone')) ?></small></td>
                 <td><?= statusForm('price_match_requests', (int) $row['id'], (string) $row['status'], ['new','reviewing','matched','declined']) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody></table>
-        <?php else: ?><div class="empty-queue">No price match requests yet.</div><?php endif; ?>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No price match requests yet.')) ?></div><?php endif; ?>
     </section>
 
     <section class="request-section">
-        <h2><i class="fas fa-images"></i> Community Build Submissions</h2>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Community Builds')) ?></h2></div>
         <?php if ($community): ?>
-        <table class="request-table"><thead><tr><th>Build</th><th>Caption</th><th>Total</th><th>Status</th></tr></thead><tbody>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Build')) ?></th><th><?= adminH(adminPhrase('Caption')) ?></th><th><?= adminH(adminPhrase('Total')) ?></th><th><?= adminH(adminPhrase('Status')) ?></th></tr></thead><tbody>
             <?php foreach ($community as $row): ?>
             <tr>
-                <td><?= adminH($row['build_name']) ?><small><?= adminH($row['use_case'] ?: 'General') ?></small></td>
-                <td><?= adminH(substr((string) ($row['caption'] ?? ''), 0, 120)) ?><small><?= adminH($row['image_url'] ?: 'No image') ?></small></td>
+                <td><?= adminH($row['build_name']) ?><small><?= adminH($row['use_case'] ?: adminPhrase('General')) ?></small></td>
+                <td><?= adminH(substr((string) ($row['caption'] ?? ''), 0, 120)) ?><small><?= adminH($row['image_url'] ?: adminPhrase('No image')) ?></small></td>
                 <td><?= adminMoney((float) $row['total_price']) ?></td>
                 <td><?= statusForm('community_builds', (int) $row['id'], (string) $row['status'], ['pending','approved','rejected']) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody></table>
-        <?php else: ?><div class="empty-queue">No community builds yet.</div><?php endif; ?>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No community builds yet.')) ?></div><?php endif; ?>
     </section>
 
     <section class="request-section">
-        <h2><i class="fas fa-right-left"></i> Trade-In Requests</h2>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Trade-in Evaluations')) ?></h2></div>
         <?php if ($trades): ?>
-        <table class="request-table"><thead><tr><th>Hardware</th><th>Estimate</th><th>Contact</th><th>Status</th></tr></thead><tbody>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Hardware')) ?></th><th><?= adminH(adminPhrase('Image')) ?></th><th><?= adminH(adminPhrase('Estimate')) ?></th><th><?= adminH(adminPhrase('Contact')) ?></th><th><?= adminH(adminPhrase('Status')) ?></th></tr></thead><tbody>
             <?php foreach ($trades as $row): ?>
             <tr>
                 <td><?= adminH($row['hardware_name']) ?><small><?= adminH($row['hardware_type']) ?>, <?= adminH($row['condition_grade']) ?></small></td>
-                <td><?= $row['estimated_value'] ? adminMoney((float) $row['estimated_value']) : 'Pending' ?></td>
-                <td><?= adminH($row['contact_email'] ?: 'No email') ?><small><?= adminH($row['contact_phone'] ?: 'No phone') ?></small></td>
+                <td>
+                    <?php if (!empty($row['product_image'])): ?>
+                        <a href="<?= adminH($row['product_image']) ?>" target="_blank">
+                            <img src="<?= adminH($row['product_image']) ?>" alt="Hardware" style="width: 80px; height: 80px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #000;">
+                        </a>
+                    <?php else: ?>
+                        <span style="color: #666; font-size: 0.85rem;"><?= adminH(adminPhrase('No Image')) ?></span>
+                    <?php endif; ?>
+                </td>
+                <td><?= $row['estimated_value'] ? adminMoney((float) $row['estimated_value']) : adminH(adminPhrase('Pending')) ?></td>
+                <td><?= adminH($row['contact_email'] ?: adminPhrase('No email')) ?><small><?= adminH($row['contact_phone'] ?: adminPhrase('No phone')) ?></small></td>
                 <td><?= statusForm('trade_in_requests', (int) $row['id'], (string) $row['status'], ['new','quoted','accepted','declined']) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody></table>
-        <?php else: ?><div class="empty-queue">No trade-in requests yet.</div><?php endif; ?>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No trade-in requests yet.')) ?></div><?php endif; ?>
     </section>
 
     <section class="request-section">
-        <h2><i class="fas fa-receipt"></i> Bank Transfer Receipts</h2>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Payment Receipts')) ?></h2></div>
         <?php if ($receipts): ?>
-        <table class="request-table"><thead><tr><th>Bank</th><th>Amount</th><th>Reference</th><th>Status</th></tr></thead><tbody>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Bank')) ?></th><th><?= adminH(adminPhrase('Amount')) ?></th><th><?= adminH(adminPhrase('Reference')) ?></th><th><?= adminH(adminPhrase('Status')) ?></th></tr></thead><tbody>
             <?php foreach ($receipts as $row): ?>
             <tr>
-                <td><?= adminH($row['bank_name']) ?><small>Order #<?= adminH($row['order_id'] ?: 'N/A') ?></small></td>
+                <td><?= adminH($row['bank_name']) ?><small><?= adminH(adminPhrase('Order')) ?> #<?= adminH($row['order_id'] ?: adminPhrase('N/A')) ?></small></td>
                 <td><?= adminMoney((float) $row['amount']) ?></td>
-                <td><?= adminH($row['transfer_reference'] ?: 'No reference') ?></td>
+                <td><?= adminH($row['transfer_reference'] ?: adminPhrase('No reference')) ?></td>
                 <td><?= statusForm('bank_transfer_receipts', (int) $row['id'], (string) $row['status'], ['new','verified','rejected']) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody></table>
-        <?php else: ?><div class="empty-queue">No receipt uploads logged yet.</div><?php endif; ?>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No receipt uploads logged yet.')) ?></div><?php endif; ?>
     </section>
 
     <section class="request-section">
-        <h2><i class="fas fa-share-nodes"></i> Referral Codes</h2>
+        <div class="card-head"><h2><?= adminH(adminPhrase('Repairs & Upgrades')) ?></h2></div>
+        <?php if ($repairs): ?>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Device')) ?></th><th><?= adminH(adminPhrase('Issue')) ?></th><th><?= adminH(adminPhrase('Contact')) ?></th><th><?= adminH(adminPhrase('Date')) ?></th><th><?= adminH(adminPhrase('Status')) ?></th></tr></thead><tbody>
+            <?php foreach ($repairs as $row): ?>
+            <tr>
+                <td><?= adminH($row['device_name']) ?><small><?= adminH($row['device_type']) ?></small></td>
+                <td><?= adminH(substr((string) ($row['issue_description'] ?? ''), 0, 150)) ?></td>
+                <td><?= adminH($row['contact_email'] ?: adminPhrase('No email')) ?><small><?= adminH($row['contact_phone'] ?: adminPhrase('No phone')) ?></small></td>
+                <td><small><?= adminH($row['created_at']) ?></small></td>
+                <td><?= statusForm('repair_service_requests', (int) $row['id'], (string) $row['status'], ['new','quoting','in-progress','repaired','declined']) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody></table>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No repair requests yet.')) ?></div><?php endif; ?>
+    </section>
+
+    <section class="request-section">
+        <div class="card-head"><h2><?= adminH(adminPhrase('RMA & Warranty')) ?></h2></div>
+        <?php if ($rmas): ?>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Ticket')) ?></th><th><?= adminH(adminPhrase('Product')) ?></th><th><?= adminH(adminPhrase('Customer')) ?></th><th><?= adminH(adminPhrase('Date')) ?></th><th><?= adminH(adminPhrase('Status')) ?></th></tr></thead><tbody>
+            <?php foreach ($rmas as $row): ?>
+            <tr>
+                <td><?= adminH($row['ticket_code']) ?><small><?= adminH(ucfirst($row['request_type'])) ?></small></td>
+                <td><?= adminH($row['product_name']) ?><small><?= adminH(adminPhrase('Order')) ?> #<?= adminH($row['order_id'] ?: adminPhrase('N/A')) ?></small></td>
+                <td><?= adminH($row['customer_name']) ?><small><?= adminH($row['email']) ?></small></td>
+                <td><small><?= adminH($row['created_at']) ?></small></td>
+                <td><?= statusForm('after_sales_requests', (int) $row['id'], (string) $row['status'], ['submitted','reviewing','approved','awaiting_item','inspecting','resolved','rejected']) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody></table>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No RMA requests yet.')) ?></div><?php endif; ?>
+    </section>
+
+    <section class="request-section">
+        <div class="card-head"><h2><?= adminH(adminPhrase('Referral Codes Generated')) ?></h2></div>
         <?php if ($referrals): ?>
-        <table class="request-table"><thead><tr><th>Client</th><th>Code</th><th>Bonus</th><th>Created</th></tr></thead><tbody>
+        <table class="request-table"><thead><tr><th><?= adminH(adminPhrase('Client')) ?></th><th><?= adminH(adminPhrase('Code')) ?></th><th><?= adminH(adminPhrase('Bonus')) ?></th><th><?= adminH(adminPhrase('Created')) ?></th></tr></thead><tbody>
             <?php foreach ($referrals as $row): ?>
             <tr>
-                <td><?= adminH($row['nom'] ?: 'Client #' . $row['client_id']) ?><small><?= adminH($row['email'] ?: '') ?></small></td>
+                <td><?= adminH($row['nom'] ?: adminPhrase('Client') . ' #' . $row['client_id']) ?><small><?= adminH($row['email'] ?: '') ?></small></td>
                 <td><strong><?= adminH($row['code']) ?></strong></td>
                 <td><?= (int) $row['bonus_points'] ?> pts</td>
                 <td><?= adminH($row['created_at']) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody></table>
-        <?php else: ?><div class="empty-queue">No referral codes generated yet.</div><?php endif; ?>
+        <?php else: ?><div class="empty-queue"><?= adminH(adminPhrase('No referral codes generated yet.')) ?></div><?php endif; ?>
     </section>
 </div>
 <?php adminPageEnd(); ?>

@@ -185,71 +185,124 @@ if ($status === 'in_stock') {
     $statusWhere = ' AND (in_stock = 0 OR stock_quantity <= 0)';
 }
 
-$products = adminFetchAll($pdo, '
+// Paginated query with caching
+$productQuery = '
     SELECT id, name, brand, category, price, old_price, stock_quantity, reorder_level, featured, in_stock, created_at
     FROM products
     WHERE (:search_empty = 1 OR name LIKE :search_name OR brand LIKE :search_brand OR category LIKE :search_category)
       AND (:category_empty = 1 OR category = :category_filter)
       ' . $statusWhere . '
     ORDER BY created_at DESC, id DESC
-', $params);
+';
+
+$result = adminPaginatedQuery($pdo, $productQuery, $params, 30);
+$products = $result['data'];
+$pagination = $result['pagination'];
+
+// AJAX request for infinite scroll
+if (!empty($_GET['ajax']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+    header('Content-Type: application/json');
+    
+    if (empty($products)) {
+        echo json_encode(['html' => '', 'hasMore' => false]);
+        exit;
+    }
+    
+    ob_start();
+    foreach ($products as $product):
+    ?>
+        <tr>
+            <td>
+                <strong><?= adminH($product['name']) ?></strong>
+                <small><?= adminH($product['brand']) ?> - <?= adminH(adminCategoryLabel($product['category'])) ?></small>
+            </td>
+            <td>
+                <?= adminMoney((float) $product['price']) ?>
+                <?php if (!empty($product['old_price'])): ?>
+                    <small class="inline-note"><?= adminH(adminPhrase('Old {amount}', ['amount' => adminMoney((float) $product['old_price'])])) ?></small>
+                <?php endif; ?>
+            </td>
+            <td>
+                <span class="status-badge <?= adminStockBadgeClass((int) $product['stock_quantity'], (int) $product['reorder_level']) ?>">
+                    <?= (int) $product['stock_quantity'] ?>
+                </span>
+            </td>
+            <td><?= adminH(adminBooleanLabel($product['featured'])) ?></td>
+            <td><?= adminH(substr((string) $product['created_at'], 0, 10)) ?></td>
+            <td class="table-actions">
+                <a class="button button-light button-small" href="admin-product-form.php?id=<?= (int) $product['id'] ?>"><?= adminH(adminPhrase('Edit')) ?></a>
+                <form method="post" action="admin-product-delete.php" onsubmit="return confirm('<?= adminH(adminPhrase('Delete this product?')) ?>');">
+                    <?= csrfField() ?>
+                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                    <button class="button button-danger button-small" type="submit"><?= adminH(adminPhrase('Delete')) ?></button>
+                </form>
+            </td>
+        </tr>
+    <?php
+    endforeach;
+    $html = ob_get_clean();
+    
+    echo json_encode([
+        'html' => $html,
+        'hasMore' => $pagination['has_next']
+    ]);
+    exit;
+}
 
 adminPageStart('Components Admin', 'products');
 ?>
 <section class="section-heading">
     <div>
-        <span class="eyebrow">Data Management</span>
-        <h1>Components</h1>
-        <p class="section-copy">Search, edit, add, and remove catalog records from one table.</p>
+        <span class="eyebrow"><?= adminH(adminPhrase('Data Management')) ?></span>
+        <h1><?= adminH(adminPhrase('Components')) ?></h1>
+        <p class="section-copy"><?= adminH(adminPhrase('Search, edit, add, and remove catalog records from one table.')) ?></p>
     </div>
     <div class="heading-actions">
-        <a class="button button-light" href="dashboard.php">Dashboard</a>
-        <a class="button button-light" href="admin-stock.php">Stock</a>
+        <a class="button button-light" href="dashboard.php"><?= adminH(adminPhrase('Dashboard')) ?></a>
+        <a class="button button-light" href="admin-stock.php"><?= adminH(adminPhrase('Stock')) ?></a>
         <a class="button button-light" href="api/export-products.php?format=csv"><i class="fas fa-file-csv"></i> CSV</a>
         <a class="button button-light" href="api/export-products.php?format=r"><i class="fas fa-code"></i> RData Script</a>
-        <a class="button button-primary" href="admin-product-form.php">Add Component</a>
+        <a class="button button-primary" href="admin-product-form.php"><?= adminH(adminPhrase('Add Component')) ?></a>
     </div>
 </section>
 
-<section class="table-card csv-import-card" style="margin-top: 20px; margin-bottom: 24px; border: 1px dashed rgba(0, 245, 212, 0.3); background: rgba(0, 245, 212, 0.02); transition: all 0.3s ease;">
-    <div class="card-head" style="border-bottom: none; margin-bottom: 15px;">
+<section class="table-card csv-import-card premium-import-card">
+    <div class="card-head premium-import-head">
         <div>
-            <h2 style="font-size: 1.15rem; color: var(--text); display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-file-import" style="color: var(--cyan);"></i> Bulk Import Components (CSV)
-            </h2>
-            <p style="margin: 4px 0 0; color: var(--muted); font-size: 0.82rem;">Update or populate the entire hardware catalog using a standard CSV format.</p>
+            <h2><i class="fas fa-file-import"></i> <?= adminH(adminPhrase('Bulk Import Components (CSV)')) ?></h2>
+            <p class="section-copy"><?= adminH(adminPhrase('Update or populate the entire hardware catalog using a standard CSV format.')) ?></p>
         </div>
-        <a class="button button-light button-small" href="admin-component-csv-template.php" style="border-color: rgba(0,245,212,0.2);"><i class="fas fa-download"></i> Download CSV Template</a>
+        <a class="button button-light button-small" href="admin-component-csv-template.php"><i class="fas fa-download"></i> <?= adminH(adminPhrase('Download CSV Template')) ?></a>
     </div>
     
-    <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+    <form method="post" enctype="multipart/form-data" class="premium-import-form">
         <?= csrfField() ?>
-        <span style="display: block; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--muted); letter-spacing: 0.05em;">Upload Supplier Inventory Spreadsheet (.csv)</span>
+        <span class="premium-import-label"><?= adminH(adminPhrase('Upload Supplier Inventory Spreadsheet (.csv)')) ?></span>
         
-        <div style="display: flex; gap: 16px; align-items: stretch; width: 100%; flex-wrap: wrap;">
-            <!-- Premium Custom File Upload Dropzone -->
-            <label class="custom-file-upload-zone" style="flex: 1; min-width: 300px;">
-                <i class="fas fa-file-csv" style="font-size: 2.5rem; color: var(--cyan); margin-bottom: 10px;"></i>
-                <span style="font-family: 'Orbitron', sans-serif; font-weight: 800; color: var(--white); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;" id="csvFileNameDisplay">Select CSV Inventory File</span>
-                <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;" id="csvSubtextDisplay">Drag & drop or click to browse</span>
+        <div class="premium-import-row">
+            <label class="custom-file-upload-zone premium-upload-zone">
+                <i class="fas fa-file-csv premium-upload-icon"></i>
+                <span class="premium-upload-title" id="csvFileNameDisplay"><?= adminH(adminPhrase('Select CSV Inventory File')) ?></span>
+                <span class="premium-upload-subtitle" id="csvSubtextDisplay"><?= adminH(adminPhrase('Drag & drop or click to browse')) ?></span>
                 <input type="file" name="csv_file" accept=".csv" required style="display: none;" onchange="
                     const file = this.files[0];
+                    const t = (source) => (window.__marocPcPhraseMap && window.__marocPcPhraseMap[source]) || source;
                     if (file) {
                         document.getElementById('csvFileNameDisplay').textContent = file.name;
                         document.getElementById('csvFileNameDisplay').style.color = 'var(--cyan)';
-                        document.getElementById('csvSubtextDisplay').textContent = 'File loaded successfully';
+                        document.getElementById('csvSubtextDisplay').textContent = t('File loaded successfully');
                         document.getElementById('csvSubtextDisplay').style.color = '#00f5d4';
                     } else {
-                        document.getElementById('csvFileNameDisplay').textContent = 'Select CSV Inventory File';
+                        document.getElementById('csvFileNameDisplay').textContent = t('Select CSV Inventory File');
                         document.getElementById('csvFileNameDisplay').style.color = 'var(--white)';
-                        document.getElementById('csvSubtextDisplay').textContent = 'Drag & drop or click to browse';
+                        document.getElementById('csvSubtextDisplay').textContent = t('Drag & drop or click to browse');
                         document.getElementById('csvSubtextDisplay').style.color = 'var(--muted)';
                     }
                 ">
             </label>
             
-            <button class="button button-primary" type="submit" style="min-height: auto; height: auto; padding: 0 32px; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; font-size: 0.9rem; flex-shrink: 0; min-width: 180px;">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 1.1rem;"></i> Import & Sync
+            <button class="button button-primary premium-import-submit" type="submit">
+                <i class="fas fa-cloud-upload-alt"></i> <?= adminH(adminPhrase('Import & Sync')) ?>
             </button>
         </div>
     </form>
@@ -257,68 +310,68 @@ adminPageStart('Components Admin', 'products');
 
 
 <?php if (isset($_GET['saved'])): ?>
-    <div class="admin-alert success">Component saved successfully.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Component saved successfully.')) ?></div>
 <?php elseif (isset($_GET['deleted'])): ?>
-    <div class="admin-alert success">Component deleted successfully.</div>
+    <div class="admin-alert success"><?= adminH(adminPhrase('Component deleted successfully.')) ?></div>
 <?php elseif (isset($_GET['error'])): ?>
     <div class="admin-alert error"><?= adminH($_GET['error']) ?></div>
 <?php endif; ?>
 
 <section class="table-card">
     <div class="card-head">
-        <h2>Catalog Records</h2>
+        <h2><?= adminH(adminPhrase('Catalog Records')) ?></h2>
     </div>
     <form class="filter-bar" method="get">
         <label>
-            Search
-            <input type="text" name="search" value="<?= adminH($search) ?>" placeholder="Name, brand, category">
+            <?= adminH(adminPhrase('Search')) ?>
+            <input type="text" name="search" value="<?= adminH($search) ?>" placeholder="<?= adminH(adminPhrase('Name, brand, category')) ?>">
         </label>
         <label>
-            Category
+            <?= adminH(adminPhrase('Category')) ?>
             <select name="category">
-                <option value="">All categories</option>
+                <option value=""><?= adminH(adminPhrase('All categories')) ?></option>
                 <?php foreach ($categories as $row): ?>
-                    <option value="<?= adminH($row['category']) ?>" <?= $category === $row['category'] ? 'selected' : '' ?>><?= adminH($row['category']) ?></option>
+                    <option value="<?= adminH($row['category']) ?>" <?= $category === $row['category'] ? 'selected' : '' ?>><?= adminH(adminCategoryLabel($row['category'])) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
         <label>
-            Status
+            <?= adminH(adminPhrase('Status')) ?>
             <select name="status">
-                <option value="">All statuses</option>
-                <option value="in_stock" <?= $status === 'in_stock' ? 'selected' : '' ?>>In stock</option>
-                <option value="low_stock" <?= $status === 'low_stock' ? 'selected' : '' ?>>Low stock</option>
-                <option value="out_of_stock" <?= $status === 'out_of_stock' ? 'selected' : '' ?>>Out of stock</option>
+                <option value=""><?= adminH(adminPhrase('All statuses')) ?></option>
+                <option value="in_stock" <?= $status === 'in_stock' ? 'selected' : '' ?>><?= adminH(adminPhrase('In stock')) ?></option>
+                <option value="low_stock" <?= $status === 'low_stock' ? 'selected' : '' ?>><?= adminH(adminPhrase('Low stock')) ?></option>
+                <option value="out_of_stock" <?= $status === 'out_of_stock' ? 'selected' : '' ?>><?= adminH(adminPhrase('Out of stock')) ?></option>
             </select>
         </label>
-        <button class="button button-primary" type="submit">Filter</button>
+        <button class="button button-primary" type="submit"><?= adminH(adminPhrase('Filter')) ?></button>
     </form>
 
     <table>
         <thead>
             <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Featured</th>
-                <th>Added</th>
+                <th><?= adminH(adminPhrase('Product')) ?></th>
+                <th><?= adminH(adminPhrase('Price')) ?></th>
+                <th><?= adminH(adminPhrase('Stock')) ?></th>
+                <th><?= adminH(adminPhrase('Featured')) ?></th>
+                <th><?= adminH(adminPhrase('Added')) ?></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             <?php if ($products === []): ?>
-                <tr><td colspan="6">No products match the current filters.</td></tr>
+                <tr><td colspan="6"><?= adminH(adminPhrase('No products match the current filters.')) ?></td></tr>
             <?php endif; ?>
             <?php foreach ($products as $product): ?>
                 <tr>
                     <td>
                         <strong><?= adminH($product['name']) ?></strong>
-                        <small><?= adminH($product['brand']) ?> - <?= adminH($product['category']) ?></small>
+                        <small><?= adminH($product['brand']) ?> - <?= adminH(adminCategoryLabel($product['category'])) ?></small>
                     </td>
                     <td>
                         <?= adminMoney((float) $product['price']) ?>
                         <?php if (!empty($product['old_price'])): ?>
-                            <small class="inline-note">Old <?= adminMoney((float) $product['old_price']) ?></small>
+                            <small class="inline-note"><?= adminH(adminPhrase('Old {amount}', ['amount' => adminMoney((float) $product['old_price'])])) ?></small>
                         <?php endif; ?>
                     </td>
                     <td>
@@ -326,19 +379,21 @@ adminPageStart('Components Admin', 'products');
                             <?= (int) $product['stock_quantity'] ?>
                         </span>
                     </td>
-                    <td><?= !empty($product['featured']) ? 'Yes' : 'No' ?></td>
+                    <td><?= adminH(adminBooleanLabel($product['featured'])) ?></td>
                     <td><?= adminH(substr((string) $product['created_at'], 0, 10)) ?></td>
                     <td class="table-actions">
-                        <a class="button button-light button-small" href="admin-product-form.php?id=<?= (int) $product['id'] ?>">Edit</a>
-                        <form method="post" action="admin-product-delete.php" onsubmit="return confirm('Delete this product?');">
+                        <a class="button button-light button-small" href="admin-product-form.php?id=<?= (int) $product['id'] ?>"><?= adminH(adminPhrase('Edit')) ?></a>
+                        <form method="post" action="admin-product-delete.php" onsubmit="return confirm('<?= adminH(adminPhrase('Delete this product?')) ?>');">
                             <?= csrfField() ?>
                             <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                            <button class="button button-danger button-small" type="submit">Delete</button>
+                            <button class="button button-danger button-small" type="submit"><?= adminH(adminPhrase('Delete')) ?></button>
                         </form>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+    
+    <?= adminRenderPagination($pagination) ?>
 </section>
 <?php adminPageEnd(); ?>
