@@ -1,0 +1,31 @@
+/* Steam OAuth Provider Button Styling */
+
+.provider-steam {
+    background: linear-gradient(135deg, #171a21 0%, #1b2838 100%);
+    border: 1px solid #2a475e;
+    color: #c7d5e0;
+}
+
+.provider-steam:hover {
+    background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+    border-color: #66c0f4;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 192, 244, 0.3);
+}
+
+.provider-steam i {
+    color: #66c0f4;
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .provider-steam {
+    background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+    border-color: #66c0f4;
+    color: #ffffff;
+}
+
+[data-theme="light"] .provider-steam:hover {
+    background: linear-gradient(135deg, #171a21 0%, #1b2838 100%);
+    box-shadow: 0 8px 20px rgba(102, 192, 244, 0.4);
+}
