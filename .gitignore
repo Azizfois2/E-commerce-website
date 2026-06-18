@@ -1,6 +1,102 @@
+# Secrets / local config
 .env
 .env.local
 .env.*.local
+
+# Local-only tooling & generated artifacts
 scratch/
 .impeccable/
 vendor/
+.dist/
+
+# IDE / editor folders
+.vscode/
+.kiro/
+__brave_tmp/
+
+# ── One-off test / debug / fix scripts (never ship to production) ──
+# Test harnesses
+test*.php
+test*.html
+test*.py
+test*.js
+_test*.php
+test-*.php
+test-*.html
+# Fix / patch / injection throwaway scripts
+fix_*.php
+fix_*.py
+patch_*.py
+inject_*.py
+find_*.py
+cleanup_*.py
+extract_*.py
+merge-*.php
+# Local diagnostic / experimental scripts
+scratch_test.php
+_codex_render_check.php
+clear-all-caches.php
+print_lines.php
+migrate-ai-specs.php
+migrate-review-translations.php
+extract-missing-translations.php
+merge-french-translations.php
+debug-*.php
+check-*.php
+check-*.txt
+
+# ── Generated i18n audit output (regenerated locally, not source) ──
+*.phrases.txt
+missing_*.txt
+admin_phrases.txt
+includes/*_keys*.txt
+
+# ── Backups, logs, temp output ──
+*.backup
+*.backup2
+*.backup_*
+*.bak
+*.bak2
+*.log
+error_log.txt
+output.html
+temp_out.html
+DEBUG_I18N.html
+nul
+
+# ── AI-generated status / progress docs (consistent with previously removed README/DESIGN/etc.) ──
+ADMIN_*.md
+BEFORE_AFTER_COMPARISON.md
+DEPLOYMENT_*.md
+FRENCH_TRANSLATIONS_SUMMARY.md
+FRENCH_TRANSLATION_MERGE_INSTRUCTIONS.md
+INFINITE_SCROLL_FEATURE.md
+QUICK_START_FRENCH.md
+ROLLBACK_INSTRUCTIONS.md
+WHATS_WORKING.md
+
+# ── Personal / reference documents ──
+*.pdf
+mdfiles/
+
+# ── Saved web pages (not source) ──
+Images/products/Maroc PC _*.html
+Images/products/*_files/
+
+# ── Stray / duplicate images (hero already tracked as laptop.png / laptop-light.png) ──
+laptop-lightpng.png
+
+# ── Screenshots & ad-hoc images that are not product/store assets ──
+i18n problems/
+admin-marketing-preview.png
+image.png
+
+# ── Local scratch output ──
+test_keys.txt
+
+# ── Local inventory dumps (templates tracked, real data is not) ──
+ai_laptop_inventory_2026.csv
+
+# Broken language backups kept locally for reference
+lang/ar_broken_backup.php
+lang/fr-admin-account-additions.php
