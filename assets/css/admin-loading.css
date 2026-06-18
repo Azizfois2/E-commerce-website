@@ -1,0 +1,314 @@
+/* Admin Loading States & Performance Indicators */
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
+.admin-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 14, 23, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.admin-loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.admin-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(0, 245, 212, 0.1);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   INLINE LOADING STATES
+   ============================================ */
+
+.searching::after {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(0, 245, 212, 0.2);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.saving::after {
+    content: 'Saving...';
+    display: inline-block;
+    margin-left: 8px;
+    color: var(--cyan);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.saved::after {
+    content: '✓ Saved';
+    display: inline-block;
+    margin-left: 8px;
+    color: #00f5d4;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ============================================
+   PERFORMANCE BADGE
+   ============================================ */
+
+.perf-badge {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--cyan);
+    z-index: 1000;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.perf-badge:hover {
+    opacity: 1;
+}
+
+.perf-badge .perf-label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.perf-badge .perf-value {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.perf-badge .perf-value.fast {
+    color: #00f5d4;
+}
+
+.perf-badge .perf-value.medium {
+    color: #ffcf4d;
+}
+
+.perf-badge .perf-value.slow {
+    color: #ff3d5a;
+}
+
+/* ============================================
+   CACHE STATUS INDICATOR
+   ============================================ */
+
+.cache-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(0, 245, 212, 0.1);
+    border: 1px solid rgba(0, 245, 212, 0.2);
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cache-indicator i {
+    font-size: 0.8rem;
+}
+
+.cache-indicator.cached {
+    background: rgba(0, 245, 212, 0.15);
+    border-color: rgba(0, 245, 212, 0.3);
+}
+
+.cache-indicator.fresh {
+    background: rgba(255, 207, 77, 0.1);
+    border-color: rgba(255, 207, 77, 0.2);
+    color: var(--yellow);
+}
+
+/* ============================================
+   OPTIMIZED BANNER
+   ============================================ */
+
+.optimization-banner {
+    background: linear-gradient(135deg, rgba(0, 245, 212, 0.1) 0%, rgba(0, 245, 212, 0.05) 100%);
+    border: 1px solid rgba(0, 245, 212, 0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.optimization-banner .banner-icon {
+    font-size: 2rem;
+    color: var(--cyan);
+}
+
+.optimization-banner .banner-content {
+    flex: 1;
+}
+
+.optimization-banner .banner-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.optimization-banner .banner-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.optimization-banner .banner-stats {
+    display: flex;
+    gap: 20px;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.optimization-banner .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.optimization-banner .stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cyan);
+}
+
+.optimization-banner .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================
+   LAZY LOAD TRIGGER
+   ============================================ */
+
+.load-more-trigger {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.load-more-trigger button {
+    min-width: 200px;
+}
+
+/* ============================================
+   SKELETON IMPROVEMENTS
+   ============================================ */
+
+.skeleton-card {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.loading-skeleton {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+
+/* ============================================
+   RESPONSIVE OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .perf-badge {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 12px;
+    }
+    
+    .optimization-banner {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .optimization-banner .banner-stats {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   PRINT STYLES - Hide Performance Indicators
+   ============================================ */
+
+@media print {
+    .perf-badge,
+    .cache-indicator,
+    .optimization-banner,
+    .admin-loading-overlay {
+        display: none !important;
+    }
+}

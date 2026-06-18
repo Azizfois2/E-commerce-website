@@ -1,0 +1,731 @@
+/* Optimized Admin CSS - Combined & Minified for Fast Loading */
+
+/* ============================================
+   CRITICAL STYLES - Load First
+   ============================================ */
+
+:root {
+    /* Dark Theme Colors */
+    --page-bg: #0a0e17;
+    --page-bg-2: #0f1419;
+    --card-bg: #1a1f2e;
+    --text: #e0e6ed;
+    --muted: #8b92a0;
+    --border: rgba(255, 255, 255, 0.08);
+    --cyan: #00f5d4;
+    --red: #ff3d5a;
+    --yellow: #ffcf4d;
+    --input-bg: #13181f;
+    --white: #ffffff;
+    --admin-shell: linear-gradient(180deg, rgba(11, 18, 30, 0.98), rgba(8, 13, 24, 0.96));
+    --admin-surface: linear-gradient(180deg, rgba(25, 33, 48, 0.94), rgba(16, 22, 34, 0.92));
+    --admin-surface-soft: rgba(255, 255, 255, 0.03);
+    --admin-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    --admin-radius-xl: 28px;
+    --admin-radius-lg: 20px;
+    --admin-radius-md: 14px;
+}
+
+/* Performance Optimizations */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background:
+        radial-gradient(circle at top, rgba(0, 245, 212, 0.08), transparent 26%),
+        linear-gradient(180deg, var(--page-bg) 0%, #070b12 100%);
+    color: var(--text);
+    font-family: 'Syne', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.admin-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-app-shell {
+    min-height: 100vh;
+}
+
+
+/* ============================================
+   LOADING STATES - Skeleton Screens
+   ============================================ */
+
+.loading-skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--card-bg) 25%,
+        rgba(255, 255, 255, 0.05) 50%,
+        var(--card-bg) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+    height: 20px;
+    margin: 8px 0;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+/* ============================================
+   HEADER - Sticky & Optimized
+   ============================================ */
+
+.header {
+    background: rgba(12, 18, 29, 0.72);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    max-width: 1480px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.nav-logo {
+    height: 40px;
+    width: auto;
+}
+
+.admin-topbar {
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.16);
+}
+
+.admin-topbar-inner {
+    gap: 1.25rem;
+}
+
+.admin-topbar-branding {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.admin-logo-lockup {
+    gap: 0.9rem;
+}
+
+.admin-brand-copy {
+    display: grid;
+    gap: 2px;
+}
+
+.admin-brand-copy strong {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.92rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white);
+}
+
+.admin-brand-copy small {
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+
+.admin-utility-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-topbar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 245, 212, 0.16);
+    background: rgba(0, 245, 212, 0.06);
+}
+
+.admin-topbar-badge-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.admin-topbar-badge strong {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--cyan);
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   TABLES - Optimized Rendering
+   ============================================ */
+
+.table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    contain: layout style paint;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+thead {
+    background: rgba(0, 245, 212, 0.05);
+    border-bottom: 2px solid var(--border);
+}
+
+th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--cyan);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+    background: rgba(0, 245, 212, 0.03);
+}
+
+td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+/* ============================================
+   BUTTONS - Consistent & Fast
+   ============================================ */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.button-primary {
+    background: var(--cyan);
+    color: #000;
+}
+
+.button-primary:hover {
+    background: #00d4b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 245, 212, 0.3);
+}
+
+.button-light {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.button-light:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.button-danger {
+    background: var(--red);
+    color: var(--white);
+}
+
+.button-danger:hover {
+    background: #ff1f3d;
+}
+
+.button-small {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   STATS GRID - Modern Dashboard Cards
+   ============================================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    contain: layout style paint;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--cyan);
+    box-shadow: 0 8px 30px rgba(0, 245, 212, 0.12);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--cyan);
+    opacity: 0.7;
+}
+
+.stat-card strong {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    color: var(--text);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.stat-card span {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+}
+
+/* ============================================
+   PAGINATION - Fast Navigation
+   ============================================ */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 24px 0;
+    padding: 16px;
+}
+
+.pagination button,
+.pagination a {
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.pagination button:hover,
+.pagination a:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.pagination .active {
+    background: var(--cyan);
+    color: #000;
+    border-color: var(--cyan);
+}
+
+/* ============================================
+   BADGES & STATUS
+   ============================================ */
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.is-good {
+    background: rgba(0, 245, 212, 0.15);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 245, 212, 0.3);
+}
+
+.status-badge.is-warn {
+    background: rgba(255, 207, 77, 0.15);
+    color: var(--yellow);
+    border: 1px solid rgba(255, 207, 77, 0.3);
+}
+
+.status-badge.is-danger {
+    background: rgba(255, 61, 90, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(255, 61, 90, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ============================================ */
+
+/* Mobile Optimizations for Admin Header */
+@media (max-width: 1024px) {
+    .admin-topbar-inner {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .admin-topbar-branding {
+        flex: 1 1 100%;
+        justify-content: space-between;
+    }
+    
+    .admin-utility-nav {
+        display: none; /* Hide secondary nav on mobile */
+    }
+    
+    .admin-topbar-actions {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .admin-topbar-badge {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .admin-topbar-badge-label {
+        display: none; /* Hide label, keep count */
+    }
+}
+
+@media (max-width: 768px) {
+    /* Header Adjustments */
+    .header {
+        padding: 0.75rem;
+    }
+    
+    .nav-container {
+        gap: 1rem;
+    }
+    
+    .nav-logo {
+        height: 32px;
+    }
+    
+    .admin-brand-copy {
+        gap: 0px;
+    }
+    
+    .admin-brand-copy strong {
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+    }
+    
+    .admin-brand-copy small {
+        font-size: 0.65rem;
+        display: none; /* Hide subtitle on very small screens */
+    }
+    
+    .admin-logo-lockup {
+        gap: 0.6rem;
+    }
+    
+    .admin-topbar-actions {
+        gap: 0.4rem;
+    }
+    
+    .admin-topbar-badge {
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .admin-topbar-badge strong {
+        font-size: 0.85rem;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+    }
+    
+    .stat-card strong {
+        font-size: 1.5rem;
+    }
+    
+    /* Tables */
+    .table-card {
+        padding: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        font-size: 0.75rem;
+        min-width: 600px; /* Force horizontal scroll for complex tables */
+    }
+    
+    th, td {
+        padding: 8px 6px;
+        white-space: nowrap;
+    }
+    
+    /* Buttons */
+    .button {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .button-small {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+    
+    /* Account Layout - Stack on Mobile */
+    .account-layout {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .account-sidebar {
+        width: 100%;
+        order: 2; /* Move sidebar below content on mobile */
+    }
+    
+    .account-content {
+        order: 1;
+    }
+    
+    /* Admin Workspace - Better Mobile Layout */
+    .admin-workspace-layout {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar-premium {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .admin-sidebar-intro {
+        padding: 16px;
+    }
+    
+    .admin-sidebar-intro h2 {
+        font-size: 1.3rem;
+    }
+    
+    .admin-sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .admin-sidebar-nav a {
+        font-size: 0.85rem;
+        padding: 12px;
+    }
+    
+    /* Command Strip - Hide on Mobile */
+    .admin-shortcuts-bar {
+        display: none;
+    }
+    
+    /* Section Headings */
+    .section-heading {
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .section-heading h1,
+    .section-heading h2 {
+        font-size: 1.4rem;
+    }
+    
+    .heading-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra Small Screens */
+    .admin-brand-copy strong {
+        font-size: 0.7rem;
+        max-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .nav-logo {
+        height: 28px;
+    }
+    
+    .admin-topbar-badge {
+        min-width: 40px;
+        justify-content: center;
+    }
+    
+    .theme-toggle,
+    .nav-translate {
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+    }
+    
+    .stats-grid {
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 14px;
+    }
+    
+    .button {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+    
+    /* Stack all elements */
+    .admin-sidebar-nav {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Compact table on very small screens */
+    table {
+        font-size: 0.7rem;
+    }
+    
+    th, td {
+        padding: 6px 4px;
+    }
+}
+
+/* Landscape Orientation Fixes */
+@media (max-width: 768px) and (orientation: landscape) {
+    .admin-sidebar-nav {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================================
+   PERFORMANCE: Reduce Repaints
+   ============================================ */
+
+.account-layout {
+    display: flex;
+    gap: 24px;
+    contain: layout;
+}
+
+.account-sidebar {
+    flex-shrink: 0;
+    width: 240px;
+    contain: layout style;
+}
+
+.account-content {
+    flex: 1;
+    min-width: 0;
+    contain: layout style;
+}
+
+/* ============================================
+   ACCESSIBILITY & FOCUS STATES
+   ============================================ */
+
+:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+}
+
+button:disabled,
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   DARK MODE ENHANCEMENTS
+   ============================================ */
+
+[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
