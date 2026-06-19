@@ -43,11 +43,11 @@ const laptops = [
             "value": 2.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -83,18 +83,18 @@ const laptops = [
         "isCopilotPlus": false,
         "aiTier": "basic",
         "scores": {
-            "performance": 6.5,
+            "performance": 6.6,
             "portability": 10,
             "screen": 7,
-            "ai": 2.2,
-            "value": 4.5
+            "ai": 2.7,
+            "value": 4.6
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -139,11 +139,11 @@ const laptops = [
             "value": 7.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -188,11 +188,11 @@ const laptops = [
             "value": 2.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -235,11 +235,11 @@ const laptops = [
             "value": 4.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -282,11 +282,11 @@ const laptops = [
             "value": 4.3
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -329,11 +329,11 @@ const laptops = [
             "value": 7.6
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -376,11 +376,11 @@ const laptops = [
             "value": 7.6
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -423,11 +423,11 @@ const laptops = [
             "value": 4.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -470,11 +470,11 @@ const laptops = [
             "value": 5.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -517,11 +517,11 @@ const laptops = [
             "value": 5.4
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -564,11 +564,11 @@ const laptops = [
             "value": 7.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -611,11 +611,11 @@ const laptops = [
             "value": 3.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -658,11 +658,11 @@ const laptops = [
             "value": 4.8
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -705,11 +705,11 @@ const laptops = [
             "value": 4.8
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -752,11 +752,11 @@ const laptops = [
             "value": 7.3
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -799,11 +799,11 @@ const laptops = [
             "value": 5.9
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -846,11 +846,11 @@ const laptops = [
             "value": 5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -893,11 +893,11 @@ const laptops = [
             "value": 6.7
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -940,11 +940,11 @@ const laptops = [
             "value": 7.3
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -980,18 +980,18 @@ const laptops = [
         "isCopilotPlus": false,
         "aiTier": "basic",
         "scores": {
-            "performance": 5.4,
+            "performance": 5.5,
             "portability": 10,
             "screen": 9.5,
-            "ai": 2.2,
-            "value": 5.3
+            "ai": 2.7,
+            "value": 5.4
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1034,11 +1034,11 @@ const laptops = [
             "value": 4.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1081,11 +1081,11 @@ const laptops = [
             "value": 6.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1128,11 +1128,11 @@ const laptops = [
             "value": 7.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1175,11 +1175,11 @@ const laptops = [
             "value": 6.6
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1222,11 +1222,11 @@ const laptops = [
             "value": 7.3
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1269,11 +1269,11 @@ const laptops = [
             "value": 6.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1316,11 +1316,11 @@ const laptops = [
             "value": 6.8
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1356,18 +1356,18 @@ const laptops = [
         "isCopilotPlus": false,
         "aiTier": "basic",
         "scores": {
-            "performance": 5.4,
+            "performance": 5.5,
             "portability": 9.9,
             "screen": 9.5,
-            "ai": 2.2,
-            "value": 6.3
+            "ai": 2.7,
+            "value": 6.4
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1410,11 +1410,11 @@ const laptops = [
             "value": 5.4
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1457,11 +1457,11 @@ const laptops = [
             "value": 7.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1504,11 +1504,11 @@ const laptops = [
             "value": 7.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1551,11 +1551,11 @@ const laptops = [
             "value": 6.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1598,11 +1598,11 @@ const laptops = [
             "value": 8.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1645,11 +1645,11 @@ const laptops = [
             "value": 3.7
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1692,11 +1692,11 @@ const laptops = [
             "value": 6.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1739,11 +1739,11 @@ const laptops = [
             "value": 8
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1786,11 +1786,11 @@ const laptops = [
             "value": 4.7
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1833,11 +1833,11 @@ const laptops = [
             "value": 3.8
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1880,11 +1880,11 @@ const laptops = [
             "value": 3.6
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1927,11 +1927,11 @@ const laptops = [
             "value": 2.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -1967,18 +1967,18 @@ const laptops = [
         "isCopilotPlus": false,
         "aiTier": "basic",
         "scores": {
-            "performance": 5.4,
+            "performance": 5.5,
             "portability": 10,
             "screen": 9.5,
-            "ai": 2.2,
-            "value": 5
+            "ai": 2.7,
+            "value": 5.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2014,18 +2014,18 @@ const laptops = [
         "isCopilotPlus": false,
         "aiTier": "basic",
         "scores": {
-            "performance": 5.2,
+            "performance": 5.4,
             "portability": 9,
             "screen": 9.5,
-            "ai": 2.2,
-            "value": 5.9
+            "ai": 2.7,
+            "value": 6.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2070,11 +2070,11 @@ const laptops = [
             "value": 5.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2120,11 +2120,11 @@ const laptops = [
             "value": 4.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2170,11 +2170,11 @@ const laptops = [
             "value": 3.4
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2219,11 +2219,11 @@ const laptops = [
             "value": 6.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2268,11 +2268,11 @@ const laptops = [
             "value": 5.3
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2317,11 +2317,11 @@ const laptops = [
             "value": 5.3
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2366,11 +2366,11 @@ const laptops = [
             "value": 5.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2416,11 +2416,11 @@ const laptops = [
             "value": 4.7
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2465,11 +2465,11 @@ const laptops = [
             "value": 7.1
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2515,11 +2515,11 @@ const laptops = [
             "value": 6.5
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2565,11 +2565,11 @@ const laptops = [
             "value": 5.7
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2608,18 +2608,18 @@ const laptops = [
         "isCopilotPlus": false,
         "aiTier": "basic",
         "scores": {
-            "performance": 6.5,
+            "performance": 6.6,
             "portability": 10,
             "screen": 1,
-            "ai": 2.2,
-            "value": 5.5
+            "ai": 2.7,
+            "value": 5.6
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     },
     {
@@ -2665,11 +2665,11 @@ const laptops = [
             "value": 2.2
         },
         "scoreBasis": {
-            "performance": "GPU tier, NPU TOPS, RAM, and storage from catalog specs",
-            "portability": "Weight, battery Wh, and screen size from catalog specs",
-            "screen": "Stored screen class: OLED, high refresh, or standard",
-            "ai": "NPU TOPS from researched product/spec data",
-            "value": "Catalog fact score divided by stored Maroc PC price"
+            "performance": "Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).",
+            "portability": "1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).",
+            "screen": "1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.",
+            "ai": "Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.",
+            "value": "Catalog hardware score divided by the current retail price (higher spec per dirham = higher)."
         }
     }
 ];

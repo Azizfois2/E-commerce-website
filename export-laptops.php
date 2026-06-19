@@ -52,7 +52,22 @@ function adminExportLaptopsToDataJs(PDO $pdo): void
             'high_refresh' => 8.7,
             default => $screenSize > 0 ? 7.0 : 1.0,
         };
-        $aiScore = $npuTops > 0 ? $clampScore(($npuTops / 50.0) * 10.0) : 1.0;
+        // AI Processor score: piecewise-linear on NPU TOPS.
+        // Anchors (reviewer-spec'd): 0 TOPS → 1.0 (legacy, no NPU), 16 TOPS → 3.5
+        // (e.g. Ryzen 9 8945HS), 50 TOPS → 10.0 (Copilot+ class). This reserves 1/10
+        // for zero-AI-hardware inventory and stops penalizing premium non-Copilot+ chips.
+        $aiScore = (static function () use ($npuTops, $clampScore): float {
+            if ($npuTops <= 0.0) return 1.0;
+            if ($npuTops < 16.0) {
+                // 0 → 1.0, 16 → 3.5
+                return $clampScore(1.0 + (($npuTops / 16.0) * 2.5));
+            }
+            if ($npuTops < 50.0) {
+                // 16 → 3.5, 50 → 10.0
+                return $clampScore(3.5 + ((($npuTops - 16.0) / 34.0) * 6.5));
+            }
+            return 10.0;
+        })();
         $memoryScore = $ramGb > 0 ? $clampScore(($ramGb / 32.0) * 8.0 + 2.0) : 5.0;
         $storageScore = $storageGb > 0 ? $clampScore(($storageGb / 1024.0) * 6.0 + 4.0) : 5.0;
         $performanceScore = $clampScore(($gpuScore * 0.45) + ($aiScore * 0.25) + ($memoryScore * 0.20) + ($storageScore * 0.10));
@@ -99,11 +114,11 @@ function adminExportLaptopsToDataJs(PDO $pdo): void
                 'value' => $valueScore,
             ],
             'scoreBasis' => [
-                'performance' => 'GPU tier, NPU TOPS, RAM, and storage from catalog specs',
-                'portability' => 'Weight, battery Wh, and screen size from catalog specs',
-                'screen' => 'Stored screen class: OLED, high refresh, or standard',
-                'ai' => 'NPU TOPS from researched product/spec data',
-                'value' => 'Catalog fact score divided by stored Maroc PC price',
+                'performance' => 'Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).',
+                'portability' => '1-10 from weight, battery Wh, and screen size (lighter + longer battery = higher).',
+                'screen' => '1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.',
+                'ai' => 'Scored 1-10 from NPU TOPS: 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 at 50+ TOPS.',
+                'value' => 'Catalog hardware score divided by the current retail price (higher spec per dirham = higher).',
             ]
         ];
     }

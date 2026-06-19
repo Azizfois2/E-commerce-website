@@ -507,6 +507,16 @@ i18n_start_page_translation();
             transform: translateY(-3px);
         }
 
+        /* When any score tooltip inside a card is open (hover/focus/tap), lift the WHOLE
+           card above its neighbours. Each card is its own stacking context (backdrop-filter
+           + position:relative), so a tooltip overflowing the card's bottom edge is painted
+           over by the card below unless the active card's z-index beats it. */
+        .laptop-card:has(.metric-tip-icon:hover),
+        .laptop-card:has(.metric-tip-icon:focus),
+        .laptop-card:has(.metric-tip-icon.tapped) {
+            z-index: 20;
+        }
+
         /* Custom badge overlay on high match card */
         .match-badge {
             position: absolute;
@@ -564,18 +574,11 @@ i18n_start_page_translation();
             display: block;
         }
 
-        .laptop-specs-mini {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
         .verified-spec-strip {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(0, 245, 212, 0.12);
             padding-top: 14px;
             margin-top: 14px;
         }
@@ -594,28 +597,28 @@ i18n_start_page_translation();
             font-size: 0.66rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: var(--muted);
+            color: var(--text);
             margin-bottom: 4px;
         }
 
         .verified-spec-chip strong {
             display: block;
             color: var(--white);
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             line-height: 1.25;
             overflow-wrap: anywhere;
         }
 
         .spec-item {
             font-size: 0.85rem;
-            color: var(--muted);
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
         .spec-item i {
-            color: var(--text);
+            color: var(--cyan);
             width: 14px;
         }
 
@@ -631,17 +634,119 @@ i18n_start_page_translation();
 
         .metric-bar-group {
             display: grid;
-            grid-template-columns: 120px 1fr 40px;
+            grid-template-columns: 140px 1fr 52px;
             align-items: center;
             gap: 12px;
+            position: relative;
+            /* Default z-index keeps DOM order; raised on hover/focus/tap below so the
+               open tooltip clears the rows that come after it in source order. */
+            z-index: 1;
+        }
+
+        /* When any tooltip in this row is open, lift the whole row above its siblings
+           so the tooltip wins the stacking battle. Hover/focus live on the icon; tap
+           toggles .tapped on the icon — both cascade up here via :has(). */
+        .metric-bar-group:has(.metric-tip-icon:hover),
+        .metric-bar-group:has(.metric-tip-icon:focus),
+        .metric-bar-group:has(.metric-tip-icon.tapped) {
+            z-index: 50;
         }
 
         .metric-label {
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: var(--muted);
+            color: var(--text);
             font-family: 'Space Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+        }
+
+        .metric-tip-icon {
+            color: var(--cyan);
+            font-size: 0.68rem;
+            cursor: help;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .metric-tip-icon:hover,
+        .metric-tip-icon:focus {
+            opacity: 1;
+            outline: none;
+        }
+
+        .metric-tip {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            z-index: 50;
+            width: max-content;
+            max-width: 280px;
+            padding: 10px 12px;
+            background: var(--page-bg-3);
+            border: 1px solid var(--cyan);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.72rem;
+            line-height: 1.45;
+            text-transform: none;
+            letter-spacing: 0;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+            pointer-events: none;
+        }
+
+        /* Hover (desktop) + focus (keyboard) reveal the tooltip */
+        .metric-tip-icon:hover + .metric-tip,
+        .metric-tip-icon:focus + .metric-tip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Tap reveal (mobile): toggle via JS class on the icon */
+        .metric-tip-icon.tapped + .metric-tip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Tooltip content structure (bidi-safe: translated phrases flow with dir,
+           formula lines are locked LTR via dir="ltr" on .tip-line). */
+        .metric-tip .tip-intro {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text);
+            font-weight: 600;
+        }
+        .metric-tip .tip-lines {
+            display: block;
+            margin-bottom: 6px;
+            padding-top: 4px;
+            border-top: 1px solid var(--border);
+        }
+        .metric-tip .tip-line {
+            display: block;
+            color: var(--white);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            line-height: 1.5;
+        }
+        .metric-tip .tip-result {
+            display: block;
+            padding-top: 4px;
+            border-top: 1px solid var(--border);
+            color: var(--cyan);
+            font-weight: 700;
+            font-size: 0.72rem;
         }
 
         .metric-track {
@@ -668,6 +773,29 @@ i18n_start_page_translation();
             font-size: 0.8rem;
             font-weight: 700;
             text-align: right;
+            white-space: nowrap;
+        }
+
+        .metric-val-max {
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 0.68rem;
+        }
+
+        /* AI row when the machine has no NPU: show "N/A", no bar fill, muted. */
+        .metric-bar-na .metric-label {
+            opacity: 0.7;
+        }
+
+        .metric-track-na {
+            background: transparent;
+            border-style: dashed;
+        }
+
+        .metric-val-na {
+            color: var(--muted);
+            font-weight: 600;
+            font-style: italic;
         }
 
         .review-measurements {
@@ -767,14 +895,16 @@ i18n_start_page_translation();
         }
 
         .price-box {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
+            text-align: right;
         }
 
         .laptop-price {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 900;
             color: var(--white);
+            line-height: 1.1;
         }
 
         .laptop-old-price {
@@ -785,13 +915,102 @@ i18n_start_page_translation();
             margin-top: 4px;
         }
 
-        /* Aggressive Upsell Checkbox */
+        .laptop-installment-hint {
+            margin-top: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text);
+        }
+
+        .laptop-installment-hint strong {
+            color: var(--cyan);
+            font-weight: 700;
+        }
+
+        /* Primary action: dominant, full-width. The single most important click on the card. */
+        .btn-select {
+            background: var(--cyan);
+            color: var(--page-bg);
+            border: none;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            padding: 16px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.25s;
+            box-shadow: 0 4px 18px rgba(0, 245, 212, 0.25);
+        }
+
+        .btn-select:hover {
+            background: var(--white);
+            box-shadow: 0 6px 24px rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        /* Action stack: primary on top, then a quiet secondary row (Details + Compare). */
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-actions-secondary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Secondary actions: deliberately quieter than the primary so the eye lands on Add to Cart first. */
+        .btn-quickview,
+        .compare-toggle {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 9px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-quickview i,
+        .compare-toggle i {
+            color: var(--cyan);
+            font-size: 0.78rem;
+        }
+
+        .btn-quickview:hover,
+        .compare-toggle:hover,
+        .compare-toggle.active {
+            border-color: var(--cyan);
+            color: var(--white);
+            background: rgba(0, 245, 212, 0.08);
+        }
+
+        /* Upsell: collapsed below the actions so it never competes with the primary CTA. */
         .upsell-box {
             background: var(--page-bg-2);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
+            padding: 10px 12px;
+            margin-top: 6px;
             text-align: left;
             transition: all 0.25s;
             cursor: pointer;
@@ -812,10 +1031,15 @@ i18n_start_page_translation();
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0;
+        }
+
+        .upsell-box.active .upsell-header,
+        .upsell-box:hover .upsell-header {
             color: var(--white);
-            margin-bottom: 6px;
         }
 
         .upsell-header i {
@@ -823,73 +1047,16 @@ i18n_start_page_translation();
         }
 
         .upsell-body {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--muted);
             line-height: 1.4;
+            margin-top: 6px;
         }
 
         .upsell-price {
             color: var(--orange);
             font-weight: 700;
             font-family: 'Space Mono', monospace;
-        }
-
-        .btn-select {
-            background: var(--cyan);
-            color: var(--page-bg);
-            border: none;
-            border-radius: 6px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.95rem;
-            padding: 14px 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            transition: all 0.25s;
-        }
-
-        .btn-select:hover {
-            background: var(--white);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-            transform: scale(1.02);
-        }
-
-        .btn-quickview {
-            background: transparent;
-            color: var(--cyan);
-            border: 1px solid var(--cyan);
-            border-radius: 6px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            padding: 10px 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            transition: all 0.25s;
-        }
-
-        .card-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 8px;
-        }
-
-        .btn-quickview:hover {
-            background: var(--cyan-glow);
-            color: var(--white);
-            border-color: var(--white);
-            transform: scale(1.02);
         }
 
         .laptop-image-container {
@@ -1323,30 +1490,7 @@ i18n_start_page_translation();
             transition: all 0.2s;
         }
         .compare-btn-clear:hover { border-color: var(--danger, #ff3b5c); color: var(--danger, #ff3b5c); }
-        .compare-toggle {
-            background: transparent;
-            color: var(--muted);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.78rem;
-            padding: 12px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            transition: all 0.2s;
-        }
-        .compare-toggle:hover,
-        .compare-toggle.active {
-            border-color: var(--cyan);
-            color: var(--cyan);
-            background: rgba(0, 245, 212, 0.08);
-        }
+
 
         /* Mobile Filter Drawer */
         .mobile-filter-trigger {
@@ -1818,13 +1962,33 @@ i18n_start_page_translation();
         scoreTitle: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_title', [], 'Catalog Fact Scores'), ENT_QUOTES, 'UTF-8') ?>',
         scoreTooltip: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tooltip', [], 'Results use only stored catalog facts: no FPS, battery runtime, or temperature estimates.'), ENT_QUOTES, 'UTF-8') ?>',
         scoreTooltipFallback: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tooltip_fallback', [], 'Catalog fact score'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreHowCalc: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_how_calc', [], 'How is this score calculated?'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipPerformance: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_performance', [], 'Blended 1-10: 45% GPU tier, 25% AI/NPU score, 20% RAM, 10% storage (from catalog specs).'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipPortability: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_portability', [], '1-10 from weight, battery Wh, and screen size. Lighter weight and longer battery raise the score.'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipScreen: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_screen', [], '1-10 by stored panel class: OLED 9.5, high refresh 8.7, standard 7.0.'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipAi: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_ai', [], 'Scored out of 10 based on total NPU TOPS (Trillion Operations Per Second). 1.0 at 0 TOPS, 3.5 at 16 TOPS, 10 requires a 50+ TOPS processor.'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipValue: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_value', [], 'Calculated by dividing the aggregate hardware performance score by the current retail price.'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreNotApplicable: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_not_applicable', [], 'N/A'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipPerfFormula: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_perf_formula', [], 'Blended score = weighted sum of four sub-scores:'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipPortFormula: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_port_formula', [], 'Score = weight basis + battery bonus - large-screen penalty:'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipScreenFormula: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_screen_formula', [], 'Fixed by panel class:'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipAiFormula: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_ai_formula', [], 'Piecewise-linear on NPU TOPS (0->1.0, 16->3.5, 50->10):'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipAiNone: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_ai_none', [], 'No dedicated NPU in this machine - AI score is not applicable. Gaming/productivity performance is unaffected.'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipValueFormula: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_value_formula', [], 'Score = (catalog hardware score x 1.25) / (price / 10,000):'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipValueHint: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_value_hint', [], 'higher means more spec per dirham.'), ENT_QUOTES, 'UTF-8') ?>',
+        scoreTipResult: '<?= htmlspecialchars(i18n_t('laptop_finder_page.score_tip_result', [], 'Result'), ENT_QUOTES, 'UTF-8') ?>',
         specSize: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_size', [], 'Size'), ENT_QUOTES, 'UTF-8') ?>',
         specDisplays: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_displays', [], 'Displays'), ENT_QUOTES, 'UTF-8') ?>',
         specNetwork: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_network', [], 'Network'), ENT_QUOTES, 'UTF-8') ?>',
         specDisplay: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_display', [], 'Display'), ENT_QUOTES, 'UTF-8') ?>',
+        specCpu: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_cpu', [], 'CPU'), ENT_QUOTES, 'UTF-8') ?>',
         specRam: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_ram', [], 'RAM'), ENT_QUOTES, 'UTF-8') ?>',
         specStorage: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_storage', [], 'Storage'), ENT_QUOTES, 'UTF-8') ?>',
         specGpu: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_gpu', [], 'GPU'), ENT_QUOTES, 'UTF-8') ?>',
+        // Humanized screen-quality + product-type labels (previously rendered as raw enum values)
+        screenOled: '<?= htmlspecialchars(i18n_t('laptop_finder_page.oled_color', [], 'OLED'), ENT_QUOTES, 'UTF-8') ?>',
+        screenHighRefresh: '<?= htmlspecialchars(i18n_t('laptop_finder_page.high_refresh', [], 'High Refresh'), ENT_QUOTES, 'UTF-8') ?>',
+        screenStandardIps: '<?= htmlspecialchars(i18n_t('laptop_finder_page.standard_ips', [], 'Standard IPS'), ENT_QUOTES, 'UTF-8') ?>',
         specProductType: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_product_type', [], 'Product Type'), ENT_QUOTES, 'UTF-8') ?>',
         specNpu: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_npu', [], 'NPU'), ENT_QUOTES, 'UTF-8') ?>',
         specTotalAiTops: '<?= htmlspecialchars(i18n_t('laptop_finder_page.spec_total_ai_tops', [], 'Total AI TOPS'), ENT_QUOTES, 'UTF-8') ?>',
@@ -2151,16 +2315,6 @@ i18n_start_page_translation();
             }
             updateStockCount();
 
-            function getSampleSpecs(specs) {
-                if (!specs) return '';
-                return Object.entries(specs).slice(0, 4).map(([key, val]) => `
-                    <div class="spec-item">
-                        <i class="fas fa-chevron-right"></i>
-                        <strong>${escapeHtml(key)}:</strong> <span class="notranslate" translate="no">${escapeHtml(val)}</span>
-                    </div>
-                `).join('');
-            }
-
             function getAiBadgeHtml(laptop, laptopId) {
                 const tops = Number(laptop.npuTops || 0);
                 const tier = laptop.aiTier || 'none';
@@ -2189,37 +2343,64 @@ i18n_start_page_translation();
                 </div>`;
             }
 
+            // Humanize raw catalog enum values into customer-facing labels.
+            // The data file stores snake_case tokens (high_refresh, mini_pc, ...);
+            // these map them to the same i18n keys the filter cards already use.
+            const humanizeScreenQuality = (quality) => ({
+                oled: window.__i18n?.screenOled || 'OLED',
+                high_refresh: window.__i18n?.screenHighRefresh || 'High Refresh',
+                standard: window.__i18n?.screenStandardIps || 'Standard IPS'
+            }[quality] || '');
+
+            const humanizeProductType = (laptop) => {
+                const type = (laptop.formFactor || laptop.category || 'laptop').toLowerCase();
+                const typeMap = {
+                    'laptop': window.__i18n?.productTypeLaptop || 'Laptop',
+                    'mini_pc': window.__i18n?.productTypeMiniPc || 'Mini PC',
+                    'workstation': window.__i18n?.productTypeWorkstation || 'Workstation'
+                };
+                return typeMap[type] || type.replace(/_/g, ' ');
+            };
+
             function getVerifiedHighlights(laptop) {
                 const specs = laptop.specs || {};
                 const chips = [];
+                const seenLabels = new Set();
                 const addChip = (label, value) => {
                     const clean = String(value ?? '').trim();
-                    if (!clean || clean === '0' || clean === '0 Wh' || clean === '0 kg' || chips.some(chip => chip.label === label)) return;
+                    if (!clean || clean === '0' || clean === '0 Wh' || clean === '0 kg' || seenLabels.has(label)) return;
+                    seenLabels.add(label);
                     chips.push({ label, value: clean });
                 };
 
                 const npuTops = Number(laptop.npuTops || 0);
-                if (npuTops > 0) {
-                    const totalAi = specs['Total AI TOPS'] ? ` / ${specs['Total AI TOPS']} total` : '';
-                    addChip('NPU', `${npuTops.toLocaleString(undefined, { maximumFractionDigits: 0 })} TOPS${totalAi}`);
-                } else if (specs.NPU) {
-                    addChip('NPU', specs.NPU);
-                }
 
                 if (laptop.category === 'mini_pc' || laptop.category === 'workstation') {
-                    addChip('Form Factor', laptop.formFactor || laptop.category);
-                    addChip(window.__i18n?.specSize || 'Size', laptop.dimensions || specs.Dimensions);
-                    addChip(window.__i18n?.specDisplays || 'Displays', laptop.maxDisplays ? `${laptop.maxDisplays} max` : specs['Max Displays']);
-                    addChip(window.__i18n?.specNetwork || 'Network', specs.Network);
+                    // Mini PC / workstation: lead with the form factor identity.
+                    addChip(window.__i18n?.specProductType || 'Type', humanizeProductType(laptop));
+                    addChip(window.__i18n?.specCpu || 'CPU', specs.CPU);
+                    addChip(window.__i18n?.specRam || 'RAM', specs.RAM);
+                    addChip(window.__i18n?.specStorage || 'Storage', specs.Storage);
                 } else {
-                    addChip(window.__i18n?.specDisplay || 'Display', laptop.screenSize ? `${Number(laptop.screenSize).toLocaleString(undefined, { maximumFractionDigits: 1 })}" ${laptop.screenQuality || ''}` : specs.Display);
-                    addChip(window.__i18n?.specBattery || 'Battery', laptop.batteryWh ? `${Number(laptop.batteryWh).toLocaleString(undefined, { maximumFractionDigits: 0 })} Wh` : specs.Battery);
-                    addChip(window.__i18n?.specWeightLabel || 'Weight', laptop.weightKg ? `${Number(laptop.weightKg).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg` : specs.Weight);
+                    // Standard laptop: the 4 facts a buyer scans first, each shown exactly once.
+                    addChip(window.__i18n?.specCpu || 'CPU', specs.CPU);
+                    addChip(window.__i18n?.specDisplay || 'Display', laptop.screenSize
+                        ? `${Number(laptop.screenSize).toLocaleString(undefined, { maximumFractionDigits: 1 })}" ${humanizeScreenQuality(laptop.screenQuality)}`.trim()
+                        : specs.Display);
+                    addChip(window.__i18n?.specRam || 'RAM', specs.RAM);
+                    // Slot 4: GPU for gaming/creative builds, storage for business/student (where it matters more).
+                    const wantsGpu = laptop.usageCategory === 'gaming' || laptop.usageCategory === 'creative' || laptop.gpuTier === 'dedicated';
+                    if (wantsGpu && specs.GPU) {
+                        addChip(window.__i18n?.specGpu || 'GPU', specs.GPU);
+                    } else {
+                        addChip(window.__i18n?.specStorage || 'Storage', specs.Storage);
+                    }
                 }
 
-                addChip(window.__i18n?.specRam || 'RAM', specs.RAM);
-                addChip(window.__i18n?.specStorage || 'Storage', specs.Storage);
-                addChip(window.__i18n?.specGpu || 'GPU', specs.GPU);
+                // NPU badge only when present and we still have a free slot — never duplicate.
+                if (npuTops > 0 && chips.length < 4) {
+                    addChip(window.__i18n?.specNpu || 'NPU', `${npuTops.toLocaleString(undefined, { maximumFractionDigits: 0 })} TOPS`);
+                }
 
                 return chips.slice(0, 4).map(chip => `
                     <div class="verified-spec-chip">
@@ -2238,15 +2419,7 @@ i18n_start_page_translation();
                     rows.push({ label, value: clean });
                 };
 
-                addRow(window.__i18n?.specProductType || 'Product Type', (() => {
-                    const type = laptop.formFactor || laptop.category || 'laptop';
-                    const typeMap = {
-                        'laptop': window.__i18n?.productTypeLaptop || 'Laptop',
-                        'mini_pc': window.__i18n?.productTypeMiniPc || 'Mini PC',
-                        'workstation': window.__i18n?.productTypeWorkstation || 'Workstation'
-                    };
-                    return typeMap[type.toLowerCase()] || type;
-                })());
+                addRow(window.__i18n?.specProductType || 'Product Type', humanizeProductType(laptop));
                 addRow(window.__i18n?.specNpu || 'NPU', laptop.npuTops ? `${Number(laptop.npuTops).toLocaleString(undefined, { maximumFractionDigits: 0 })} TOPS ${laptop.npuModel || ''}` : specs.NPU);
                 addRow(window.__i18n?.specTotalAiTops || 'Total AI TOPS', specs['Total AI TOPS']);
                 addRow(window.__i18n?.specDimensions || 'Dimensions', laptop.dimensions || specs.Dimensions);
@@ -2349,28 +2522,172 @@ i18n_start_page_translation();
                 `;
             }
 
+            // Reproduces the exact scoring math from export-laptops.php so each tooltip
+            // can show HOW a score was built (real inputs + weights), not just list variables.
+            // Any change to the PHP formulas must be mirrored here.
+            function buildScoreInputs(laptop) {
+                const specs = laptop.specs || {};
+                const ramMatch = specs.RAM ? String(specs.RAM).match(/(\d+)\s*GB/i) : null;
+                const ramGb = ramMatch ? parseInt(ramMatch[1], 10) : 0;
+                const storageMatch = specs.Storage ? String(specs.Storage).match(/(\d+(?:\.\d+)?)\s*(TB|GB)/i) : null;
+                const storageGb = storageMatch ? parseFloat(storageMatch[1]) * (storageMatch[2].toUpperCase() === 'TB' ? 1024 : 1) : 0;
+                const npuTops = Number(laptop.npuTops || 0);
+                const clamp = (v) => Math.round(Math.max(1.0, Math.min(10.0, v)) * 10) / 10;
+
+                const gpuScore = laptop.gpuTier === 'dedicated' ? 9.0
+                    : laptop.gpuTier === 'integrated' ? 6.5 : 5.0;
+                const memoryScore = ramGb > 0 ? clamp((ramGb / 32) * 8 + 2) : 5.0;
+                const storageScore = storageGb > 0 ? clamp((storageGb / 1024) * 6 + 4) : 5.0;
+                const hasNpu = npuTops > 0;
+                const aiScore = !hasNpu ? null  // N/A — see buildScoreBreakdown('ai')
+                    : npuTops < 16 ? clamp(1 + (npuTops / 16) * 2.5)
+                    : npuTops < 50 ? clamp(3.5 + ((npuTops - 16) / 34) * 6.5)
+                    : 10.0;
+                // For the blended performance calc, a missing NPU contributes the 1.0 floor
+                // (matches export), but the *displayed* AI value is N/A (Fix A).
+                const aiForBlend = hasNpu ? aiScore : 1.0;
+
+                return {
+                    gpuTier: laptop.gpuTier, gpuScore,
+                    ramGb, memoryScore,
+                    storageGb, storageScore,
+                    npuTops, hasNpu, aiScore, aiForBlend,
+                    weightKg: Number(laptop.weightKg || 0),
+                    batteryWh: Number(laptop.batteryWh || 0),
+                    screenSize: Number(laptop.screenSize || 0),
+                    screenQuality: laptop.screenQuality,
+                    price: Number(laptop.price || 0)
+                };
+            }
+
+            // Returns a transparent, per-metric explanation as { intro, lines, result }.
+            // `intro` and `result` are translated phrases (flow with page direction).
+            // `lines` are pure LTR formula rows (numbers + operators) — rendered inside
+            // <bdi dir="ltr"> so they stay coherent in RTL languages like Arabic.
+            function buildScoreBreakdown(metric, laptop) {
+                const inp = buildScoreInputs(laptop);
+                const scores = laptop.scores || {};
+                const na = window.__i18n?.scoreNotApplicable || 'N/A';
+
+                switch (metric) {
+                    case 'performance': {
+                        const aiPart = inp.hasNpu ? inp.aiScore : 1.0;
+                        return {
+                            intro: window.__i18n?.scoreTipPerfFormula || 'Blended score = weighted sum of four sub-scores:',
+                            lines: [
+                                `GPU (${inp.gpuTier || 'unknown'}, ${inp.gpuScore.toFixed(1)}) × 45% = ${(inp.gpuScore * 0.45).toFixed(2)}`,
+                                `AI ${inp.hasNpu ? '(' + inp.npuTops + ' TOPS, ' + inp.aiScore.toFixed(1) + ')' : '(' + na + ', floor 1.0)'} × 25% = ${(aiPart * 0.25).toFixed(2)}`,
+                                `RAM (${inp.ramGb || '?'}GB, ${inp.memoryScore.toFixed(1)}) × 20% = ${(inp.memoryScore * 0.20).toFixed(2)}`,
+                                `Storage (${inp.storageGb ? Math.round(inp.storageGb) + 'GB' : '?'}, ${inp.storageScore.toFixed(1)}) × 10% = ${(inp.storageScore * 0.10).toFixed(2)}`
+                            ],
+                            result: `${(scores.performance || 0).toFixed(1)} / 10`
+                        };
+                    }
+                    case 'portability': {
+                        const weightPart = inp.weightKg > 0 ? Math.max(0, 10 - (inp.weightKg - 1) * 4) : 4.0;
+                        const batteryPart = inp.batteryWh > 0 ? Math.min(2, inp.batteryWh / 50) : 0;
+                        return {
+                            intro: window.__i18n?.scoreTipPortFormula || 'Score = weight basis + battery bonus − large-screen penalty:',
+                            lines: [
+                                `${inp.weightKg ? inp.weightKg + 'kg' : '?'} → ${weightPart.toFixed(1)}`,
+                                `${inp.batteryWh ? inp.batteryWh + 'Wh' : 'no battery'} → +${batteryPart.toFixed(1)}`,
+                                inp.screenSize >= 17 ? `${inp.screenSize}" screen → −1.0` : 'no penalty'
+                            ],
+                            result: `${(scores.portability || 0).toFixed(1)} / 10`
+                        };
+                    }
+                    case 'screen': {
+                        const map = { oled: 9.5, high_refresh: 8.7 };
+                        const base = map[inp.screenQuality] || (inp.screenSize > 0 ? 7.0 : 1.0);
+                        return {
+                            intro: window.__i18n?.scoreTipScreenFormula || 'Fixed by panel class:',
+                            lines: [`${inp.screenQuality || 'standard'} ${inp.screenSize ? '(' + inp.screenSize + '")' : ''} → ${base.toFixed(1)} / 10`],
+                            result: null
+                        };
+                    }
+                    case 'ai': {
+                        if (!inp.hasNpu) {
+                            return { intro: window.__i18n?.scoreTipAiNone || 'No dedicated NPU in this machine — AI score is not applicable. Gaming/productivity performance is unaffected.', lines: [], result: null };
+                        }
+                        return {
+                            intro: window.__i18n?.scoreTipAiFormula || 'Piecewise-linear on NPU TOPS (0→1.0, 16→3.5, 50→10):',
+                            lines: [`${inp.npuTops} TOPS → ${(inp.aiScore || 0).toFixed(1)} / 10`],
+                            result: null
+                        };
+                    }
+                    case 'value': {
+                        return {
+                            intro: window.__i18n?.scoreTipValueFormula || 'Score = (catalog hardware score × 1.25) ÷ (price ÷ 10,000):',
+                            lines: [],
+                            result: `${(scores.value || 0).toFixed(1)} / 10`,
+                            hint: window.__i18n?.scoreTipValueHint || 'higher means more spec per dirham.'
+                        };
+                    }
+                    default:
+                        return { intro: window.__i18n?.scoreTooltipFallback || 'Catalog fact score', lines: [], result: null };
+                }
+            }
+
+            // Render a breakdown object into tooltip HTML with proper bidi isolation:
+            // translated phrases flow with the page dir; formula lines are locked LTR.
+            function renderBreakdownTip(bd) {
+                const resultLabel = window.__i18n?.scoreTipResult || 'Result';
+                let html = `<div class="tip-intro">${escapeHtml(bd.intro)}</div>`;
+                if (bd.lines && bd.lines.length) {
+                    html += `<div class="tip-lines">` + bd.lines.map(line =>
+                        `<div class="tip-line" dir="ltr">${escapeHtml(line)}</div>`
+                    ).join('') + `</div>`;
+                }
+                if (bd.result) {
+                    html += `<div class="tip-result">${escapeHtml(resultLabel)}: <bdi dir="ltr">${escapeHtml(bd.result)}</bdi>${bd.hint ? ' — ' + escapeHtml(bd.hint) : ''}</div>`;
+                }
+                return html;
+            }
+
             function getFactScoreBars(laptop, compact = false) {
                 const scores = laptop.scores || {};
-                const basis = laptop.scoreBasis || {};
+                const inp = buildScoreInputs(laptop);
+                // [metricKey, labelKey, fillClass]
                 const rows = [
-                    [window.__i18n?.scorePerformance || 'Catalog Performance', 'performance', 'performance'],
-                    [window.__i18n?.scorePortability || 'Portability', 'portability', 'portability'],
-                    [window.__i18n?.scoreScreen || 'Screen Quality', 'screen', 'screen'],
-                    [window.__i18n?.scoreAiProcessor || 'AI Processor', 'ai', 'value'],
-                    [window.__i18n?.scoreValue || 'Value / Price', 'value', 'value']
+                    ['performance', 'scorePerformance', 'performance'],
+                    ['portability', 'scorePortability', 'portability'],
+                    ['screen', 'scoreScreen', 'screen'],
+                    ['ai', 'scoreAiProcessor', 'value'],
+                    ['value', 'scoreValue', 'value']
                 ];
                 return `
-                    <div class="metric-container" title="${escapeAttr(window.__i18n?.scoreTooltip || 'Results use only stored catalog facts: no FPS, battery runtime, or temperature estimates.')}">
+                    <div class="metric-container">
                         ${!compact ? `<h4 style="font-family:'Orbitron',sans-serif;font-size:0.85rem;text-transform:uppercase;color:var(--white);margin:0 0 4px 0;">${window.__i18n?.scoreTitle || 'Catalog Fact Scores'}</h4>` : ''}
-                        ${rows.map(([label, key, fillClass]) => `
-                            <div class="metric-bar-group" title="${escapeAttr(basis[key] || window.__i18n?.scoreTooltipFallback || 'Catalog fact score')}">
-                                <span class="metric-label">${escapeHtml(label)}</span>
-                                <div class="metric-track">
-                                    <div class="metric-fill ${fillClass}" style="width: ${scoreWidth(scores[key])}%"></div>
-                                </div>
-                                <span class="metric-val">${scoreText(scores[key])}</span>
+                        ${rows.map(([metric, labelKey, fillClass]) => {
+                            const breakdown = buildScoreBreakdown(metric, laptop);
+                            const tipId = `tip-${metric}-${laptop.id || Math.random().toString(36).slice(2, 8)}`;
+                            // Structured breakdown → bidi-safe HTML (formula lines locked LTR).
+                            const tipHtml = renderBreakdownTip(breakdown);
+                            const isAiNa = metric === 'ai' && !inp.hasNpu;
+                            // Fix A: no-NPU machines show "N/A" — not a 1/10 failing grade — and no bar.
+                            const valHtml = isAiNa
+                                ? `<span class="metric-val metric-val-na">${escapeHtml(window.__i18n?.scoreNotApplicable || 'N/A')}</span>`
+                                : `<span class="metric-val">${scoreText(scores[metric])} <span class="metric-val-max">/ 10</span></span>`;
+                            const trackHtml = isAiNa
+                                ? `<div class="metric-track metric-track-na" aria-hidden="true"></div>`
+                                : `<div class="metric-track" aria-hidden="true"><div class="metric-fill ${fillClass}" style="width: ${scoreWidth(scores[metric])}%"></div></div>`;
+                            return `
+                            <div class="metric-bar-group${isAiNa ? ' metric-bar-na' : ''}">
+                                <span class="metric-label">
+                                    ${escapeHtml(window.__i18n?.[labelKey] || metric)}
+                                    <i class="fas fa-circle-info metric-tip-icon"
+                                       tabindex="0"
+                                       role="button"
+                                       aria-label="${escapeAttr(window.__i18n?.scoreHowCalc || 'How is this score calculated?')}"
+                                       data-tip="${tipId}"
+                                       aria-describedby="${tipId}"></i>
+                                    <span class="metric-tip" id="${tipId}" role="tooltip">${tipHtml}</span>
+                                </span>
+                                ${trackHtml}
+                                ${valHtml}
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 `;
             }
@@ -2526,6 +2843,18 @@ i18n_start_page_translation();
                     // Compare checkbox state
                     const isCompared = compareList.includes(laptopId);
 
+                    // Per-month installment hint for the price block (12-month plan, 5% annual).
+                    // Keeps price as the value anchor without a full installment widget on the card.
+                    const installmentMonthly = (() => {
+                        const price = Number(laptop.price || 0);
+                        if (price <= 0) return null;
+                        const total = price + price * 0.05 * (12 / 12);
+                        return Math.ceil(total / 12);
+                    })();
+                    const installmentHint = installmentMonthly
+                        ? `<div class="laptop-installment-hint">${window.__i18n?.installmentOr || 'or'} <strong class="notranslate" translate="no">${formatMoney(installmentMonthly)}</strong> ${window.__i18n?.perMonth || '/mo'}</div>`
+                        : '';
+
                     html += `
                         <div class="laptop-card" data-laptop-id="${laptopId}">
                             <div class="match-badge">${getBadgeText(laptop)}</div>
@@ -2535,15 +2864,11 @@ i18n_start_page_translation();
                                     <span><i class="fas fa-eye"></i> ${window.__i18n?.viewDetails || 'View Details'}</span>
                                 </div>
                             </div>
-                            
+
                             <div class="laptop-details">
                                 <span class="laptop-brand notranslate" translate="no">${laptopBrand}</span>
                                 ${aiBadgeHtml}
                                 <h3 class="notranslate" translate="no" style="cursor: pointer;" onclick="openLaptopDetail(${laptopId})">${laptopName}</h3>
-                                
-                                <div class="laptop-specs-mini">
-                                    ${getSampleSpecs(laptop.specs)}
-                                </div>
 
                                 <div class="verified-spec-strip">
                                     ${getVerifiedHighlights(laptop)}
@@ -2556,35 +2881,38 @@ i18n_start_page_translation();
                                 <div class="price-box">
                                     <div class="laptop-price">${priceFormatted}</div>
                                     ${oldPriceHtml}
-                                </div>
-
-                                <!-- Optimization Pack Upsell -->
-                                <div class="upsell-box" onclick="toggleUpsell(this, ${laptopId})">
-                                    <div class="upsell-header">
-                                        <input type="checkbox" class="upsell-checkbox" id="upsell-${laptopId}" style="pointer-events: none;">
-                                        <i class="fas fa-fire"></i>
-                                        <span>${window.__i18n?.optimizationPack || 'Maroc Optimization Pack'}</span>
-                                    </div>
-                                    <div class="upsell-body">
-                                        ${window.__i18n?.optimizationPackBody || 'Clean Windows install, thermal repaste, zero bloatware'} (+<span class="upsell-price">${window.formatMAD ? window.formatMAD(499) : '499 DH'}</span>).
-                                    </div>
+                                    ${installmentHint}
                                 </div>
 
                                 <div class="card-actions">
-                                    <button class="btn-quickview" onclick="openLaptopDetail(${laptopId})">
-                                        <i class="fas fa-eye"></i>
-                                        <span>${window.__i18n?.viewDetails || 'View Details'}</span>
-                                    </button>
-
-                                    <button type="button" class="compare-toggle ${isCompared ? 'active' : ''}" data-compare-id="${laptopId}" aria-pressed="${isCompared ? 'true' : 'false'}" onclick="toggleCompare(${laptopId})">
-                                        <i class="fas fa-balance-scale"></i>
-                                        <span>${isCompared ? (window.__i18n?.comparing || 'Comparing') : (window.__i18n?.compare || 'Compare')}</span>
-                                    </button>
-
                                     <button class="btn-select" onclick="buyLaptop(${laptopId})">
                                         <i class="fas fa-cart-plus"></i>
                                         <span>${window.__i18n?.selectLaptop || 'Select Laptop'}</span>
                                     </button>
+
+                                    <div class="card-actions-secondary">
+                                        <button class="btn-quickview" onclick="openLaptopDetail(${laptopId})">
+                                            <i class="fas fa-eye"></i>
+                                            <span>${window.__i18n?.viewDetails || 'Details'}</span>
+                                        </button>
+
+                                        <button type="button" class="compare-toggle ${isCompared ? 'active' : ''}" data-compare-id="${laptopId}" aria-pressed="${isCompared ? 'true' : 'false'}" onclick="toggleCompare(${laptopId})">
+                                            <i class="fas fa-balance-scale"></i>
+                                            <span>${isCompared ? (window.__i18n?.comparing || 'Comparing') : (window.__i18n?.compare || 'Compare')}</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Optimization Pack Upsell (collapsed by default, lives below the actions) -->
+                                    <div class="upsell-box" onclick="toggleUpsell(this, ${laptopId})">
+                                        <div class="upsell-header">
+                                            <input type="checkbox" class="upsell-checkbox" id="upsell-${laptopId}" style="pointer-events: none;">
+                                            <i class="fas fa-fire"></i>
+                                            <span>${window.__i18n?.optimizationPack || 'Maroc Optimization Pack'}</span>
+                                        </div>
+                                        <div class="upsell-body">
+                                            ${window.__i18n?.optimizationPackBody || 'Clean Windows install, thermal repaste, zero bloatware'} (+<span class="upsell-price">${window.formatMAD ? window.formatMAD(499) : '499 DH'}</span>).
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2593,6 +2921,36 @@ i18n_start_page_translation();
 
                 els.container.innerHTML = html;
                 updateComparisonBar();
+                initMetricTipTaps();
+            }
+
+            // Tooltip tap behavior: on touch devices there is no hover, so the (i) icon
+            // needs a tap to toggle its explanation. Delegated so it survives re-renders.
+            function initMetricTipTaps() {
+                const container = els.container;
+                if (!container) return;
+
+                container.querySelectorAll('.metric-tip-icon').forEach(icon => {
+                    icon.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const wasTapped = icon.classList.contains('tapped');
+                        // Close every other open tooltip, then toggle this one.
+                        container.querySelectorAll('.metric-tip-icon.tapped').forEach(other => {
+                            if (other !== icon) other.classList.remove('tapped');
+                        });
+                        icon.classList.toggle('tapped', !wasTapped);
+                    });
+                });
+            }
+
+            // Close tooltips when tapping anywhere outside (delegated, once).
+            if (!window.__metricTipDocBound) {
+                window.__metricTipDocBound = true;
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.metric-tip-icon')) {
+                        document.querySelectorAll('.metric-tip-icon.tapped').forEach(icon => icon.classList.remove('tapped'));
+                    }
+                }, { passive: true });
             }
 
             // Expose render globally for upsell checkbox clicks
