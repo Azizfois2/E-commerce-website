@@ -831,8 +831,9 @@ thead th {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   position: sticky;
-  top: 0;
-  z-index: 10;
+  /* Offset below the fixed topbar (z-index:100) so the header no longer hides under it. */
+  top: 64px;
+  z-index: 40;
   background: var(--card-bg);
 }
 

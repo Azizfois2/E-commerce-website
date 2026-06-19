@@ -148,6 +148,9 @@
 [data-theme="light"] body {
     background:
         radial-gradient(circle at top, rgba(10, 143, 134, 0.08), transparent 24%),
+        /* Light theme: wash the image nearly white so it becomes a faint blueprint texture. */
+        linear-gradient(180deg, rgba(244, 248, 251, 0.94) 0%, rgba(237, 243, 247, 0.97) 100%),
+        url('../../admin_bg.png') center top / cover no-repeat fixed,
         linear-gradient(180deg, #f4f8fb 0%, #edf3f7 100%);
 }
 
@@ -353,14 +356,15 @@
     border-spacing: 0;
     border-collapse: separate;
     border-radius: 8px;
-    overflow: hidden;
+    /* overflow:hidden removed: it clipped the row-hover accent bar (translateX + box-shadow). */
 }
 
 .table-card thead {
     background: linear-gradient(135deg, rgba(0, 245, 212, 0.08) 0%, rgba(0, 245, 212, 0.03) 100%);
     position: sticky;
-    top: 0;
-    z-index: 10;
+    /* Offset below the fixed topbar (z-index:100); keep above body rows but under the topbar. */
+    top: 64px;
+    z-index: 40;
 }
 
 .table-card thead th {

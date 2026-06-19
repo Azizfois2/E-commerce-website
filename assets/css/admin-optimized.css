@@ -35,7 +35,12 @@
 
 body {
     background:
+        /* Subtle cyan glow up top, kept from the original look */
         radial-gradient(circle at top, rgba(0, 245, 212, 0.08), transparent 26%),
+        /* Heavy darkening overlay so the control-room image reads as texture, not noise.
+           Stacked (dark → image → base gradient) keeps text WCAG-legible on top. */
+        linear-gradient(180deg, rgba(7, 11, 18, 0.93) 0%, rgba(7, 11, 18, 0.97) 100%),
+        url('../../admin_bg.png') center top / cover no-repeat fixed,
         linear-gradient(180deg, var(--page-bg) 0%, #070b12 100%);
     color: var(--text);
     font-family: 'Syne', system-ui, -apple-system, sans-serif;

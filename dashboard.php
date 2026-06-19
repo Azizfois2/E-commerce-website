@@ -133,7 +133,6 @@ $recentActivity = adminFetchAll($pdo, '
 
 adminPageStart('Admin Dashboard', 'dashboard');
 ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <section class="section-heading">
     <div>
         <span class="eyebrow"><?= adminH(adminPhrase('Administration')) ?></span>
@@ -181,7 +180,7 @@ async function triggerSnapshot() {
         if (!res.ok) throw new Error(data.message || data.error || 'Request failed');
         alert(data.success ? data.message : (data.error || (window.adminI18n?.general?.failed_snapshot || 'Failed to capture snapshot')));
     } catch (e) {
-        alert((e.message || (window.adminI18n?.general?.network_error || 'Network error')) + ' while capturing snapshot');
+        alert((e.message || (window.adminI18n?.general?.network_error || 'Network error')) + ' ' + (window.adminI18n?.general?.err_capturing_snapshot || 'while capturing snapshot'));
     } finally {
         btn.disabled = false;
         btn.innerHTML = orig;
@@ -205,7 +204,7 @@ async function recalculateTiers() {
         if (!res.ok) throw new Error(data.message || data.error || 'Request failed');
         alert(data.success ? data.message : (data.error || (window.adminI18n?.general?.failed_sync || 'Failed to sync tiers')));
     } catch (e) {
-        alert((e.message || (window.adminI18n?.general?.network_error || 'Network error')) + ' while syncing tiers');
+        alert((e.message || (window.adminI18n?.general?.network_error || 'Network error')) + ' ' + (window.adminI18n?.general?.err_syncing_tiers || 'while syncing tiers'));
     } finally {
         btn.disabled = false;
         btn.innerHTML = orig;

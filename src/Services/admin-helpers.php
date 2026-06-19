@@ -2005,7 +2005,9 @@ function adminPageStart(string $title, string $active): void
             processing: <?= json_encode(adminPhrase('Processing...'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
             syncing: <?= json_encode(adminPhrase('Syncing...'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
             failed_snapshot: <?= json_encode(adminPhrase('Failed to capture snapshot'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            failed_sync: <?= json_encode(adminPhrase('Failed to sync tiers'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+            failed_sync: <?= json_encode(adminPhrase('Failed to sync tiers'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            err_capturing_snapshot: <?= json_encode(adminPhrase('while capturing snapshot'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            err_syncing_tiers: <?= json_encode(adminPhrase('while syncing tiers'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>
         },
         infiniteScroll: {
             loading: <?= json_encode(adminPhrase('Loading more...'), JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
